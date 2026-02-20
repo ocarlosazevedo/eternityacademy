@@ -48,7 +48,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* grain texture */
         body::before {
             content: '';
             position: fixed;
@@ -58,7 +57,6 @@
             z-index: 0;
         }
 
-        /* top ambient glow */
         body::after {
             content: '';
             position: fixed;
@@ -85,7 +83,6 @@
             gap: 1.25rem;
         }
 
-        /* ── Avatar ── */
         .avatar {
             width: 88px;
             height: 88px;
@@ -103,7 +100,6 @@
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
 
-        /* ── Info ── */
         .info {
             text-align: center;
             animation: fadeDown 0.5s ease 0.08s both;
@@ -123,7 +119,6 @@
             color: var(--text-muted);
         }
 
-        /* ── Section labels ── */
         .section-label {
             width: 100%;
             font-size: 0.6rem;
@@ -138,7 +133,6 @@
         .section-label.s1 { animation-delay: 0.14s; }
         .section-label.s2 { animation-delay: 0.32s; }
 
-        /* ── Links grid ── */
         .links {
             width: 100%;
             display: flex;
@@ -146,7 +140,6 @@
             gap: 0.625rem;
         }
 
-        /* ── Link card ── */
         .link-card {
             display: flex;
             align-items: center;
@@ -184,7 +177,6 @@
             .link-card:hover .link-arrow { color: #555; transform: translateX(2px); }
         }
 
-        /* ── Icon containers ── */
         .link-icon {
             width: 44px;
             height: 44px;
@@ -209,7 +201,6 @@
         }
         .link-icon.youtube svg { fill: var(--youtube); }
 
-        /* logo icon — white bg for PNGs */
         .link-icon.logo {
             background: #ffffff;
             border: 1px solid rgba(255,255,255,0.1);
@@ -224,7 +215,6 @@
             display: block;
         }
 
-        /* ── Text ── */
         .link-text {
             display: flex;
             flex-direction: column;
@@ -248,7 +238,6 @@
             text-overflow: ellipsis;
         }
 
-        /* partner badge */
         .link-text .badge {
             display: inline-flex;
             align-items: center;
@@ -266,7 +255,6 @@
             fill: var(--whatsapp);
         }
 
-        /* ── Arrow ── */
         .link-arrow {
             margin-left: auto;
             flex-shrink: 0;
@@ -274,7 +262,6 @@
             transition: color 0.25s, transform 0.25s;
         }
 
-        /* ── Footer ── */
         .footer {
             margin-top: 0.75rem;
             font-size: 0.6rem;
@@ -285,7 +272,6 @@
             animation: fadeUp 0.45s ease 0.55s both;
         }
 
-        /* ── Animations ── */
         @keyframes fadeDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -296,7 +282,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Small screens ── */
         @media (max-width: 380px) {
             .container { padding: 2rem 1rem; }
             .avatar { width: 76px; height: 76px; font-size: 1.5rem; }
@@ -307,7 +292,6 @@
             .link-text span { font-size: 0.85rem; }
         }
 
-        /* ── Tall screens — extra breathing room ── */
         @media (min-height: 800px) {
             .container { gap: 1.5rem; }
         }
