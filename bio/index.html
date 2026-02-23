@@ -25,7 +25,7 @@
             --border-hover: rgba(255,255,255,0.13);
             --text: #f0f0f0;
             --text-muted: #666;
-            --text-faint: #3a3a3a;
+            --text-faint: #7a7a8a;
             --radius: 16px;
             --tiktok: #ff0050;
             --youtube: #ff0000;
@@ -145,6 +145,13 @@
         @keyframes drift {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(30px, 20px) scale(1.15); }
+        }
+
+        #stars-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .container {
@@ -342,7 +349,7 @@
         .footer {
             margin-top: 0.75rem;
             font-size: 0.6rem;
-            color: #1e1e1e;
+            color: #6a6a7a;
             letter-spacing: 2.5px;
             text-transform: uppercase;
             font-weight: 500;
@@ -378,6 +385,7 @@
     <div class="bg-cosmos"></div>
     <div class="nebula nebula-1"></div>
     <div class="nebula nebula-2"></div>
+    <canvas id="stars-canvas"></canvas>
     <div class="container">
         <div class="avatar"><img src="/bio/profile.jpg" alt="Carlos Azevedo"></div>
 
@@ -452,5 +460,92 @@
 
         <div class="footer">Eternity Academy</div>
     </div>
+    <script>
+    (function() {
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [], shootingStars = [];
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Estrelas fixas que piscam
+        for (let i = 0; i < 80; i++) {
+            stars.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 1.5 + 0.5,
+                baseAlpha: Math.random() * 0.6 + 0.3,
+                phase: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.02 + 0.005
+            });
+        }
+
+        function spawnShootingStar() {
+            shootingStars.push({
+                x: Math.random() * w * 0.8,
+                y: Math.random() * h * 0.4,
+                len: Math.random() * 60 + 40,
+                speed: Math.random() * 4 + 3,
+                alpha: 1,
+                angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3
+            });
+        }
+
+        function draw(time) {
+            ctx.clearRect(0, 0, w, h);
+
+            // Estrelas piscando
+            for (const s of stars) {
+                const alpha = s.baseAlpha + Math.sin(time * s.speed + s.phase) * 0.3;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, Math.min(1, alpha))})`;
+                ctx.fill();
+            }
+
+            // Estrelas cadentes
+            for (let i = shootingStars.length - 1; i >= 0; i--) {
+                const ss = shootingStars[i];
+                const dx = Math.cos(ss.angle) * ss.len;
+                const dy = Math.sin(ss.angle) * ss.len;
+
+                const grad = ctx.createLinearGradient(ss.x, ss.y, ss.x - dx, ss.y - dy);
+                grad.addColorStop(0, `rgba(255, 255, 255, ${ss.alpha})`);
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.beginPath();
+                ctx.moveTo(ss.x, ss.y);
+                ctx.lineTo(ss.x - dx, ss.y - dy);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ss.x += Math.cos(ss.angle) * ss.speed;
+                ss.y += Math.sin(ss.angle) * ss.speed;
+                ss.alpha -= 0.008;
+
+                if (ss.alpha <= 0 || ss.x > w + 50 || ss.y > h + 50) {
+                    shootingStars.splice(i, 1);
+                }
+            }
+
+            // Spawn aleatório de estrelas cadentes
+            if (Math.random() < 0.005 && shootingStars.length < 2) {
+                spawnShootingStar();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Primeira estrela cadente após 2s
+        setTimeout(spawnShootingStar, 2000);
+        requestAnimationFrame(draw);
+    })();
+    </script>
 </body>
 </html>
