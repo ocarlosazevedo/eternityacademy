@@ -47,28 +47,96 @@
             color: var(--text);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
         }
 
-        body::before {
-            content: '';
+        .bg-cosmos {
             position: fixed;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
             z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 0%, rgba(88, 40, 180, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 10%, rgba(30, 60, 160, 0.10) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 100%, rgba(20, 10, 60, 0.25) 0%, transparent 55%),
+                var(--bg);
         }
 
-        body::after {
+        .bg-cosmos::before {
             content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 50%, transparent 50%),
+                radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 40% 8%, rgba(255,255,255,0.8) 50%, transparent 50%),
+                radial-gradient(1px 1px at 55% 52%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1px 1px at 70% 22%, rgba(255,255,255,0.6) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 85% 65%, rgba(255,255,255,0.7) 50%, transparent 50%),
+                radial-gradient(1px 1px at 15% 72%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 32% 88%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 60% 78%, rgba(255,255,255,0.6) 50%, transparent 50%),
+                radial-gradient(1px 1px at 78% 42%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 92% 88%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1px 1px at 5% 48%, rgba(255,255,255,0.6) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 48% 30%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 65% 95%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1px 1px at 88% 12%, rgba(255,255,255,0.7) 50%, transparent 50%);
+            animation: twinkle 8s ease-in-out infinite alternate;
+        }
+
+        .bg-cosmos::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 8% 25%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 22% 60%, rgba(255,255,255,0.6) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 38% 45%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1px 1px at 52% 15%, rgba(255,255,255,0.7) 50%, transparent 50%),
+                radial-gradient(1px 1px at 68% 55%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 82% 80%, rgba(255,255,255,0.6) 50%, transparent 50%),
+                radial-gradient(1.5px 1.5px at 95% 35%, rgba(255,255,255,0.4) 50%, transparent 50%),
+                radial-gradient(1px 1px at 18% 92%, rgba(255,255,255,0.5) 50%, transparent 50%),
+                radial-gradient(1px 1px at 45% 68%, rgba(255,255,255,0.7) 50%, transparent 50%),
+                radial-gradient(1px 1px at 72% 5%, rgba(255,255,255,0.4) 50%, transparent 50%);
+            animation: twinkle 8s ease-in-out 4s infinite alternate;
+        }
+
+        .nebula {
             position: fixed;
-            top: -30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(255,255,255,0.025) 0%, transparent 70%);
-            pointer-events: none;
             z-index: 0;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            animation: drift 20s ease-in-out infinite alternate;
+        }
+
+        .nebula-1 {
+            width: 300px;
+            height: 300px;
+            top: -10%;
+            left: -5%;
+            background: radial-gradient(circle, rgba(100, 50, 200, 0.08) 0%, transparent 70%);
+        }
+
+        .nebula-2 {
+            width: 250px;
+            height: 250px;
+            bottom: -5%;
+            right: -5%;
+            background: radial-gradient(circle, rgba(30, 80, 180, 0.06) 0%, transparent 70%);
+            animation-delay: -10s;
+            animation-direction: alternate-reverse;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 20px) scale(1.1); }
         }
 
         .container {
@@ -299,6 +367,9 @@
     </style>
 </head>
 <body>
+    <div class="bg-cosmos"></div>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
     <div class="container">
         <div class="avatar"><img src="/bio/profile.jpg" alt="Carlos Azevedo"></div>
 
