@@ -3,30 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#030308">
     <title>Eternity Academy</title>
     <link rel="icon" type="image/png" href="medias/eternityfavicon.png">
+    <meta name="description" content="Algo eterno está por vir.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            min-height: 100vh;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #0a0a0a;
-            color: #ffffff;
+            background: #030308;
+            color: #fff;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Fundo cósmico */
+        .void {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(60, 20, 120, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 20%, rgba(80, 40, 180, 0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 80%, rgba(30, 60, 160, 0.08) 0%, transparent 40%),
+                #030308;
+        }
+
+        /* Canvas de partículas */
+        #void-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        /* Anel do infinito */
+        .infinity-ring {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            border: 1px solid rgba(120, 80, 200, 0.06);
+            animation: pulseRing 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .infinity-ring::before {
+            content: '';
+            position: absolute;
+            inset: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(120, 80, 200, 0.04);
+            animation: pulseRing 8s ease-in-out 2s infinite;
+        }
+
+        .infinity-ring::after {
+            content: '';
+            position: absolute;
+            inset: 80px;
+            border-radius: 50%;
+            border: 1px solid rgba(120, 80, 200, 0.03);
+            animation: pulseRing 8s ease-in-out 4s infinite;
+        }
+
+        @keyframes pulseRing {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        /* Conteúdo central */
+        .container {
+            position: relative;
+            z-index: 2;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
             padding: 2rem;
         }
-        .container { max-width: 500px; }
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        p { font-size: 1.1rem; color: #888; }
+
+        /* Símbolo do infinito */
+        .symbol {
+            font-size: 3.5rem;
+            font-weight: 200;
+            letter-spacing: 8px;
+            color: rgba(255, 255, 255, 0.08);
+            animation: breathe 6s ease-in-out infinite;
+            user-select: none;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.08; transform: scale(1); }
+            50% { opacity: 0.25; transform: scale(1.05); }
+        }
+
+        /* Título principal */
+        .title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .title h1 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.5) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: revealTitle 2s ease both;
+        }
+
+        @keyframes revealTitle {
+            from { opacity: 0; letter-spacing: 20px; filter: blur(8px); }
+            to { opacity: 1; letter-spacing: 6px; filter: blur(0); }
+        }
+
+        .title .line {
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(150, 100, 255, 0.5), transparent);
+            animation: expandLine 2s ease 0.8s both;
+        }
+
+        @keyframes expandLine {
+            from { width: 0; opacity: 0; }
+            to { width: 40px; opacity: 1; }
+        }
+
+        /* Mensagem enigmática */
+        .message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeIn 2s ease 1.2s both;
+        }
+
+        .message p {
+            font-size: 0.95rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            line-height: 1.8;
+        }
+
+        .message .highlight {
+            color: rgba(160, 120, 255, 0.7);
+            font-weight: 400;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glitch sutil no texto secreto */
+        .cryptic {
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.1);
+            font-weight: 400;
+            animation: fadeIn 2s ease 2s both, glitch 10s ease-in-out 4s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 94%, 100% { opacity: 0.1; transform: none; }
+            95% { opacity: 0.6; transform: translateX(-2px); color: rgba(160, 120, 255, 0.4); }
+            96% { opacity: 0.1; transform: translateX(2px); }
+            97% { opacity: 0.5; transform: none; color: rgba(160, 120, 255, 0.3); }
+            98% { opacity: 0.1; }
+        }
+
+        /* Contador/data enigmática */
+        .countdown {
+            display: flex;
+            gap: 2rem;
+            animation: fadeIn 2s ease 1.6s both;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .countdown-item .number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.7);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-item .label {
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.2);
+            font-weight: 400;
+        }
+
+        .countdown-separator {
+            font-size: 1.8rem;
+            font-weight: 200;
+            color: rgba(150, 100, 255, 0.3);
+            align-self: flex-start;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.55rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.08);
+            font-weight: 400;
+            animation: fadeIn 2s ease 2.5s both;
+            z-index: 2;
+        }
+
+        @media (max-width: 480px) {
+            .symbol { font-size: 2.5rem; }
+            .countdown { gap: 1.2rem; }
+            .countdown-item .number { font-size: 1.4rem; }
+            .infinity-ring { width: 350px; height: 350px; }
+        }
     </style>
 </head>
 <body>
+    <div class="void"></div>
+    <canvas id="void-canvas"></canvas>
+    <div class="infinity-ring"></div>
+
     <div class="container">
-        <h1>Em breve</h1>
-        <p>Estamos preparando algo especial. Volte em breve.</p>
+        <div class="symbol">&infin;</div>
+
+        <div class="title">
+            <h1>Eternity Academy</h1>
+            <div class="line"></div>
+        </div>
+
+        <div class="message">
+            <p>O que é <span class="highlight">eterno</span> não se anuncia.<br>Se revela.</p>
+        </div>
+
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <span class="number" id="days">--</span>
+                <span class="label">Dias</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-item">
+                <span class="number" id="hours">--</span>
+                <span class="label">Horas</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-item">
+                <span class="number" id="minutes">--</span>
+                <span class="label">Min</span>
+            </div>
+            <span class="countdown-separator">:</span>
+            <div class="countdown-item">
+                <span class="number" id="seconds">--</span>
+                <span class="label">Seg</span>
+            </div>
+        </div>
+
+        <div class="cryptic">A eternidade começa em breve</div>
     </div>
+
+    <div class="footer">eternityacademy.com.br</div>
+
+    <script>
+    // Partículas flutuantes
+    (function() {
+        const canvas = document.getElementById('void-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h, particles = [];
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Partículas que flutuam lentamente para cima (como almas subindo)
+        for (let i = 0; i < 60; i++) {
+            particles.push({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: Math.random() * 1.5 + 0.3,
+                baseAlpha: Math.random() * 0.4 + 0.1,
+                phase: Math.random() * Math.PI * 2,
+                speedY: -(Math.random() * 0.3 + 0.1),
+                speedX: (Math.random() - 0.5) * 0.2,
+                drift: Math.random() * 0.01 + 0.005
+            });
+        }
+
+        function draw(time) {
+            ctx.clearRect(0, 0, w, h);
+
+            for (const p of particles) {
+                const alpha = p.baseAlpha + Math.sin(time * p.drift + p.phase) * 0.2;
+                const glow = p.r * 3;
+
+                // Glow sutil
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, glow, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glow);
+                grad.addColorStop(0, `rgba(140, 100, 220, ${alpha * 0.3})`);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                // Ponto central
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, Math.min(1, alpha))})`;
+                ctx.fill();
+
+                // Movimento
+                p.y += p.speedY;
+                p.x += Math.sin(time * 0.001 + p.phase) * p.speedX;
+
+                // Reset quando sai da tela
+                if (p.y < -10) {
+                    p.y = h + 10;
+                    p.x = Math.random() * w;
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        requestAnimationFrame(draw);
+    })();
+
+    // Countdown - 30 dias a partir de agora (ajuste a data conforme necessário)
+    (function() {
+        const target = new Date();
+        target.setDate(target.getDate() + 30);
+
+        function update() {
+            const now = new Date();
+            const diff = target - now;
+
+            if (diff <= 0) return;
+
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hr = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const min = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const sec = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(d).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hr).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(min).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(sec).padStart(2, '0');
+        }
+
+        update();
+        setInterval(update, 1000);
+    })();
+    </script>
 </body>
 </html>
