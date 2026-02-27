@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#020206">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Analisador de Funil — Eternity Academy</title>
+    <link rel="icon" type="image/png" href="../medias/eternityfavicon.png">
+    <meta name="description" content="Analise seu funil de vendas e descubra onde estão os gargalos.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #020206;
+            --text: #ffffff;
+            --text-soft: rgba(255,255,255,0.95);
+            --text-muted: rgba(255,255,255,0.35);
+            --text-dim: rgba(255,255,255,0.15);
+            --purple: rgba(140, 100, 255, 1);
+            --purple-soft: rgba(160, 130, 255, 0.8);
+            --purple-glow: rgba(140, 100, 255, 0.3);
+            --surface: rgba(140, 100, 255, 0.04);
+            --surface-hover: rgba(140, 100, 255, 0.08);
+            --border: rgba(140, 100, 255, 0.1);
+            --border-hover: rgba(140, 100, 255, 0.25);
+            --green: #22c55e;
+            --green-bg: rgba(34,197,94,0.06);
+            --green-border: rgba(34,197,94,0.18);
+            --yellow: #eab308;
+            --yellow-bg: rgba(234,179,8,0.06);
+            --yellow-border: rgba(234,179,8,0.18);
+            --red: #ef4444;
+            --red-bg: rgba(239,68,68,0.06);
+            --red-border: rgba(239,68,68,0.18);
+        }
+
+        html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            min-height: 100dvh;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        #cosmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+        .page {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 1.25rem 5rem;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            text-align: center;
+            padding: 3.5rem 0 2.5rem;
+            animation: fadeIn 2s ease both;
+        }
+
+        .header .infinity-wrap {
+            width: 50px; height: 25px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .header .infinity-wrap svg { width: 100%; height: 100%; }
+
+        .infinity-path {
+            fill: none;
+            stroke: url(#infinityGrad);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: drawInfinity 3s ease forwards, glowPulse 4s ease-in-out 3s infinite;
+            filter: drop-shadow(0 0 6px var(--purple-glow));
+        }
+
+        @keyframes drawInfinity { to { stroke-dashoffset: 0; } }
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 4px rgba(140,100,255,0.2)); opacity: 0.6; }
+            50% { filter: drop-shadow(0 0 12px rgba(140,100,255,0.5)); opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+            font-weight: 700;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.35) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .divider {
+            width: 50px; height: 1px;
+            margin: 0.8rem auto 0;
+            background: linear-gradient(90deg, transparent, rgba(140,100,255,0.4), transparent);
+        }
+
+        .header p {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .header p .hl { color: var(--purple-soft); font-weight: 400; }
+
+        /* ── SECTIONS ── */
+        .section { margin-top: 2rem; animation: slideUp 0.8s ease both; }
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-label {
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 1rem;
+        }
+
+        /* ── INPUTS ── */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 500px) { .input-grid { grid-template-columns: 1fr; } }
+
+        .input-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .input-group.full { grid-column: 1 / -1; }
+
+        .input-group label {
+            font-size: 0.7rem; font-weight: 500;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .input-group input {
+            width: 100%; padding: 0.85rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem; font-weight: 400;
+            outline: none; transition: all 0.3s ease;
+            -moz-appearance: textfield;
+        }
+
+        .input-group input::-webkit-outer-spin-button,
+        .input-group input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .input-group input::placeholder { color: var(--text-dim); font-weight: 300; }
+
+        .input-group input:focus {
+            border-color: var(--border-hover);
+            background: var(--surface-hover);
+            box-shadow: 0 0 20px rgba(140,100,255,0.06);
+        }
+
+        .input-prefix { position: relative; }
+        .input-prefix span {
+            position: absolute; left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim); font-size: 0.9rem;
+            font-weight: 400; pointer-events: none;
+        }
+        .input-prefix input { padding-left: 2.5rem; }
+
+        /* ── BUTTON ── */
+        .btn-analyze {
+            width: 100%; margin-top: 1.5rem; padding: 1rem;
+            background: linear-gradient(135deg, rgba(140,100,255,0.15), rgba(140,100,255,0.05));
+            border: 1px solid rgba(140,100,255,0.25);
+            border-radius: 14px;
+            color: var(--purple-soft);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 5px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.35s ease;
+            position: relative; overflow: hidden;
+        }
+
+        .btn-analyze::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(140,100,255,0.2), transparent);
+            opacity: 0; transition: opacity 0.35s ease;
+        }
+
+        .btn-analyze:hover {
+            border-color: rgba(140,100,255,0.5);
+            box-shadow: 0 0 30px rgba(140,100,255,0.1);
+            transform: translateY(-1px);
+        }
+        .btn-analyze:hover::before { opacity: 1; }
+        .btn-analyze:active { transform: scale(0.98); }
+
+        /* ── RESULTS ── */
+        #results { display: none; margin-top: 2.5rem; }
+        #results.visible { display: block; animation: slideUp 0.6s ease both; }
+
+        /* ── FUNNEL ── */
+        .funnel-visual {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px; margin: 1.5rem 0;
+        }
+
+        .funnel-step {
+            display: flex; align-items: center; justify-content: center;
+            height: 52px; border-radius: 6px;
+            position: relative; transition: all 0.3s ease; cursor: default;
+        }
+
+        .funnel-step .funnel-label {
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: rgba(255,255,255,0.9); text-align: center;
+            line-height: 1.3; z-index: 1;
+        }
+
+        .funnel-step .funnel-value {
+            font-size: 0.75rem; font-weight: 700; color: #fff; z-index: 1;
+        }
+
+        .funnel-step:hover { transform: scale(1.02); filter: brightness(1.1); }
+
+        .funnel-rate {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.4rem 0.5rem; width: 85%; max-width: 420px;
+        }
+
+        .funnel-rate-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 0.5rem; }
+        .funnel-rate-val { font-size: 0.7rem; font-weight: 500; white-space: nowrap; }
+        .funnel-rate-ref { font-size: 0.6rem; font-weight: 300; color: var(--text-dim); white-space: nowrap; }
+
+        .status-green .funnel-rate-val { color: var(--green); }
+        .status-yellow .funnel-rate-val { color: var(--yellow); }
+        .status-red .funnel-rate-val { color: var(--red); }
+
+        .funnel-cliques { background: linear-gradient(135deg, rgba(100,130,255,0.35), rgba(100,130,255,0.12)); }
+        .funnel-vc { background: linear-gradient(135deg, rgba(140,100,255,0.4), rgba(140,100,255,0.12)); }
+        .funnel-atc { background: linear-gradient(135deg, rgba(170,100,220,0.4), rgba(170,100,220,0.12)); }
+        .funnel-ic { background: linear-gradient(135deg, rgba(100,200,160,0.35), rgba(100,200,160,0.12)); }
+        .funnel-purchase { background: linear-gradient(135deg, rgba(80,220,140,0.45), rgba(80,220,140,0.15)); }
+
+        /* ── METRICS ── */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem; margin: 1.5rem 0;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px; padding: 1rem;
+            text-align: center; transition: all 0.3s ease;
+        }
+        .metric-card:hover { border-color: var(--border-hover); }
+
+        .metric-card .metric-label {
+            font-size: 0.55rem; font-weight: 600;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 0.4rem;
+        }
+        .metric-card .metric-value { font-size: 1.3rem; font-weight: 700; }
+        .metric-card .metric-ref {
+            font-size: 0.6rem; font-weight: 300;
+            color: var(--text-dim); margin-top: 0.25rem;
+        }
+
+        .metric-card.status-ok .metric-value { color: var(--green); }
+        .metric-card.status-ok { border-color: var(--green-border); background: var(--green-bg); }
+        .metric-card.status-warn .metric-value { color: var(--yellow); }
+        .metric-card.status-warn { border-color: var(--yellow-border); background: var(--yellow-bg); }
+        .metric-card.status-bad .metric-value { color: var(--red); }
+        .metric-card.status-bad { border-color: var(--red-border); background: var(--red-bg); }
+
+        /* ── DIAGNOSIS ── */
+        .diagnosis-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+
+        .diagnosis-card {
+            display: flex; gap: 1rem;
+            padding: 1.1rem 1.2rem;
+            border-radius: 14px; border: 1px solid;
+            transition: all 0.3s ease;
+        }
+        .diagnosis-card:hover { transform: translateY(-1px); }
+
+        .diagnosis-card.severity-ok { background: var(--green-bg); border-color: var(--green-border); }
+        .diagnosis-card.severity-warn { background: var(--yellow-bg); border-color: var(--yellow-border); }
+        .diagnosis-card.severity-critical { background: var(--red-bg); border-color: var(--red-border); }
+
+        .diagnosis-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+        .diagnosis-content { flex: 1; }
+
+        .diagnosis-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .severity-ok .diagnosis-title { color: var(--green); }
+        .severity-warn .diagnosis-title { color: var(--yellow); }
+        .severity-critical .diagnosis-title { color: var(--red); }
+
+        .diagnosis-text {
+            font-size: 0.78rem; font-weight: 300;
+            color: var(--text-muted); line-height: 1.6;
+        }
+        .diagnosis-text strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+        /* ── SCORE ── */
+        .score-section {
+            text-align: center; margin: 0 0 1rem; padding: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+        }
+
+        .score-label {
+            font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 4px; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 0.5rem;
+        }
+
+        .score-value { font-size: 3rem; font-weight: 700; line-height: 1; }
+        .score-value.score-good { color: var(--green); }
+        .score-value.score-ok { color: var(--yellow); }
+        .score-value.score-bad { color: var(--red); }
+
+        .score-desc {
+            font-size: 0.8rem; font-weight: 300;
+            color: var(--text-muted); margin-top: 0.5rem;
+        }
+
+        /* ── RESET ── */
+        .btn-reset {
+            width: 100%; margin-top: 1.5rem; padding: 0.8rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px; color: var(--text-dim);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.6rem; font-weight: 500;
+            letter-spacing: 4px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-reset:hover { border-color: rgba(255,255,255,0.15); color: var(--text-muted); }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center; margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(140,100,255,0.06);
+        }
+        .footer p {
+            font-size: 0.5rem; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--text-dim); font-weight: 300;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(140,100,255,0.15); border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <canvas id="cosmos"></canvas>
+
+    <div class="page">
+        <div class="header">
+            <div class="infinity-wrap">
+                <svg viewBox="0 0 80 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="infinityGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="rgba(100,70,200,0.6)" />
+                            <stop offset="50%" stop-color="rgba(180,150,255,0.8)" />
+                            <stop offset="100%" stop-color="rgba(100,70,200,0.6)" />
+                        </linearGradient>
+                    </defs>
+                    <path class="infinity-path" d="M40 20c0-8.3 6.7-15 15-15s15 6.7 15 15-6.7 15-15 15S40 28.3 40 20c0 8.3-6.7 15-15 15S10 28.3 10 20 16.7 5 25 5s15 6.7 15 15z"/>
+                </svg>
+            </div>
+            <h1>Analisador de Funil</h1>
+            <div class="divider"></div>
+            <p>Descubra onde está o <span class="hl">gargalo</span> do seu funil de vendas.</p>
+        </div>
+
+        <!-- TRÁFEGO -->
+        <div class="section">
+            <div class="section-label">Dados de tráfego</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Valor gasto (R$)</label>
+                    <div class="input-prefix">
+                        <span>R$</span>
+                        <input type="number" id="valorGasto" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>CPC (R$)</label>
+                    <div class="input-prefix">
+                        <span>R$</span>
+                        <input type="number" id="cpc" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>CPM (R$)</label>
+                    <div class="input-prefix">
+                        <span>R$</span>
+                        <input type="number" id="cpm" placeholder="0,00" step="0.01" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FUNIL -->
+        <div class="section">
+            <div class="section-label">Eventos do funil</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Cliques no Link</label>
+                    <input type="number" id="cliques" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>ViewContent</label>
+                    <input type="number" id="viewcontent" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>AddToCart</label>
+                    <input type="number" id="addtocart" placeholder="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label>InitiateCheckout</label>
+                    <input type="number" id="initiatecheckout" placeholder="0" min="0">
+                </div>
+                <div class="input-group full">
+                    <label>Purchase</label>
+                    <input type="number" id="purchase" placeholder="0" min="0">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-analyze" onclick="analyze()">Analisar Funil</button>
+
+        <!-- RESULTS -->
+        <div id="results">
+            <div class="score-section" id="scoreSection"></div>
+
+            <div class="section" style="animation-delay:0.1s">
+                <div class="section-label">Métricas de tráfego</div>
+                <div class="metrics-row" id="metricsRow"></div>
+            </div>
+
+            <div class="section" style="animation-delay:0.2s">
+                <div class="section-label">Visualização do funil</div>
+                <div class="funnel-visual" id="funnelVisual"></div>
+            </div>
+
+            <div class="section" style="animation-delay:0.3s">
+                <div class="section-label">Diagnóstico e correções</div>
+                <div class="diagnosis-list" id="diagnosisList"></div>
+            </div>
+
+            <button class="btn-reset" onclick="resetAll()">Limpar e analisar novamente</button>
+        </div>
+
+        <div class="footer">
+            <p>Eternity Academy</p>
+        </div>
+    </div>
+
+<script>
+// ===== COSMOS =====
+(function() {
+    const canvas = document.getElementById('cosmos');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [], mouse = { x: -1000, y: -1000 };
+
+    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    document.addEventListener('touchmove', e => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }, { passive: true });
+
+    const count = Math.min(70, Math.floor(w * h / 16000));
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2,
+            r: Math.random() * 1.2 + 0.3,
+            baseAlpha: Math.random() * 0.4 + 0.1,
+            phase: Math.random() * Math.PI * 2,
+            speed: Math.random() * 0.008 + 0.003
+        });
+    }
+
+    function draw(time) {
+        ctx.clearRect(0, 0, w, h);
+        const cx = w / 2, cy = h / 2;
+        const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.5);
+        grd.addColorStop(0, 'rgba(60, 30, 120, 0.04)');
+        grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 110) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(140,100,255,${(1 - dist / 110) * 0.06})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        for (const p of particles) {
+            const alpha = p.baseAlpha + Math.sin(time * p.speed + p.phase) * 0.15;
+            const dx = mouse.x - p.x, dy = mouse.y - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 130) {
+                const force = (130 - dist) / 130;
+                p.vx += (dx / dist) * force * 0.012;
+                p.vy += (dy / dist) * force * 0.012;
+            }
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,255,255,${Math.max(0, Math.min(1, alpha))})`;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            p.vx *= 0.99; p.vy *= 0.99;
+            if (p.x < 0 || p.x > w) p.vx *= -1;
+            if (p.y < 0 || p.y > h) p.vy *= -1;
+            p.x = Math.max(0, Math.min(w, p.x));
+            p.y = Math.max(0, Math.min(h, p.y));
+        }
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+})();
+
+// ===== BENCHMARKS =====
+const BENCH = {
+    cpc: { max: 5, label: 'Ref: ≤ R$5,00' },
+    cpm: { max: 500, label: 'Ref: ≤ R$500,00' },
+    connectRate: { min: 80, label: 'Ref: ≥ 80%' },
+    vcToAtc: { min: 15, max: 20, label: 'Ref: 15% a 20%' },
+    atcToIc: { min: 20, max: 30, label: 'Ref: 20% a 30%' },
+    icToPurchase: { min: 30, max: 50, label: 'Ref: 30% a 50%' },
+    convOferta: { min: 3, max: 5, label: 'Ref: 3% a 5%' }
+};
+
+function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function pct(a, b) { return b > 0 ? (a / b * 100) : 0; }
+function fmt(n) { return n.toFixed(1).replace(/\.0$/, ''); }
+
+function getStatus(value, min) {
+    if (value >= min) return 'ok';
+    if (value >= min * 0.7) return 'warn';
+    return 'bad';
+}
+
+function getStatusInverse(value, max) {
+    if (value <= max) return 'ok';
+    if (value <= max * 1.3) return 'warn';
+    return 'bad';
+}
+
+function diagCard(severity, icon, title, desc, suggestion) {
+    return `<div class="diagnosis-card severity-${severity}">
+        <span class="diagnosis-icon">${icon}</span>
+        <div class="diagnosis-content">
+            <div class="diagnosis-title">${title}</div>
+            <div class="diagnosis-text">${desc}${suggestion ? '<br><br>' + suggestion : ''}</div>
+        </div>
+    </div>`;
+}
+
+// ===== ANALYZE =====
+function analyze() {
+    const valorGasto = val('valorGasto');
+    const cpc = val('cpc');
+    const cpm = val('cpm');
+    const cliques = val('cliques');
+    const vc = val('viewcontent');
+    const atc = val('addtocart');
+    const ic = val('initiatecheckout');
+    const purchase = val('purchase');
+
+    if (cliques === 0) {
+        alert('Insira ao menos os Cliques no Link para analisar.');
+        return;
+    }
+
+    const connectRate = pct(vc, cliques);
+    const vcToAtc = pct(atc, vc);
+    const atcToIc = pct(ic, atc);
+    const icToPurchase = pct(purchase, ic);
+    const convOferta = pct(purchase, cliques);
+
+    const cpcStatus = cpc > 0 ? getStatusInverse(cpc, BENCH.cpc.max) : null;
+    const cpmStatus = cpm > 0 ? getStatusInverse(cpm, BENCH.cpm.max) : null;
+    const connectStatus = getStatus(connectRate, BENCH.connectRate.min);
+    const vcToAtcStatus = getStatus(vcToAtc, BENCH.vcToAtc.min);
+    const atcToIcStatus = getStatus(atcToIc, BENCH.atcToIc.min);
+    const icToPurchaseStatus = getStatus(icToPurchase, BENCH.icToPurchase.min);
+    const convOfertaStatus = getStatus(convOferta, BENCH.convOferta.min);
+
+    // Score
+    let score = 100;
+    if (cpcStatus === 'warn') score -= 5;
+    if (cpcStatus === 'bad') score -= 12;
+    if (cpmStatus === 'warn') score -= 5;
+    if (cpmStatus === 'bad') score -= 12;
+    if (connectStatus === 'warn') score -= 8;
+    if (connectStatus === 'bad') score -= 18;
+    if (vcToAtcStatus === 'warn') score -= 10;
+    if (vcToAtcStatus === 'bad') score -= 22;
+    if (atcToIcStatus === 'warn') score -= 8;
+    if (atcToIcStatus === 'bad') score -= 18;
+    if (icToPurchaseStatus === 'warn') score -= 8;
+    if (icToPurchaseStatus === 'bad') score -= 18;
+    score = Math.max(0, Math.min(100, score));
+
+    const scoreClass = score >= 70 ? 'score-good' : score >= 40 ? 'score-ok' : 'score-bad';
+    const scoreDesc = score >= 70 ? 'Seu funil está saudável. Foque em escalar.' :
+                      score >= 40 ? 'Seu funil precisa de ajustes em alguns pontos.' :
+                      'Seu funil tem problemas críticos que precisam de atenção imediata.';
+
+    document.getElementById('scoreSection').innerHTML = `
+        <div class="score-label">Saúde do funil</div>
+        <div class="score-value ${scoreClass}">${Math.round(score)}<span style="font-size:1.2rem;font-weight:400;opacity:0.5">/ 100</span></div>
+        <div class="score-desc">${scoreDesc}</div>
+    `;
+
+    // Metrics
+    let metricsHTML = '';
+    if (cpc > 0) {
+        metricsHTML += `<div class="metric-card status-${cpcStatus}">
+            <div class="metric-label">CPC</div>
+            <div class="metric-value">R$ ${cpc.toFixed(2)}</div>
+            <div class="metric-ref">${BENCH.cpc.label}</div>
+        </div>`;
+    }
+    if (cpm > 0) {
+        metricsHTML += `<div class="metric-card status-${cpmStatus}">
+            <div class="metric-label">CPM</div>
+            <div class="metric-value">R$ ${cpm.toFixed(2)}</div>
+            <div class="metric-ref">${BENCH.cpm.label}</div>
+        </div>`;
+    }
+    if (valorGasto > 0 && purchase > 0) {
+        const cpa = valorGasto / purchase;
+        metricsHTML += `<div class="metric-card">
+            <div class="metric-label">CPA</div>
+            <div class="metric-value" style="color:var(--purple-soft)">R$ ${cpa.toFixed(2)}</div>
+            <div class="metric-ref">Custo por compra</div>
+        </div>`;
+    }
+    metricsHTML += `<div class="metric-card status-${convOfertaStatus}">
+        <div class="metric-label">Conv. geral</div>
+        <div class="metric-value">${fmt(convOferta)}%</div>
+        <div class="metric-ref">${BENCH.convOferta.label}</div>
+    </div>`;
+    document.getElementById('metricsRow').innerHTML = metricsHTML;
+
+    // Funnel Visual
+    const maxW = 100;
+    const steps = [
+        { label: 'Cliques no Link', value: cliques, cls: 'funnel-cliques', w: maxW },
+        { label: 'ViewContent', value: vc, cls: 'funnel-vc', w: cliques > 0 ? Math.max(20, (vc / cliques) * maxW) : 80 },
+        { label: 'AddToCart', value: atc, cls: 'funnel-atc', w: cliques > 0 ? Math.max(15, (atc / cliques) * maxW) : 40 },
+        { label: 'InitiateCheckout', value: ic, cls: 'funnel-ic', w: cliques > 0 ? Math.max(12, (ic / cliques) * maxW) : 25 },
+        { label: 'Purchase', value: purchase, cls: 'funnel-purchase', w: cliques > 0 ? Math.max(10, (purchase / cliques) * maxW) : 15 }
+    ];
+
+    const rates = [
+        { rate: connectRate, ref: BENCH.connectRate.label, status: connectStatus },
+        { rate: vcToAtc, ref: BENCH.vcToAtc.label, status: vcToAtcStatus },
+        { rate: atcToIc, ref: BENCH.atcToIc.label, status: atcToIcStatus },
+        { rate: icToPurchase, ref: BENCH.icToPurchase.label, status: icToPurchaseStatus }
+    ];
+
+    const statusMap = { ok: 'green', warn: 'yellow', bad: 'red' };
+    let funnelHTML = '';
+    for (let i = 0; i < steps.length; i++) {
+        const s = steps[i];
+        funnelHTML += `<div class="funnel-step ${s.cls}" style="width:${s.w}%">
+            <span class="funnel-label">${s.label}<br><span class="funnel-value">${s.value}</span></span>
+        </div>`;
+        if (i < rates.length) {
+            const r = rates[i];
+            funnelHTML += `<div class="funnel-rate status-${statusMap[r.status]}">
+                <span class="funnel-rate-ref">${r.ref}</span>
+                <span class="funnel-rate-line"></span>
+                <span class="funnel-rate-val">${fmt(r.rate)}%</span>
+            </div>`;
+        }
+    }
+    document.getElementById('funnelVisual').innerHTML = funnelHTML;
+
+    // Diagnosis
+    let diagHTML = '';
+
+    if (cpc > 0) {
+        if (cpcStatus === 'bad') {
+            diagHTML += diagCard('critical', '⚠️', 'CPC muito alto',
+                `Seu CPC de <strong>R$ ${cpc.toFixed(2)}</strong> está acima da referência de R$ 5,00. Isso encarece todo o funil.`,
+                '<strong>Correção:</strong> Revise a segmentação do público, teste novos criativos com hooks mais fortes, melhore o CTR dos anúncios e experimente diferentes copies. Públicos muito amplos ou mal segmentados geralmente geram CPCs altos.');
+        } else if (cpcStatus === 'warn') {
+            diagHTML += diagCard('warn', '⚡', 'CPC no limite',
+                `CPC de <strong>R$ ${cpc.toFixed(2)}</strong> está próximo do limite.`,
+                '<strong>Correção:</strong> Teste novas headlines e criativos para reduzir o custo.');
+        } else {
+            diagHTML += diagCard('ok', '✓', 'CPC saudável', `CPC de <strong>R$ ${cpc.toFixed(2)}</strong> dentro da referência.`, '');
+        }
+    }
+
+    if (cpm > 0) {
+        if (cpmStatus === 'bad') {
+            diagHTML += diagCard('critical', '⚠️', 'CPM muito alto',
+                `CPM de <strong>R$ ${cpm.toFixed(2)}</strong> está acima de R$ 500. Tráfego caro demais.`,
+                '<strong>Correção:</strong> Teste novos públicos, mude os posicionamentos (Stories, Reels), amplie a segmentação geográfica. CPM alto indica alta concorrência no leilão.');
+        } else if (cpmStatus === 'warn') {
+            diagHTML += diagCard('warn', '⚡', 'CPM no limite',
+                `CPM de <strong>R$ ${cpm.toFixed(2)}</strong> perto do máximo.`,
+                '<strong>Correção:</strong> Diversifique posicionamentos e teste públicos semelhantes.');
+        } else {
+            diagHTML += diagCard('ok', '✓', 'CPM saudável', `CPM de <strong>R$ ${cpm.toFixed(2)}</strong> dentro da referência.`, '');
+        }
+    }
+
+    // Connect Rate
+    if (connectStatus === 'bad') {
+        diagHTML += diagCard('critical', '🔴', 'Connect Rate crítico',
+            `Apenas <strong>${fmt(connectRate)}%</strong> dos cliques viraram ViewContent (referência: ≥ 80%).`,
+            '<strong>Correção:</strong> Otimize a velocidade do site (PageSpeed), verifique se o pixel está instalado corretamente, confirme que a landing page corresponde à promessa do anúncio. Páginas que demoram mais de 3s perdem a maioria dos visitantes.');
+    } else if (connectStatus === 'warn') {
+        diagHTML += diagCard('warn', '🟡', 'Connect Rate abaixo do ideal',
+            `<strong>${fmt(connectRate)}%</strong> dos cliques viraram ViewContent.`,
+            '<strong>Correção:</strong> Verifique a velocidade de carregamento. Considere otimizar imagens e reduzir scripts pesados.');
+    } else {
+        diagHTML += diagCard('ok', '✓', 'Connect Rate saudável', `<strong>${fmt(connectRate)}%</strong> dos cliques converteram em ViewContent.`, '');
+    }
+
+    // VC → ATC
+    if (vcToAtcStatus === 'bad') {
+        diagHTML += diagCard('critical', '🔴', 'Conversão da página muito baixa',
+            `Apenas <strong>${fmt(vcToAtc)}%</strong> adicionaram ao carrinho (referência: 15-20%). Este é geralmente o maior gargalo.`,
+            '<strong>Correção:</strong> Melhore a headline e a oferta, adicione prova social (reviews, depoimentos), crie urgência/escassez real, otimize as imagens do produto, garanta preço competitivo e CTA visível acima da dobra.');
+    } else if (vcToAtcStatus === 'warn') {
+        diagHTML += diagCard('warn', '🟡', 'Página de vendas precisa de ajustes',
+            `<strong>${fmt(vcToAtc)}%</strong> adicionaram ao carrinho.`,
+            '<strong>Correção:</strong> Teste variações de preço, adicione mais reviews e destaque os benefícios.');
+    } else {
+        diagHTML += diagCard('ok', '✓', 'Conversão da página saudável', `<strong>${fmt(vcToAtc)}%</strong> adicionaram ao carrinho.`, '');
+    }
+
+    // ATC → IC
+    if (atcToIcStatus === 'bad') {
+        diagHTML += diagCard('critical', '🔴', 'Abandono de carrinho alto',
+            `Apenas <strong>${fmt(atcToIc)}%</strong> iniciaram o checkout (referência: 20-30%).`,
+            '<strong>Correção:</strong> Simplifique o carrinho, mostre claramente frete e prazos, adicione selos de segurança, ofereça múltiplas formas de pagamento, considere frete grátis ou desconto no carrinho.');
+    } else if (atcToIcStatus === 'warn') {
+        diagHTML += diagCard('warn', '🟡', 'Carrinho precisa de otimização',
+            `<strong>${fmt(atcToIc)}%</strong> iniciaram o checkout.`,
+            '<strong>Correção:</strong> Revise custos de frete, simplifique o processo e adicione urgência.');
+    } else {
+        diagHTML += diagCard('ok', '✓', 'Taxa do carrinho saudável', `<strong>${fmt(atcToIc)}%</strong> iniciaram o checkout.`, '');
+    }
+
+    // IC → Purchase
+    if (icToPurchaseStatus === 'bad') {
+        diagHTML += diagCard('critical', '🔴', 'Conversão do checkout crítica',
+            `Apenas <strong>${fmt(icToPurchase)}%</strong> finalizaram a compra (referência: 30-50%).`,
+            '<strong>Correção:</strong> Verifique erros no checkout, ofereça mais opções de pagamento (PIX, boleto, cartão), remova campos desnecessários, adicione selos de segurança, garanta checkout mobile-friendly e considere checkout transparente.');
+    } else if (icToPurchaseStatus === 'warn') {
+        diagHTML += diagCard('warn', '🟡', 'Checkout precisa de melhoria',
+            `<strong>${fmt(icToPurchase)}%</strong> finalizaram a compra.`,
+            '<strong>Correção:</strong> Simplifique o checkout, adicione PIX e garanta selos de segurança visíveis.');
+    } else {
+        diagHTML += diagCard('ok', '✓', 'Conversão do checkout saudável', `<strong>${fmt(icToPurchase)}%</strong> finalizaram a compra.`, '');
+    }
+
+    document.getElementById('diagnosisList').innerHTML = diagHTML;
+
+    const results = document.getElementById('results');
+    results.classList.add('visible');
+    setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function resetAll() {
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    document.getElementById('results').classList.remove('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
+});
+</script>
+</body>
+</html>
