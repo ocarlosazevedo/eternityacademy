@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eternity Academy - Consultoria Premium para Ecommerce Global</title>
+    <link rel="icon" type="image/png" href="../bio/eternityacademyfavicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ===== RESET ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Red Hat Display', sans-serif;
+            background: #07060E;
+            color: #E8E6F0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; height: auto; display: block; }
+
+        /* ===== VARIABLES ===== */
+        :root {
+            --bg: #07060E;
+            --bg-2: #0C0B16;
+            --bg-3: #100F1C;
+            --bg-card: rgba(16, 15, 28, 0.6);
+            --bg-glass: rgba(20, 18, 38, 0.55);
+            --purple: #7022BB;
+            --purple-deep: #2F054C;
+            --purple-light: #9B59E0;
+            --purple-bright: #B47AED;
+            --purple-glow: rgba(112, 34, 187, 0.12);
+            --border: rgba(139, 92, 246, 0.1);
+            --border-hover: rgba(139, 92, 246, 0.25);
+            --text: #E8E6F0;
+            --text-muted: rgba(232, 230, 240, 0.5);
+            --text-secondary: rgba(232, 230, 240, 0.7);
+            --white: #F7F7F7;
+            --max-w: 1120px;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        /* ===== UTILITY ===== */
+        .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--purple), #5B17A0);
+            color: var(--white);
+            font-family: 'Red Hat Display', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 16px 36px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(.25,.46,.45,.94);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(112, 34, 187, 0.25);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(112, 34, 187, 0.4);
+        }
+
+        .cta-btn i { font-size: 12px; }
+
+        .cta-btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-hover);
+            color: var(--text);
+            box-shadow: none;
+        }
+
+        .cta-btn-outline:hover {
+            background: var(--bg-glass);
+            border-color: var(--purple-light);
+            box-shadow: 0 4px 24px rgba(112, 34, 187, 0.15);
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4.5vw, 44px);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .section-sub {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.7;
+            max-width: 560px;
+            margin: 16px auto 0;
+        }
+
+        .purple-text { color: var(--purple-light); }
+
+        .glow-text {
+            color: #FFFFFF;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.35), 0 0 60px rgba(255, 255, 255, 0.12);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(12px);
+        }
+
+        .badge i { font-size: 10px; }
+
+        /* ===== GLASS CARD ===== */
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.4s cubic-bezier(.25,.46,.45,.94);
+        }
+
+        .glass-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 8px 40px rgba(112, 34, 187, 0.08);
+            transform: translateY(-4px);
+        }
+
+        /* ===== DECORATIVE ELEMENTS ===== */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-purple {
+            background: radial-gradient(circle, rgba(112, 34, 187, 0.3), transparent 70%);
+        }
+
+        .orb-blue {
+            background: radial-gradient(circle, rgba(59, 32, 187, 0.2), transparent 70%);
+        }
+
+        .dot-grid {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            z-index: 0;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 80%);
+        }
+
+        /* ===== ANNOUNCEMENT BAR ===== */
+        .announcement-bar {
+            background: #F7F7F7;
+            color: #050508;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            line-height: 1.7;
+            position: relative;
+            z-index: 101;
+        }
+
+        .announcement-bar i {
+            color: var(--purple);
+            margin-right: 4px;
+        }
+
+        .announcement-bar a {
+            color: var(--purple);
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: color 0.3s;
+        }
+
+        .announcement-bar a:hover {
+            color: var(--purple-light);
+        }
+
+        /* ===== HERO LOGO ===== */
+        .hero-logo-centered {
+            margin-bottom: 28px;
+        }
+
+        .hero-logo-centered img {
+            height: 53px;
+            width: auto;
+            margin: 0 auto;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 40px 0 100px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero .orb-1 {
+            width: 600px; height: 600px;
+            top: -150px; left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .hero .orb-2 {
+            width: 400px; height: 400px;
+            bottom: -100px; right: -100px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        /* ===== VSL PLAYER ===== */
+        .vsl-wrapper {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .vsl-player {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 60px rgba(112, 34, 187, 0.15), 0 0 0 1px rgba(139, 92, 246, 0.08);
+        }
+
+        .vsl-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ===== LOGOS SECTION ===== */
+        .logos-section {
+            padding: 48px 0;
+            position: relative;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logos-label {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .logos-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            flex-wrap: wrap;
+            opacity: 0.35;
+        }
+
+        .logos-row span {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ===== WHY SECTION (PAIN POINTS) ===== */
+        .why-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .why-section .dot-grid { opacity: 0.5; }
+
+        .why-section .orb-1 {
+            width: 500px; height: 500px;
+            top: 0; left: -200px;
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-top: 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .why-card {
+            padding: 32px 28px;
+        }
+
+        .why-card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(112, 34, 187, 0.15), rgba(112, 34, 187, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--purple-bright);
+        }
+
+        .why-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--white);
+        }
+
+        .why-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.75;
+        }
+
+        .why-card-full {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .why-card-full-content {
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .why-card-full-visual {
+            background: linear-gradient(135deg, rgba(47, 5, 76, 0.3), rgba(112, 34, 187, 0.08));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 240px;
+        }
+
+        /* ===== VALUES SECTION ===== */
+        .values-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .values-section .orb-1 {
+            width: 500px; height: 500px;
+            bottom: -200px; right: -150px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .value-card {
+            padding: 28px 22px;
+            text-align: center;
+        }
+
+        .value-card-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 18px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--white);
+            box-shadow: 0 8px 24px rgba(112, 34, 187, 0.25);
+        }
+
+        .value-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--white);
+        }
+
+        .value-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        /* ===== METHOD SECTION ===== */
+        .method-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-2);
+        }
+
+        .method-section .dot-grid { opacity: 0.4; }
+
+        .method-funnel {
+            max-width: 700px;
+            margin: 56px auto 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .method-funnel-card {
+            padding: 36px;
+        }
+
+        .funnel-label {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .funnel-steps {
+            display: flex;
+            align-items: stretch;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .funnel-step {
+            flex: 1;
+            padding: 14px 6px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(232, 230, 240, 0.6);
+            background: rgba(47, 5, 76, 0.3);
+            border-right: 1px solid rgba(139, 92, 246, 0.1);
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .funnel-step:last-child { border-right: none; }
+
+        .funnel-step.active {
+            background: linear-gradient(135deg, var(--purple), #5B17A0);
+            color: var(--white);
+            font-size: 10px;
+            box-shadow: 0 0 30px rgba(112, 34, 187, 0.3);
+            position: relative;
+            z-index: 1;
+            border-radius: 8px;
+            margin: -2px;
+        }
+
+        .funnel-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        .method-desc {
+            max-width: 620px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.85;
+            position: relative;
+            z-index: 1;
+        }
+
+        .method-desc strong { color: var(--white); }
+
+        /* ===== BENEFITS SECTION ===== */
+        .benefits-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefits-section .orb-1 {
+            width: 400px; height: 400px;
+            top: 100px; right: -100px;
+        }
+
+        .benefits-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .benefit-step {
+            padding: 28px 22px;
+            position: relative;
+        }
+
+        .benefit-step-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 18px;
+        }
+
+        .benefit-step h4 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--white);
+        }
+
+        .benefit-step p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* ===== WHAT YOU GET (Feature Rows) ===== */
+        .features-section {
+            padding: 120px 0;
+            background: var(--bg-2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            margin-top: 64px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-row + .feature-row {
+            margin-top: 80px;
+        }
+
+        .feature-row.reverse {
+            direction: rtl;
+        }
+
+        .feature-row.reverse > * {
+            direction: ltr;
+        }
+
+        .feature-visual {
+            border-radius: var(--radius);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            position: relative;
+        }
+
+        .feature-visual-inner {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-visual-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(47, 5, 76, 0.2), rgba(112, 34, 187, 0.05));
+        }
+
+        .feature-visual-inner i {
+            font-size: 64px;
+            color: rgba(139, 92, 246, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-content h3 {
+            font-size: clamp(22px, 3vw, 28px);
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.25;
+            color: var(--white);
+        }
+
+        .feature-content p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li i {
+            color: var(--purple-light);
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* ===== CASES / RESULTS SECTION ===== */
+        .results-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-section .orb-1 {
+            width: 500px; height: 500px;
+            top: -150px; left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-card {
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 3/4;
+        }
+
+        .result-card-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(47, 5, 76, 0.15) 0%, rgba(7, 6, 14, 0.9) 100%);
+        }
+
+        .result-card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px;
+        }
+
+        .result-card .badge {
+            margin-bottom: 10px;
+            font-size: 9px;
+            padding: 5px 12px;
+        }
+
+        .result-card .value {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--white);
+            line-height: 1.1;
+        }
+
+        .result-card .sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            padding: 32px 20px;
+            text-align: center;
+        }
+
+        .stat-card .num {
+            font-size: clamp(36px, 5vw, 48px);
+            font-weight: 900;
+            color: #FFFFFF;
+            text-shadow: 0 0 24px rgba(255, 255, 255, 0.35), 0 0 60px rgba(255, 255, 255, 0.1);
+            line-height: 1;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials-section {
+            padding: 120px 0;
+            background: var(--bg-2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testimonial-card {
+            padding: 28px;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--purple-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .testimonial-info h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .testimonial-info span {
+            font-size: 11px;
+            color: var(--purple-light);
+            font-weight: 500;
+        }
+
+        .testimonial-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.75;
+            font-style: italic;
+        }
+
+        .testimonial-stars {
+            margin-top: 14px;
+            color: var(--purple-bright);
+            font-size: 12px;
+            display: flex;
+            gap: 3px;
+        }
+
+        /* ===== CTA FINAL ===== */
+        .cta-section {
+            padding: 120px 0;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .cta-section .orb-1 {
+            width: 600px; height: 600px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .cta-card {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 60px 48px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, rgba(47, 5, 76, 0.35), rgba(20, 18, 38, 0.6));
+        }
+
+        .cta-card-logo {
+            height: 48px;
+            margin: 0 auto 28px;
+        }
+
+        .cta-card h2 {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .cta-card p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== FAQ ===== */
+        .faq-section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .faq-list {
+            max-width: 680px;
+            margin: 56px auto 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 0;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: color 0.3s;
+            color: var(--text);
+        }
+
+        .faq-question:hover { color: var(--purple-bright); }
+
+        .faq-question i {
+            font-size: 11px;
+            transition: transform 0.3s;
+            color: var(--purple-light);
+        }
+
+        .faq-item.active .faq-question { color: var(--purple-bright); }
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        .faq-answer p {
+            padding-bottom: 22px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-logo img {
+            height: 24px;
+            width: auto;
+            opacity: 0.7;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--purple-light); }
+
+        .footer-copy {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 11px;
+            color: rgba(232, 230, 240, 0.2);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .benefits-steps { grid-template-columns: repeat(2, 1fr); }
+            .values-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 40px 0 40px; }
+            .why-grid { grid-template-columns: 1fr; }
+            .why-card-full { grid-template-columns: 1fr; }
+            .why-card-full-visual { min-height: 160px; }
+            .values-grid { grid-template-columns: repeat(2, 1fr); }
+            .benefits-steps { grid-template-columns: 1fr; }
+            .feature-row,
+            .feature-row.reverse { grid-template-columns: 1fr; direction: ltr; }
+            .results-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+            .carousel-nav { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 32px; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .values-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr 1fr; }
+            .cta-card { padding: 40px 24px; }
+            .logos-row { gap: 28px; }
+            .logos-row span { font-size: 13px; }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.8s cubic-bezier(.25,.46,.45,.94), transform 0.8s cubic-bezier(.25,.46,.45,.94);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-up-delay-1 { transition-delay: 0.1s; }
+        .fade-up-delay-2 { transition-delay: 0.2s; }
+        .fade-up-delay-3 { transition-delay: 0.3s; }
+        .fade-up-delay-4 { transition-delay: 0.4s; }
+    </style>
+</head>
+<body>
+
+    <!-- ANNOUNCEMENT BAR -->
+    <div class="announcement-bar">
+        DIAGN&Oacute;STICO EXCLUSIVO PARA PLAYERS DE ECOM GLOBAL QUE FATURAM ACIMA DE U$20K<br>
+        E BUSCAM ESCALAR SEUS PROCESSOS, REFINAR SUAS ESTRAT&Eacute;GIAS E ATINGIR O PR&Oacute;XIMO N&Iacute;VEL DE FATURAMENTO
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="orb orb-purple orb-1"></div>
+        <div class="orb orb-blue orb-2"></div>
+        <div class="dot-grid"></div>
+
+        <div class="container hero-content">
+            <div class="hero-logo-centered">
+                <img src="eahorizontalglow.png" alt="Eternity Academy">
+            </div>
+
+            <div class="vsl-wrapper">
+                <div class="vsl-player">
+                    <iframe src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <div class="hero-buttons">
+                <a href="#aplicar" class="cta-btn">
+                    Quero aplicar agora <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGOS -->
+    <section class="logos-section">
+        <div class="container">
+            <p class="logos-label">Opera&ccedil;&otilde;es e alunos em mais de 15 pa&iacute;ses</p>
+            <div class="logos-row">
+                <span>Replyna</span>
+                <span>COD Profit</span>
+                <span>Zoopi Finance</span>
+                <span>Opera&ccedil;&atilde;o Global</span>
+                <span>Mentoria Global</span>
+                <span>TEG</span>
+                <span>MDG</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY SECTION -->
+    <section class="why-section">
+        <div class="orb orb-purple orb-1"></div>
+        <div class="dot-grid"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                Por que operadores escolhem a<br><span class="glow-text">Eternity Academy</span>
+            </div>
+            <p class="section-sub fade-up">
+                N&atilde;o somos um curso. Somos a universidade de quem constr&oacute;i imp&eacute;rios no ecommerce global.
+            </p>
+
+            <div class="why-grid">
+                <div class="glass-card why-card fade-up">
+                    <div class="why-card-icon"><i class="fas fa-crosshairs"></i></div>
+                    <h3>Diagn&oacute;stico Cir&uacute;rgico</h3>
+                    <p>Identificamos os gaps exatos que travam sua opera&ccedil;&atilde;o. Sem achismo &mdash; com dados, an&aacute;lise e precis&atilde;o de quem j&aacute; resolveu esses problemas em opera&ccedil;&otilde;es pr&oacute;prias.</p>
+                </div>
+
+                <div class="glass-card why-card fade-up fade-up-delay-1">
+                    <div class="why-card-icon"><i class="fas fa-robot"></i></div>
+                    <h3>Processos Escal&aacute;veis</h3>
+                    <p>Sistemas, automa&ccedil;&otilde;es e processos para sua opera&ccedil;&atilde;o funcionar sem depender exclusivamente de voc&ecirc;. Escale com estrutura, n&atilde;o com esfor&ccedil;o.</p>
+                </div>
+
+                <div class="glass-card why-card fade-up">
+                    <div class="why-card-icon"><i class="fas fa-globe-americas"></i></div>
+                    <h3>Expans&atilde;o Global</h3>
+                    <p>Estrat&eacute;gias validadas para operar em mercados europeus e globais. Fornecedores, log&iacute;stica, tr&aacute;fego internacional e compliance.</p>
+                </div>
+
+                <div class="glass-card why-card fade-up fade-up-delay-1">
+                    <div class="why-card-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Lucro Previs&iacute;vel</h3>
+                    <p>Saia da montanha-russa. Construa const&acirc;ncia nos resultados com processos que geram lucro m&ecirc;s ap&oacute;s m&ecirc;s &mdash; n&atilde;o faturamento vazio.</p>
+                </div>
+
+                <div class="glass-card why-card why-card-full fade-up">
+                    <div class="why-card-full-content">
+                        <div class="why-card-icon"><i class="fas fa-crown"></i></div>
+                        <h3>Aprenda com Quem Opera</h3>
+                        <p>O fundador ensina junto com heads e C-levels que operam no dia a dia. Conhecimento operacional real, n&atilde;o teoria de quem nunca vendeu um produto.</p>
+                    </div>
+                    <div class="why-card-full-visual">
+                        <img src="../bio/eternityacademylogobio.png" alt="Eternity Academy" style="width:120px;opacity:0.5;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VALUES -->
+    <section class="values-section">
+        <div class="orb orb-blue orb-1"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">Sobre o que <em class="glow-text">acreditamos</em></div>
+            <p class="section-sub fade-up">
+                Princ&iacute;pios inegoci&aacute;veis que guiam cada decis&atilde;o e cada intera&ccedil;&atilde;o.
+            </p>
+
+            <div class="values-grid">
+                <div class="glass-card value-card fade-up">
+                    <div class="value-card-icon"><i class="fas fa-eye"></i></div>
+                    <h4>Transpar&ecirc;ncia</h4>
+                    <p>Mostramos lucro, n&atilde;o faturamento bruto. Sem promessas vazias.</p>
+                </div>
+                <div class="glass-card value-card fade-up fade-up-delay-1">
+                    <div class="value-card-icon"><i class="fas fa-chess"></i></div>
+                    <h4>Estrat&eacute;gia</h4>
+                    <p>Cada a&ccedil;&atilde;o &eacute; calculada. Ensinamos o que &eacute; validado com dinheiro real.</p>
+                </div>
+                <div class="glass-card value-card fade-up fade-up-delay-2">
+                    <div class="value-card-icon"><i class="fas fa-bolt"></i></div>
+                    <h4>Execu&ccedil;&atilde;o</h4>
+                    <p>A&ccedil;&atilde;o disciplinada e consistente acima de teoria.</p>
+                </div>
+                <div class="glass-card value-card fade-up fade-up-delay-3">
+                    <div class="value-card-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Autoridade</h4>
+                    <p>Nossos n&uacute;meros sustentam a nossa voz.</p>
+                </div>
+                <div class="glass-card value-card fade-up fade-up-delay-4">
+                    <div class="value-card-icon"><i class="fas fa-gem"></i></div>
+                    <h4>Grandeza</h4>
+                    <p>Imp&eacute;rios, n&atilde;o projetos tempor&aacute;rios.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METHOD -->
+    <section class="method-section" id="metodo">
+        <div class="dot-grid"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                A Metodologia<br><span class="glow-text">Eternity Method</span>
+            </div>
+            <p class="section-sub fade-up">
+                Transformar opera&ccedil;&otilde;es em imp&eacute;rios. Para toda a eternidade.
+            </p>
+
+            <div class="method-funnel fade-up">
+                <div class="glass-card method-funnel-card">
+                    <div class="funnel-label">Eternity Method</div>
+                    <div class="funnel-steps">
+                        <div class="funnel-step">Diagn&oacute;stico</div>
+                        <div class="funnel-step">Estrutura</div>
+                        <div class="funnel-step">Tr&aacute;fego</div>
+                        <div class="funnel-step active">Escala</div>
+                        <div class="funnel-step">Otimiza&ccedil;&atilde;o</div>
+                        <div class="funnel-step">Equipe</div>
+                        <div class="funnel-step">Imp&eacute;rio</div>
+                    </div>
+                    <div class="funnel-meta">
+                        <span>Opera&ccedil;&atilde;o</span>
+                        <span>Expans&atilde;o Global</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="method-desc fade-up">
+                <p>Cada etapa &eacute; desenhada para eliminar os gaps da sua opera&ccedil;&atilde;o, construir processos escal&aacute;veis e transformar o seu ecommerce em uma <strong>empresa estruturada de verdade</strong>.</p>
+                <br>
+                <p>O resultado &eacute; uma opera&ccedil;&atilde;o que cresce com <strong>const&acirc;ncia, previsibilidade e lucratividade</strong> &mdash; em qualquer mercado do mundo.</p>
+            </div>
+
+            <div style="text-align:center;margin-top:40px;position:relative;z-index:1;">
+                <a href="#aplicar" class="cta-btn fade-up">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENEFITS STEPS -->
+    <section class="benefits-section">
+        <div class="orb orb-purple orb-1"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                Como funciona na <span class="glow-text">pr&aacute;tica</span>
+            </div>
+            <p class="section-sub fade-up">
+                Do diagn&oacute;stico &agrave; escala &mdash; cada passo &eacute; estruturado.
+            </p>
+
+            <div class="benefits-steps">
+                <div class="glass-card benefit-step fade-up">
+                    <div class="benefit-step-num">01</div>
+                    <h4>Diagn&oacute;stico Estrat&eacute;gico</h4>
+                    <p>An&aacute;lise profunda da sua opera&ccedil;&atilde;o para identificar exatamente onde est&aacute; o dinheiro que voc&ecirc; est&aacute; deixando na mesa.</p>
+                </div>
+                <div class="glass-card benefit-step fade-up fade-up-delay-1">
+                    <div class="benefit-step-num">02</div>
+                    <h4>Plano Personalizado</h4>
+                    <p>Roteiro claro para escalar &mdash; com base em dados e estrat&eacute;gias validadas nas opera&ccedil;&otilde;es da Eternity Holding.</p>
+                </div>
+                <div class="glass-card benefit-step fade-up fade-up-delay-2">
+                    <div class="benefit-step-num">03</div>
+                    <h4>Implementa&ccedil;&atilde;o Guiada</h4>
+                    <p>Acompanhamento direto com heads e C-levels para executar cada etapa com precis&atilde;o e velocidade.</p>
+                </div>
+                <div class="glass-card benefit-step fade-up fade-up-delay-3">
+                    <div class="benefit-step-num">04</div>
+                    <h4>Escala Global</h4>
+                    <p>Expanda para novos mercados com processos validados, equipe treinada e opera&ccedil;&atilde;o estruturada.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features-section">
+        <div class="dot-grid" style="opacity:0.3;"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                O que voc&ecirc; recebe no<br>diagn&oacute;stico com a <span class="glow-text">Eternity</span>
+            </div>
+
+            <div class="feature-row fade-up">
+                <div class="feature-visual">
+                    <div class="feature-visual-inner">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <h3>An&aacute;lise Profunda da Opera&ccedil;&atilde;o</h3>
+                    <p>Mapeamento completo dos gaps que travam seu crescimento. Desde tr&aacute;fego e convers&atilde;o at&eacute; log&iacute;stica, financeiro e equipe.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Auditoria de tr&aacute;fego e funis</li>
+                        <li><i class="fas fa-check-circle"></i> An&aacute;lise de margens e unit economics</li>
+                        <li><i class="fas fa-check-circle"></i> Mapeamento de processos operacionais</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-row reverse fade-up">
+                <div class="feature-visual">
+                    <div class="feature-visual-inner">
+                        <i class="fas fa-globe-europe"></i>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <h3>Estrat&eacute;gia de Opera&ccedil;&atilde;o Global</h3>
+                    <p>Como estruturar opera&ccedil;&otilde;es em mercados europeus e globais com seguran&ccedil;a e previsibilidade.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Fornecedores e log&iacute;stica internacional</li>
+                        <li><i class="fas fa-check-circle"></i> Gateways de pagamento e compliance</li>
+                        <li><i class="fas fa-check-circle"></i> Tr&aacute;fego pago em m&uacute;ltiplos mercados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-row fade-up">
+                <div class="feature-visual">
+                    <div class="feature-visual-inner">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                </div>
+                <div class="feature-content">
+                    <h3>Processos e Automa&ccedil;&atilde;o</h3>
+                    <p>Sistemas para automatizar e padronizar sua opera&ccedil;&atilde;o. Decis&otilde;es com base em dados, n&atilde;o em achismo.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Tracking e dashboards financeiros</li>
+                        <li><i class="fas fa-check-circle"></i> Automa&ccedil;&otilde;es de opera&ccedil;&atilde;o</li>
+                        <li><i class="fas fa-check-circle"></i> Ferramentas SaaS exclusivas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="results-section">
+        <div class="orb orb-purple orb-1"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                Resultados de quem j&aacute; passou<br>pela <span class="glow-text">Eternity Academy</span>
+            </div>
+
+            <div class="results-grid">
+                <div class="glass-card result-card fade-up">
+                    <div class="result-card-bg"></div>
+                    <div class="result-card-content">
+                        <div class="badge">Lucro mensal</div>
+                        <div class="value">U$50K</div>
+                        <div class="sub">em 6 meses</div>
+                    </div>
+                </div>
+                <div class="glass-card result-card fade-up fade-up-delay-1">
+                    <div class="result-card-bg"></div>
+                    <div class="result-card-content">
+                        <div class="badge">Escalou para</div>
+                        <div class="value">U$120K</div>
+                        <div class="sub">lucro mensal</div>
+                    </div>
+                </div>
+                <div class="glass-card result-card fade-up fade-up-delay-2">
+                    <div class="result-card-bg"></div>
+                    <div class="result-card-content">
+                        <div class="badge">Opera&ccedil;&atilde;o global</div>
+                        <div class="value">6 Pa&iacute;ses</div>
+                        <div class="sub">em 1 ano</div>
+                    </div>
+                </div>
+                <div class="glass-card result-card fade-up fade-up-delay-3">
+                    <div class="result-card-bg"></div>
+                    <div class="result-card-content">
+                        <div class="badge">De U$10K para</div>
+                        <div class="value">U$100K</div>
+                        <div class="sub">lucro mensal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="glass-card stat-card fade-up">
+                    <div class="num">+200</div>
+                    <div class="label">Alunos acelerados</div>
+                </div>
+                <div class="glass-card stat-card fade-up fade-up-delay-1">
+                    <div class="num">+$5M</div>
+                    <div class="label">Lucro gerado pelos alunos</div>
+                </div>
+                <div class="glass-card stat-card fade-up fade-up-delay-2">
+                    <div class="num">+15</div>
+                    <div class="label">Pa&iacute;ses com opera&ccedil;&otilde;es</div>
+                </div>
+                <div class="glass-card stat-card fade-up fade-up-delay-3">
+                    <div class="num">+$11M</div>
+                    <div class="label">Vendas nas opera&ccedil;&otilde;es</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials-section">
+        <div class="dot-grid" style="opacity:0.3;"></div>
+
+        <div class="container">
+            <div class="section-title fade-up">
+                O que nossos alunos dizem
+            </div>
+            <p class="section-sub fade-up">
+                Resultados reais de operadores que transformaram suas opera&ccedil;&otilde;es.
+            </p>
+
+            <div class="testimonials-grid">
+                <div class="glass-card testimonial-card fade-up">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">R</div>
+                        <div class="testimonial-info">
+                            <h5>Rafael M.</h5>
+                            <span>Ecommerce Europa</span>
+                        </div>
+                    </div>
+                    <p>"Sa&iacute; de U$8K de lucro para U$45K em 4 meses. A diferen&ccedil;a &eacute; que aqui voc&ecirc; aprende com quem realmente opera, n&atilde;o com quem s&oacute; vende curso."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card testimonial-card fade-up fade-up-delay-1">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">L</div>
+                        <div class="testimonial-info">
+                            <h5>Lucas T.</h5>
+                            <span>Ecommerce Global</span>
+                        </div>
+                    </div>
+                    <p>"O diagn&oacute;stico sozinho j&aacute; valeu. Identificaram gaps que eu n&atilde;o conseguia ver h&aacute; meses. Em 3 semanas j&aacute; estava com margem 30% maior."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card testimonial-card fade-up fade-up-delay-2">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">P</div>
+                        <div class="testimonial-info">
+                            <h5>Pedro S.</h5>
+                            <span>Opera&ccedil;&atilde;o Europa</span>
+                        </div>
+                    </div>
+                    <p>"J&aacute; tentei 3 mentorias antes. A Eternity &eacute; completamente diferente. N&iacute;vel de profundidade e acompanhamento que n&atilde;o existe em nenhum outro lugar."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card testimonial-card fade-up">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">M</div>
+                        <div class="testimonial-info">
+                            <h5>Matheus A.</h5>
+                            <span>Ecommerce COD</span>
+                        </div>
+                    </div>
+                    <p>"Estruturei minha opera&ccedil;&atilde;o em 3 pa&iacute;ses em menos de 6 meses. O acesso direto ao Carlos e aos heads faz toda a diferen&ccedil;a."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card testimonial-card fade-up fade-up-delay-1">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">G</div>
+                        <div class="testimonial-info">
+                            <h5>Gabriel R.</h5>
+                            <span>Ecommerce Global</span>
+                        </div>
+                    </div>
+                    <p>"Finalmente entendi a diferen&ccedil;a entre faturar alto e lucrar de verdade. A Academy mudou completamente minha vis&atilde;o sobre opera&ccedil;&atilde;o."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card testimonial-card fade-up fade-up-delay-2">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">D</div>
+                        <div class="testimonial-info">
+                            <h5>Daniel F.</h5>
+                            <span>Opera&ccedil;&atilde;o Europa</span>
+                        </div>
+                    </div>
+                    <p>"O n&iacute;vel de transpar&ecirc;ncia &eacute; absurdo. Mostram tudo &mdash; lucro real, opera&ccedil;&atilde;o real, erros reais. &Eacute; isso que gera confian&ccedil;a."</p>
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-title fade-up">Perguntas <span class="glow-text">frequentes</span></div>
+
+            <div class="faq-list">
+                <div class="faq-item fade-up">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Quanto tempo dura o diagn&oacute;stico?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Entre 45 minutos a 1 hora, dependendo da complexidade da sua opera&ccedil;&atilde;o. &Eacute; uma an&aacute;lise profunda, n&atilde;o uma conversa superficial.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-up">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Quem realiza o diagn&oacute;stico?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Especialistas da Eternity Academy que operam no dia a dia. 100% online via Google Meet. Profissionais que entendem os desafios reais do ecommerce global.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-up">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Preciso j&aacute; ter uma opera&ccedil;&atilde;o rodando?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sim. A Eternity Academy &eacute; para quem j&aacute; est&aacute; no jogo e quer ir para o pr&oacute;ximo n&iacute;vel. O diagn&oacute;stico &eacute; voltado para operadores que j&aacute; faturam.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-up">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>O diagn&oacute;stico &eacute; personalizado?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>100%. Cada diagn&oacute;stico &eacute; &uacute;nico e adaptado &agrave; realidade da sua opera&ccedil;&atilde;o. Recomenda&ccedil;&otilde;es pr&aacute;ticas e espec&iacute;ficas para o seu cen&aacute;rio.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-up">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Qual o investimento da consultoria?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Discutido ap&oacute;s o diagn&oacute;stico, quando temos clareza sobre as necessidades da sua opera&ccedil;&atilde;o. O primeiro passo &eacute; entender se faz sentido trabalharmos juntos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="cta-section" id="aplicar">
+        <div class="orb orb-purple orb-1"></div>
+
+        <div class="container">
+            <div class="glass-card cta-card fade-up">
+                <img src="../bio/eahorizonta1.png" alt="Eternity Academy" class="cta-card-logo">
+                <h2>Pronto para construir seu <span class="glow-text">imp&eacute;rio</span>?</h2>
+                <p>Aplique agora para o diagn&oacute;stico estrat&eacute;gico e descubra exatamente o que est&aacute; travando sua opera&ccedil;&atilde;o.</p>
+                <a href="#" class="cta-btn">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <a href="#" class="footer-logo">
+                    <img src="../bio/eternitylillogo.png" alt="Eternity">
+                </a>
+                <div class="footer-links">
+                    <a href="#">Pol&iacute;tica de Privacidade</a>
+                    <a href="#">Termos de Uso</a>
+                </div>
+            </div>
+            <p class="footer-copy">Eternity Holding Co. &copy; 2026</p>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script>
+        // FAQ
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const active = item.classList.contains('active');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+            if (!active) item.classList.add('active');
+        }
+
+        // Scroll animations
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) e.target.classList.add('visible');
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', function(e) {
+                e.preventDefault();
+                const t = document.querySelector(this.getAttribute('href'));
+                if (t) t.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+
+</body>
+</html>
