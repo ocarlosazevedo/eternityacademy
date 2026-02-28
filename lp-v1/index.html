@@ -156,7 +156,17 @@
             filter: blur(80px);
             pointer-events: none;
             z-index: 0;
+            animation: float 22s ease-in-out infinite;
+            will-change: transform;
         }
+
+        .hero .orb-1 { animation-duration: 22s; animation-delay: 0s; }
+        .hero .orb-2 { animation-duration: 18s; animation-delay: -5s; }
+        .why-section .orb-1 { animation-duration: 25s; animation-delay: -8s; }
+        .values-section .orb-1 { animation-duration: 20s; animation-delay: -3s; }
+        .benefits-section .orb-1 { animation-duration: 24s; animation-delay: -12s; }
+        .results-section .orb-1 { animation-duration: 22s; animation-delay: -6s; }
+        .cta-section .orb-1 { animation-duration: 18s; animation-delay: -2s; }
 
         .orb-purple {
             background: radial-gradient(circle, rgba(112, 34, 187, 0.3), transparent 70%);
@@ -215,14 +225,14 @@
         }
 
         .hero-logo-centered img {
-            height: 53px;
+            height: 74px;
             width: auto;
             margin: 0 auto;
         }
 
         /* ===== HERO ===== */
         .hero {
-            padding: 40px 0 100px;
+            padding: 24px 0 100px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -244,12 +254,21 @@
             z-index: 1;
         }
 
+        .hero-sub {
+            font-size: 15px;
+            color: var(--text-secondary);
+            max-width: 580px;
+            margin: 28px auto 0;
+            line-height: 1.75;
+            text-align: center;
+        }
+
         .hero-buttons {
             display: flex;
             gap: 14px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 40px;
+            margin-top: 32px;
         }
 
         /* ===== VSL PLAYER ===== */
@@ -1000,6 +1019,190 @@
             text-transform: uppercase;
         }
 
+        /* ===== NOISE TEXTURE OVERLAY ===== */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.03;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+            mix-blend-mode: overlay;
+        }
+
+        /* ===== SECTION DIVIDERS ===== */
+        .section-divider {
+            position: relative;
+            height: 1px;
+            width: 100%;
+            overflow: visible;
+        }
+
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(112, 34, 187, 0.0) 10%,
+                rgba(112, 34, 187, 0.4) 30%,
+                rgba(155, 89, 224, 0.6) 50%,
+                rgba(112, 34, 187, 0.4) 70%,
+                rgba(112, 34, 187, 0.0) 90%,
+                transparent 100%
+            );
+        }
+
+        .section-divider::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            right: 0;
+            height: 17px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(112, 34, 187, 0.0) 20%,
+                rgba(112, 34, 187, 0.06) 50%,
+                rgba(112, 34, 187, 0.0) 80%,
+                transparent 100%
+            );
+            filter: blur(4px);
+        }
+
+        /* ===== ORBITAL RINGS ===== */
+        .orbital-ring {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .orbital-ring ellipse {
+            fill: none;
+            stroke-width: 1;
+            stroke-dasharray: 8 16;
+            animation: dash-flow 40s linear infinite;
+        }
+
+        /* ===== CONSTELLATION ===== */
+        .constellation {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.07;
+        }
+
+        .constellation circle { fill: rgba(155, 89, 224, 0.8); }
+        .constellation line { stroke: rgba(155, 89, 224, 0.4); stroke-width: 0.5; }
+
+        /* ===== INFINITY WATERMARK ===== */
+        .infinity-watermark {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            animation: breathe 20s ease-in-out infinite;
+        }
+
+        /* ===== LIGHT STREAKS ===== */
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: 30%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(155, 89, 224, 0.15), rgba(112, 34, 187, 0.25), rgba(155, 89, 224, 0.15), transparent);
+            animation: streak-drift 25s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .results-section::after {
+            content: '';
+            position: absolute;
+            top: 60%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(155, 89, 224, 0.12), rgba(112, 34, 187, 0.2), rgba(155, 89, 224, 0.12), transparent);
+            animation: streak-drift 30s linear infinite;
+            animation-delay: -10s;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== METHOD CORNER GLOW ===== */
+        .method-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(112, 34, 187, 0.08), transparent 70%);
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        /* ===== GLOW TEXT PULSE ===== */
+        .glow-text {
+            animation: pulse-glow 6s ease-in-out infinite;
+        }
+
+        /* ===== KEYFRAMES ===== */
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(12px, -18px) scale(1.03); }
+            66% { transform: translate(-8px, 10px) scale(0.97); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes orbit-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.5); }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.03; }
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.05; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes dash-flow {
+            to { stroke-dashoffset: -1000; }
+        }
+
+        @keyframes streak-drift {
+            0% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateX(200%) scaleX(0.5); opacity: 0; }
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1024px) {
             .benefits-steps { grid-template-columns: repeat(2, 1fr); }
@@ -1020,6 +1223,18 @@
             .testimonials-grid { grid-template-columns: 1fr; }
             .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
             .carousel-nav { display: none; }
+            .orbital-ring { display: none; }
+            .constellation { display: none; }
+            .infinity-watermark { display: none; }
+            body::after { opacity: 0.015; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1052,6 +1267,19 @@
 </head>
 <body>
 
+    <!-- SHARED SVG DEFS -->
+    <svg style="position:absolute;width:0;height:0;" aria-hidden="true">
+        <defs>
+            <linearGradient id="orbital-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="transparent"/>
+                <stop offset="30%" stop-color="rgba(112,34,187,0.5)"/>
+                <stop offset="50%" stop-color="rgba(155,89,224,0.7)"/>
+                <stop offset="70%" stop-color="rgba(112,34,187,0.5)"/>
+                <stop offset="100%" stop-color="transparent"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
     <!-- ANNOUNCEMENT BAR -->
     <div class="announcement-bar">
         DIAGN&Oacute;STICO EXCLUSIVO PARA PLAYERS DE ECOM GLOBAL QUE FATURAM ACIMA DE U$20K<br>
@@ -1064,6 +1292,18 @@
         <div class="orb orb-blue orb-2"></div>
         <div class="dot-grid"></div>
 
+        <!-- Orbital Ring -->
+        <svg class="orbital-ring" style="width:900px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%)" viewBox="0 0 900 500">
+            <ellipse cx="450" cy="250" rx="420" ry="200" stroke="url(#orbital-gradient)" />
+        </svg>
+
+        <!-- Infinity Watermark -->
+        <svg class="infinity-watermark" style="width:700px;height:350px;top:50%;left:50%;opacity:0.03" viewBox="0 0 700 350">
+            <path d="M175,175 C175,100 275,100 350,175 C425,250 525,250 525,175 C525,100 425,100 350,175 C275,250 175,250 175,175 Z"
+                  fill="none" stroke="rgba(112,34,187,0.3)" stroke-width="1.5"
+                  stroke-dasharray="10 8" style="animation: dash-flow 60s linear infinite;" />
+        </svg>
+
         <div class="container hero-content">
             <div class="hero-logo-centered">
                 <img src="eahorizontalglow.png" alt="Eternity Academy">
@@ -1071,9 +1311,13 @@
 
             <div class="vsl-wrapper">
                 <div class="vsl-player">
-                    <iframe src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube-nocookie.com/embed/s6eb348GOzg?rel=0&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
+
+            <p class="hero-sub">
+                Cadastre-se abaixo para ser selecionado para um <strong style="color: #FFFFFF;">diagn&oacute;stico estrat&eacute;gico</strong> com um especialista da FGA, focado em escalar e otimizar suas opera&ccedil;&otilde;es comerciais.
+            </p>
 
             <div class="hero-buttons">
                 <a href="#aplicar" class="cta-btn">
@@ -1098,6 +1342,8 @@
             </div>
         </div>
     </section>
+
+    <div class="section-divider"></div>
 
     <!-- WHY SECTION -->
     <section class="why-section">
@@ -1151,9 +1397,30 @@
         </div>
     </section>
 
+    <div class="section-divider"></div>
+
     <!-- VALUES -->
     <section class="values-section">
         <div class="orb orb-blue orb-1"></div>
+
+        <!-- Constellation -->
+        <svg class="constellation" viewBox="0 0 1200 600" preserveAspectRatio="none">
+            <circle cx="120" cy="80" r="2"><animate attributeName="opacity" values="0.3;1;0.3" dur="4s" repeatCount="indefinite"/></circle>
+            <circle cx="340" cy="150" r="1.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="6s" repeatCount="indefinite"/></circle>
+            <circle cx="560" cy="60" r="1"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="5s" repeatCount="indefinite"/></circle>
+            <circle cx="780" cy="200" r="2"><animate attributeName="opacity" values="0.4;1;0.4" dur="7s" repeatCount="indefinite"/></circle>
+            <circle cx="950" cy="120" r="1.5"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="4.5s" repeatCount="indefinite"/></circle>
+            <circle cx="1080" cy="280" r="1"><animate attributeName="opacity" values="0.5;1;0.5" dur="6.5s" repeatCount="indefinite"/></circle>
+            <circle cx="200" cy="350" r="1.5"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="5.5s" repeatCount="indefinite"/></circle>
+            <circle cx="680" cy="420" r="1"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="8s" repeatCount="indefinite"/></circle>
+            <line x1="120" y1="80" x2="340" y2="150" />
+            <line x1="340" y1="150" x2="560" y2="60" />
+            <line x1="560" y1="60" x2="780" y2="200" />
+            <line x1="780" y1="200" x2="950" y2="120" />
+            <line x1="950" y1="120" x2="1080" y2="280" />
+            <line x1="200" y1="350" x2="340" y2="150" />
+            <line x1="680" y1="420" x2="780" y2="200" />
+        </svg>
 
         <div class="container">
             <div class="section-title fade-up">Sobre o que <em class="glow-text">acreditamos</em></div>
@@ -1195,6 +1462,12 @@
     <section class="method-section" id="metodo">
         <div class="dot-grid"></div>
 
+        <!-- Double Orbital Rings -->
+        <svg class="orbital-ring" style="width:700px;height:400px;top:40%;left:50%;transform:translate(-50%,-50%);opacity:0.07" viewBox="0 0 700 400">
+            <ellipse cx="350" cy="200" rx="320" ry="160" stroke="url(#orbital-gradient)" stroke-dasharray="12 20" />
+            <ellipse cx="350" cy="200" rx="240" ry="120" stroke="url(#orbital-gradient)" stroke-dasharray="6 14" style="animation: dash-flow 55s linear infinite reverse;" />
+        </svg>
+
         <div class="container">
             <div class="section-title fade-up">
                 A Metodologia<br><span class="glow-text">Eternity Method</span>
@@ -1234,9 +1507,28 @@
         </div>
     </section>
 
+    <div class="section-divider"></div>
+
     <!-- BENEFITS STEPS -->
     <section class="benefits-section">
         <div class="orb orb-purple orb-1"></div>
+
+        <!-- Constellation -->
+        <svg class="constellation" viewBox="0 0 1200 500" preserveAspectRatio="none">
+            <circle cx="80" cy="180" r="1.5"><animate attributeName="opacity" values="0.4;1;0.4" dur="5s" repeatCount="indefinite"/></circle>
+            <circle cx="250" cy="60" r="1"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="7s" repeatCount="indefinite"/></circle>
+            <circle cx="480" cy="320" r="2"><animate attributeName="opacity" values="0.3;0.8;0.3" dur="4s" repeatCount="indefinite"/></circle>
+            <circle cx="700" cy="100" r="1.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="6s" repeatCount="indefinite"/></circle>
+            <circle cx="900" cy="250" r="1"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="5.5s" repeatCount="indefinite"/></circle>
+            <circle cx="1100" cy="150" r="2"><animate attributeName="opacity" values="0.4;1;0.4" dur="8s" repeatCount="indefinite"/></circle>
+            <circle cx="1050" cy="400" r="1"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="6.5s" repeatCount="indefinite"/></circle>
+            <line x1="80" y1="180" x2="250" y2="60" />
+            <line x1="250" y1="60" x2="480" y2="320" />
+            <line x1="480" y1="320" x2="700" y2="100" />
+            <line x1="700" y1="100" x2="900" y2="250" />
+            <line x1="900" y1="250" x2="1100" y2="150" />
+            <line x1="1100" y1="150" x2="1050" y2="400" />
+        </svg>
 
         <div class="container">
             <div class="section-title fade-up">
@@ -1332,6 +1624,8 @@
             </div>
         </div>
     </section>
+
+    <div class="section-divider"></div>
 
     <!-- RESULTS -->
     <section class="results-section">
@@ -1499,8 +1793,18 @@
         </div>
     </section>
 
+    <div class="section-divider"></div>
+
     <!-- FAQ -->
-    <section class="faq-section" id="faq">
+    <section class="faq-section" id="faq" style="position:relative;overflow:hidden;">
+
+        <!-- Infinity Watermark -->
+        <svg class="infinity-watermark" style="width:500px;height:250px;top:50%;left:50%;opacity:0.025" viewBox="0 0 500 250">
+            <path d="M125,125 C125,70 200,70 250,125 C300,180 375,180 375,125 C375,70 300,70 250,125 C200,180 125,180 125,125 Z"
+                  fill="none" stroke="rgba(112,34,187,0.3)" stroke-width="1.5"
+                  stroke-dasharray="10 8" style="animation: dash-flow 50s linear infinite;" />
+        </svg>
+
         <div class="container">
             <div class="section-title fade-up">Perguntas <span class="glow-text">frequentes</span></div>
 
@@ -1554,9 +1858,16 @@
         </div>
     </section>
 
+    <div class="section-divider"></div>
+
     <!-- CTA FINAL -->
     <section class="cta-section" id="aplicar">
         <div class="orb orb-purple orb-1"></div>
+
+        <!-- Orbital Ring -->
+        <svg class="orbital-ring" style="width:800px;height:450px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.08" viewBox="0 0 800 450">
+            <ellipse cx="400" cy="225" rx="380" ry="200" stroke="url(#orbital-gradient)" />
+        </svg>
 
         <div class="container">
             <div class="glass-card cta-card fade-up">
@@ -1611,6 +1922,31 @@
                 if (t) t.scrollIntoView({ behavior: 'smooth' });
             });
         });
+
+        // Star field
+        (function() {
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReduced) return;
+
+            const canvas = document.createElement('div');
+            canvas.style.cssText = 'position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;';
+            canvas.setAttribute('aria-hidden', 'true');
+            document.body.prepend(canvas);
+
+            const isMobile = window.innerWidth <= 768;
+            const count = isMobile ? 25 : 55;
+
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                const size = Math.random() * 2 + 0.5;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 8;
+                const duration = Math.random() * 4 + 3;
+                star.style.cssText = `position:absolute;left:${x}%;top:${y}%;width:${size}px;height:${size}px;background:rgba(155,89,224,0.5);border-radius:50%;animation:twinkle ${duration}s ease-in-out ${delay}s infinite;`;
+                canvas.appendChild(star);
+            }
+        })();
     </script>
 
 </body>
