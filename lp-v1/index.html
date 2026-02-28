@@ -163,7 +163,6 @@
         .hero .orb-1 { animation-duration: 22s; animation-delay: 0s; }
         .hero .orb-2 { animation-duration: 18s; animation-delay: -5s; }
         .why-section .orb-1 { animation-duration: 25s; animation-delay: -8s; }
-        .values-section .orb-1 { animation-duration: 20s; animation-delay: -3s; }
         .benefits-section .orb-1 { animation-duration: 24s; animation-delay: -12s; }
         .results-section .orb-1 { animation-duration: 22s; animation-delay: -6s; }
         .cta-section .orb-1 { animation-duration: 18s; animation-delay: -2s; }
@@ -232,29 +231,22 @@
 
         /* ===== HERO ===== */
         .hero {
-            padding: 24px 0 100px;
+            padding: 24px 0 calc(29px + 3vw);
             text-align: center;
             position: relative;
             overflow: visible;
         }
 
-        .hero-halfmoon-img {
+        .hero::after {
+            content: '';
             position: absolute;
-            bottom: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            z-index: 0;
-            pointer-events: none;
-            line-height: 0;
-        }
-
-        .hero-halfmoon-img img {
+            bottom: 0;
+            left: 10%;
             width: 80%;
-            max-width: 80%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
+            aspect-ratio: 1440 / 810;
+            background: url('eternityhalfmoonbright.svg') no-repeat center / contain;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .hero .orb-1 {
@@ -316,9 +308,9 @@
             border: none;
         }
 
-        /* ===== LOGOS SECTION ===== */
-        .logos-section {
-            padding: 48px 0;
+        /* ===== SOCIAL PROOF / TESTIMONIALS ===== */
+        .social-proof {
+            padding: 56px 0;
             position: relative;
             z-index: 2;
             border-top: 1px solid var(--border);
@@ -326,33 +318,126 @@
             background: transparent;
             backdrop-filter: blur(19px);
             -webkit-backdrop-filter: blur(19px);
+            overflow: hidden;
         }
 
-        .logos-label {
+        .social-proof-label {
             text-align: center;
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--text-muted);
-            margin-bottom: 24px;
+            margin-bottom: 32px;
+            padding: 0 24px;
         }
 
-        .logos-row {
+        .marquee-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .marquee-wrapper::before,
+        .marquee-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .marquee-wrapper::before {
+            left: 0;
+            background: linear-gradient(to right, var(--bg), transparent);
+        }
+
+        .marquee-wrapper::after {
+            right: 0;
+            background: linear-gradient(to left, var(--bg), transparent);
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 20px;
+            animation: marquee 45s linear infinite;
+            width: max-content;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .testimonial-card {
+            flex-shrink: 0;
+            width: 340px;
+            padding: 28px 24px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: border-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .testimonial-stars {
+            display: flex;
+            gap: 3px;
+            color: var(--purple-bright);
+            font-size: 13px;
+        }
+
+        .testimonial-text {
+            font-size: 14px;
+            line-height: 1.65;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple-deep), var(--purple));
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 48px;
-            flex-wrap: wrap;
-            opacity: 0.35;
-        }
-
-        .logos-row span {
             font-size: 16px;
             font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            white-space: nowrap;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .testimonial-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .testimonial-role {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
         /* ===== WHY SECTION (PAIN POINTS) ===== */
@@ -431,59 +516,6 @@
             align-items: center;
             justify-content: center;
             min-height: 240px;
-        }
-
-        /* ===== VALUES SECTION ===== */
-        .values-section {
-            padding: 120px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .values-section .orb-1 {
-            width: 500px; height: 500px;
-            bottom: -200px; right: -150px;
-        }
-
-        .values-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-            margin-top: 56px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .value-card {
-            padding: 28px 22px;
-            text-align: center;
-        }
-
-        .value-card-icon {
-            width: 52px;
-            height: 52px;
-            margin: 0 auto 18px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--purple), var(--purple-deep));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: var(--white);
-            box-shadow: 0 8px 24px rgba(112, 34, 187, 0.25);
-        }
-
-        .value-card h4 {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--white);
-        }
-
-        .value-card p {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.65;
         }
 
         /* ===== METHOD SECTION ===== */
@@ -828,81 +860,13 @@
             line-height: 1.4;
         }
 
-        /* ===== TESTIMONIALS ===== */
-        .testimonials-section {
-            padding: 120px 0;
-            background: var(--bg-2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-            margin-top: 56px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .testimonial-card {
-            padding: 28px;
-        }
-
-        .testimonial-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .testimonial-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--purple), var(--purple-deep));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--white);
-            flex-shrink: 0;
-        }
-
-        .testimonial-info h5 {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        .testimonial-info span {
-            font-size: 11px;
-            color: var(--purple-light);
-            font-weight: 500;
-        }
-
-        .testimonial-card p {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.75;
-            font-style: italic;
-        }
-
-        .testimonial-stars {
-            margin-top: 14px;
-            color: var(--purple-bright);
-            font-size: 12px;
-            display: flex;
-            gap: 3px;
-        }
-
         /* ===== CTA FINAL ===== */
         .cta-section {
             padding: 120px 0;
             position: relative;
             overflow: hidden;
             text-align: center;
+            background: url('purpledetailslastsection.png') no-repeat center center / cover;
         }
 
         .cta-section .orb-1 {
@@ -911,33 +875,29 @@
             transform: translate(-50%, -50%);
         }
 
-        .cta-card {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 60px 48px;
-            text-align: center;
+        .cta-section > .container {
             position: relative;
             z-index: 1;
-            background: linear-gradient(135deg, rgba(47, 5, 76, 0.35), rgba(20, 18, 38, 0.6));
         }
 
-        .cta-card-logo {
+        .cta-section .cta-logo {
             height: 48px;
-            margin: 0 auto 28px;
+            margin: 0 auto 32px;
         }
 
-        .cta-card h2 {
-            font-size: clamp(24px, 4vw, 36px);
+        .cta-section h2 {
+            font-size: clamp(26px, 4vw, 40px);
             font-weight: 800;
             line-height: 1.2;
             margin-bottom: 16px;
+            color: var(--white);
         }
 
-        .cta-card p {
+        .cta-section .cta-sub {
             font-size: 15px;
             color: var(--text-muted);
             line-height: 1.7;
-            margin-bottom: 32px;
+            margin-bottom: 36px;
             max-width: 480px;
             margin-left: auto;
             margin-right: auto;
@@ -1014,7 +974,7 @@
         }
 
         .footer-logo img {
-            height: 24px;
+            height: 37px;
             width: auto;
             opacity: 0.7;
         }
@@ -1097,6 +1057,29 @@
                 transparent 100%
             );
             filter: blur(4px);
+        }
+
+        /* ===== PURPLE SHINE EFFECT ===== */
+        .prp-shine-effect {
+            position: absolute;
+            right: -28%;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            width: 977px;
+            height: auto;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.85;
+            transition: transform 0.3s ease-out;
+        }
+
+        .prp-shine-effect.spinning {
+            animation: shine-spin 25s linear infinite;
+        }
+
+        @keyframes shine-spin {
+            from { transform: translateY(-50%) rotate(0deg); }
+            to { transform: translateY(-50%) rotate(-360deg); }
         }
 
         /* ===== ORBITAL RINGS ===== */
@@ -1227,28 +1210,35 @@
         }
 
         /* ===== RESPONSIVE ===== */
+
+        /* Wide monitors: push half-moon down so glow doesn't overlap subtitle */
+        @media (min-width: 1441px) {
+            .hero::after {
+                bottom: calc(-1 * (100vw - 1440px) * 0.25);
+            }
+        }
+
         @media (max-width: 1024px) {
             .benefits-steps { grid-template-columns: repeat(2, 1fr); }
-            .values-grid { grid-template-columns: repeat(3, 1fr); }
+            .prp-shine-effect { width: 710px; }
         }
 
         @media (max-width: 768px) {
-            .hero { padding: 40px 0 40px; }
+            .hero { padding: 40px 0 calc(29px + 3vw); }
             .why-grid { grid-template-columns: 1fr; }
             .why-card-full { grid-template-columns: 1fr; }
             .why-card-full-visual { min-height: 160px; }
-            .values-grid { grid-template-columns: repeat(2, 1fr); }
             .benefits-steps { grid-template-columns: 1fr; }
             .feature-row,
             .feature-row.reverse { grid-template-columns: 1fr; direction: ltr; }
             .results-grid { grid-template-columns: repeat(2, 1fr); }
             .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .testimonials-grid { grid-template-columns: 1fr; }
             .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
             .carousel-nav { display: none; }
             .orbital-ring { display: none; }
             .constellation { display: none; }
             .infinity-watermark { display: none; }
+            .prp-shine-effect { width: 532px; opacity: 0.7; }
             body::after { opacity: 0.015; }
         }
 
@@ -1263,11 +1253,10 @@
         @media (max-width: 480px) {
             .hero h1 { font-size: 32px; }
             .hero-buttons { flex-direction: column; align-items: center; }
-            .values-grid { grid-template-columns: 1fr; }
             .results-grid { grid-template-columns: 1fr 1fr; }
-            .cta-card { padding: 40px 24px; }
-            .logos-row { gap: 28px; }
-            .logos-row span { font-size: 13px; }
+            .testimonial-card { width: 280px; padding: 22px 18px; }
+            .testimonial-text { font-size: 13px; }
+            .prp-shine-effect { width: 391px; right: -25%; }
         }
 
         /* ===== ANIMATIONS ===== */
@@ -1311,11 +1300,6 @@
 
     <!-- HERO -->
     <section class="hero">
-        <!-- Half-Moon Image -->
-        <div class="hero-halfmoon-img">
-            <img src="eternityhalfmoonbright.svg" alt="" aria-hidden="true">
-        </div>
-
         <div class="orb orb-purple orb-1"></div>
         <div class="orb orb-blue orb-2"></div>
         <div class="dot-grid"></div>
@@ -1344,7 +1328,7 @@
             </div>
 
             <p class="hero-sub">
-                Cadastre-se abaixo para ser selecionado para um <strong style="color: #FFFFFF;">diagn&oacute;stico estrat&eacute;gico</strong> com um especialista da FGA, focado em escalar e otimizar suas opera&ccedil;&otilde;es comerciais.
+                Inscreva-se para ser selecionado para um <strong style="color: #FFFFFF;">diagn&oacute;stico estrat&eacute;gico</strong> com um especialista da Eternity, focado em escalar e otimizar suas opera&ccedil;&otilde;es globais.
             </p>
 
             <div class="hero-buttons">
@@ -1355,18 +1339,179 @@
         </div>
     </section>
 
-    <!-- LOGOS -->
-    <section class="logos-section">
-        <div class="container">
-            <p class="logos-label">Opera&ccedil;&otilde;es e alunos em mais de 15 pa&iacute;ses</p>
-            <div class="logos-row">
-                <span>Replyna</span>
-                <span>COD Profit</span>
-                <span>Zoopi Finance</span>
-                <span>Opera&ccedil;&atilde;o Global</span>
-                <span>Mentoria Global</span>
-                <span>TEG</span>
-                <span>MDG</span>
+    <!-- SOCIAL PROOF -->
+    <section class="social-proof">
+        <div class="marquee-wrapper">
+            <div class="marquee-track">
+                <!-- Cards originais -->
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Em 3 meses apliquei o m&eacute;todo e sa&iacute; de R$40k para R$180k de faturamento mensal. O diagn&oacute;stico mudou completamente minha vis&atilde;o da opera&ccedil;&atilde;o.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">R</div>
+                        <div>
+                            <div class="testimonial-name">Rafael M.</div>
+                            <div class="testimonial-role">Operador de Ecommerce &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;A mentoria me deu clareza sobre o que eu estava fazendo errado. Hoje opero em 3 pa&iacute;ses e minha margem l&iacute;quida dobrou.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">A</div>
+                        <div>
+                            <div class="testimonial-name">Ana C.</div>
+                            <div class="testimonial-role">Operadora Global &mdash; Portugal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;N&atilde;o &eacute; um curso gen&eacute;rico. Eles analisaram minha opera&ccedil;&atilde;o por dentro e montaram um plano espec&iacute;fico. Resultado: 6 d&iacute;gitos em 60 dias.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">L</div>
+                        <div>
+                            <div class="testimonial-name">Lucas T.</div>
+                            <div class="testimonial-role">Fundador de E-commerce &mdash; EUA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Eu j&aacute; tinha tentado v&aacute;rias mentorias. A Eternity foi a &uacute;nica que entregou resultado real. Escala consistente sem queimar caixa.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">M</div>
+                        <div>
+                            <div class="testimonial-name">Matheus S.</div>
+                            <div class="testimonial-role">COD Operator &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;O suporte &eacute; absurdo. Tenho acesso direto ao time que j&aacute; faturou milh&otilde;es. Isso n&atilde;o tem pre&ccedil;o.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">J</div>
+                        <div>
+                            <div class="testimonial-name">Juliana P.</div>
+                            <div class="testimonial-role">Dropshipper &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Comecei do zero absoluto e em 4 meses j&aacute; estava faturando R$90k/m&ecirc;s. O m&eacute;todo &eacute; claro, direto e funciona.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">D</div>
+                        <div>
+                            <div class="testimonial-name">Diego F.</div>
+                            <div class="testimonial-role">Operador Iniciante &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duplicados para loop infinito -->
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Em 3 meses apliquei o m&eacute;todo e sa&iacute; de R$40k para R$180k de faturamento mensal. O diagn&oacute;stico mudou completamente minha vis&atilde;o da opera&ccedil;&atilde;o.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">R</div>
+                        <div>
+                            <div class="testimonial-name">Rafael M.</div>
+                            <div class="testimonial-role">Operador de Ecommerce &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;A mentoria me deu clareza sobre o que eu estava fazendo errado. Hoje opero em 3 pa&iacute;ses e minha margem l&iacute;quida dobrou.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">A</div>
+                        <div>
+                            <div class="testimonial-name">Ana C.</div>
+                            <div class="testimonial-role">Operadora Global &mdash; Portugal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;N&atilde;o &eacute; um curso gen&eacute;rico. Eles analisaram minha opera&ccedil;&atilde;o por dentro e montaram um plano espec&iacute;fico. Resultado: 6 d&iacute;gitos em 60 dias.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">L</div>
+                        <div>
+                            <div class="testimonial-name">Lucas T.</div>
+                            <div class="testimonial-role">Fundador de E-commerce &mdash; EUA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Eu j&aacute; tinha tentado v&aacute;rias mentorias. A Eternity foi a &uacute;nica que entregou resultado real. Escala consistente sem queimar caixa.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">M</div>
+                        <div>
+                            <div class="testimonial-name">Matheus S.</div>
+                            <div class="testimonial-role">COD Operator &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;O suporte &eacute; absurdo. Tenho acesso direto ao time que j&aacute; faturou milh&otilde;es. Isso n&atilde;o tem pre&ccedil;o.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">J</div>
+                        <div>
+                            <div class="testimonial-name">Juliana P.</div>
+                            <div class="testimonial-role">Dropshipper &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">&ldquo;Comecei do zero absoluto e em 4 meses j&aacute; estava faturando R$90k/m&ecirc;s. O m&eacute;todo &eacute; claro, direto e funciona.&rdquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">D</div>
+                        <div>
+                            <div class="testimonial-name">Diego F.</div>
+                            <div class="testimonial-role">Operador Iniciante &mdash; Brasil</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1380,7 +1525,7 @@
 
         <div class="container">
             <div class="section-title fade-up">
-                Por que operadores escolhem a<br><span class="glow-text">Eternity Academy</span>
+                Por que players escolhem a<br><span class="glow-text">Eternity Academy</span>
             </div>
             <p class="section-sub fade-up">
                 N&atilde;o somos um curso. Somos a universidade de quem constr&oacute;i imp&eacute;rios no ecommerce global.
@@ -1425,66 +1570,9 @@
         </div>
     </section>
 
-    <div class="section-divider"></div>
-
-    <!-- VALUES -->
-    <section class="values-section">
-        <div class="orb orb-blue orb-1"></div>
-
-        <!-- Constellation -->
-        <svg class="constellation" viewBox="0 0 1200 600" preserveAspectRatio="none">
-            <circle cx="120" cy="80" r="2"><animate attributeName="opacity" values="0.3;1;0.3" dur="4s" repeatCount="indefinite"/></circle>
-            <circle cx="340" cy="150" r="1.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="6s" repeatCount="indefinite"/></circle>
-            <circle cx="560" cy="60" r="1"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="5s" repeatCount="indefinite"/></circle>
-            <circle cx="780" cy="200" r="2"><animate attributeName="opacity" values="0.4;1;0.4" dur="7s" repeatCount="indefinite"/></circle>
-            <circle cx="950" cy="120" r="1.5"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="4.5s" repeatCount="indefinite"/></circle>
-            <circle cx="1080" cy="280" r="1"><animate attributeName="opacity" values="0.5;1;0.5" dur="6.5s" repeatCount="indefinite"/></circle>
-            <circle cx="200" cy="350" r="1.5"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="5.5s" repeatCount="indefinite"/></circle>
-            <circle cx="680" cy="420" r="1"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="8s" repeatCount="indefinite"/></circle>
-            <line x1="120" y1="80" x2="340" y2="150" />
-            <line x1="340" y1="150" x2="560" y2="60" />
-            <line x1="560" y1="60" x2="780" y2="200" />
-            <line x1="780" y1="200" x2="950" y2="120" />
-            <line x1="950" y1="120" x2="1080" y2="280" />
-            <line x1="200" y1="350" x2="340" y2="150" />
-            <line x1="680" y1="420" x2="780" y2="200" />
-        </svg>
-
-        <div class="container">
-            <div class="section-title fade-up">Sobre o que <em class="glow-text">acreditamos</em></div>
-            <p class="section-sub fade-up">
-                Princ&iacute;pios inegoci&aacute;veis que guiam cada decis&atilde;o e cada intera&ccedil;&atilde;o.
-            </p>
-
-            <div class="values-grid">
-                <div class="glass-card value-card fade-up">
-                    <div class="value-card-icon"><i class="fas fa-eye"></i></div>
-                    <h4>Transpar&ecirc;ncia</h4>
-                    <p>Mostramos lucro, n&atilde;o faturamento bruto. Sem promessas vazias.</p>
-                </div>
-                <div class="glass-card value-card fade-up fade-up-delay-1">
-                    <div class="value-card-icon"><i class="fas fa-chess"></i></div>
-                    <h4>Estrat&eacute;gia</h4>
-                    <p>Cada a&ccedil;&atilde;o &eacute; calculada. Ensinamos o que &eacute; validado com dinheiro real.</p>
-                </div>
-                <div class="glass-card value-card fade-up fade-up-delay-2">
-                    <div class="value-card-icon"><i class="fas fa-bolt"></i></div>
-                    <h4>Execu&ccedil;&atilde;o</h4>
-                    <p>A&ccedil;&atilde;o disciplinada e consistente acima de teoria.</p>
-                </div>
-                <div class="glass-card value-card fade-up fade-up-delay-3">
-                    <div class="value-card-icon"><i class="fas fa-shield-alt"></i></div>
-                    <h4>Autoridade</h4>
-                    <p>Nossos n&uacute;meros sustentam a nossa voz.</p>
-                </div>
-                <div class="glass-card value-card fade-up fade-up-delay-4">
-                    <div class="value-card-icon"><i class="fas fa-gem"></i></div>
-                    <h4>Grandeza</h4>
-                    <p>Imp&eacute;rios, n&atilde;o projetos tempor&aacute;rios.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="section-divider">
+        <img src="prpshineeffect.svg" class="prp-shine-effect" alt="">
+    </div>
 
     <!-- METHOD -->
     <section class="method-section" id="metodo">
@@ -1721,106 +1809,6 @@
         </div>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section class="testimonials-section">
-        <div class="dot-grid" style="opacity:0.3;"></div>
-
-        <div class="container">
-            <div class="section-title fade-up">
-                O que nossos alunos dizem
-            </div>
-            <p class="section-sub fade-up">
-                Resultados reais de operadores que transformaram suas opera&ccedil;&otilde;es.
-            </p>
-
-            <div class="testimonials-grid">
-                <div class="glass-card testimonial-card fade-up">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">R</div>
-                        <div class="testimonial-info">
-                            <h5>Rafael M.</h5>
-                            <span>Ecommerce Europa</span>
-                        </div>
-                    </div>
-                    <p>"Sa&iacute; de U$8K de lucro para U$45K em 4 meses. A diferen&ccedil;a &eacute; que aqui voc&ecirc; aprende com quem realmente opera, n&atilde;o com quem s&oacute; vende curso."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="glass-card testimonial-card fade-up fade-up-delay-1">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">L</div>
-                        <div class="testimonial-info">
-                            <h5>Lucas T.</h5>
-                            <span>Ecommerce Global</span>
-                        </div>
-                    </div>
-                    <p>"O diagn&oacute;stico sozinho j&aacute; valeu. Identificaram gaps que eu n&atilde;o conseguia ver h&aacute; meses. Em 3 semanas j&aacute; estava com margem 30% maior."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="glass-card testimonial-card fade-up fade-up-delay-2">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">P</div>
-                        <div class="testimonial-info">
-                            <h5>Pedro S.</h5>
-                            <span>Opera&ccedil;&atilde;o Europa</span>
-                        </div>
-                    </div>
-                    <p>"J&aacute; tentei 3 mentorias antes. A Eternity &eacute; completamente diferente. N&iacute;vel de profundidade e acompanhamento que n&atilde;o existe em nenhum outro lugar."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="glass-card testimonial-card fade-up">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">M</div>
-                        <div class="testimonial-info">
-                            <h5>Matheus A.</h5>
-                            <span>Ecommerce COD</span>
-                        </div>
-                    </div>
-                    <p>"Estruturei minha opera&ccedil;&atilde;o em 3 pa&iacute;ses em menos de 6 meses. O acesso direto ao Carlos e aos heads faz toda a diferen&ccedil;a."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="glass-card testimonial-card fade-up fade-up-delay-1">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">G</div>
-                        <div class="testimonial-info">
-                            <h5>Gabriel R.</h5>
-                            <span>Ecommerce Global</span>
-                        </div>
-                    </div>
-                    <p>"Finalmente entendi a diferen&ccedil;a entre faturar alto e lucrar de verdade. A Academy mudou completamente minha vis&atilde;o sobre opera&ccedil;&atilde;o."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-
-                <div class="glass-card testimonial-card fade-up fade-up-delay-2">
-                    <div class="testimonial-header">
-                        <div class="testimonial-avatar">D</div>
-                        <div class="testimonial-info">
-                            <h5>Daniel F.</h5>
-                            <span>Opera&ccedil;&atilde;o Europa</span>
-                        </div>
-                    </div>
-                    <p>"O n&iacute;vel de transpar&ecirc;ncia &eacute; absurdo. Mostram tudo &mdash; lucro real, opera&ccedil;&atilde;o real, erros reais. &Eacute; isso que gera confian&ccedil;a."</p>
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <div class="section-divider"></div>
 
     <!-- FAQ -->
@@ -1890,20 +1878,11 @@
 
     <!-- CTA FINAL -->
     <section class="cta-section" id="aplicar">
-        <div class="orb orb-purple orb-1"></div>
-
-        <!-- Orbital Ring -->
-        <svg class="orbital-ring" style="width:800px;height:450px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.08" viewBox="0 0 800 450">
-            <ellipse cx="400" cy="225" rx="380" ry="200" stroke="url(#orbital-gradient)" />
-        </svg>
-
-        <div class="container">
-            <div class="glass-card cta-card fade-up">
-                <img src="../bio/eahorizonta1.png" alt="Eternity Academy" class="cta-card-logo">
-                <h2>Pronto para construir seu <span class="glow-text">imp&eacute;rio</span>?</h2>
-                <p>Aplique agora para o diagn&oacute;stico estrat&eacute;gico e descubra exatamente o que est&aacute; travando sua opera&ccedil;&atilde;o.</p>
-                <a href="#" class="cta-btn">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
-            </div>
+        <div class="container fade-up">
+            <img src="../bio/eahorizonta1.png" alt="Eternity Academy" class="cta-logo">
+            <h2>Pronto para construir seu <span class="glow-text">imp&eacute;rio</span>?</h2>
+            <p class="cta-sub">Aplique agora para o diagn&oacute;stico estrat&eacute;gico e descubra exatamente o que est&aacute; travando sua opera&ccedil;&atilde;o.</p>
+            <a href="#" class="cta-btn">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
 
@@ -1912,7 +1891,7 @@
         <div class="container">
             <div class="footer-inner">
                 <a href="#" class="footer-logo">
-                    <img src="../bio/eternitylillogo.png" alt="Eternity">
+                    <img src="../bio/eahorizonta1.png" alt="Eternity Academy">
                 </a>
                 <div class="footer-links">
                     <a href="#">Pol&iacute;tica de Privacidade</a>
@@ -1941,6 +1920,21 @@
         }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
         document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+        // Purple shine spin on scroll
+        const shineEl = document.querySelector('.prp-shine-effect');
+        if (shineEl) {
+            const shineObs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        shineEl.classList.add('spinning');
+                    } else {
+                        shineEl.classList.remove('spinning');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '200px 0px 200px 0px' });
+            shineObs.observe(shineEl.parentElement);
+        }
 
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -1975,6 +1969,7 @@
                 canvas.appendChild(star);
             }
         })();
+
     </script>
 
 </body>
