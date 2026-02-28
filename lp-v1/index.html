@@ -235,7 +235,26 @@
             padding: 24px 0 100px;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+        }
+
+        .hero-halfmoon-img {
+            position: absolute;
+            bottom: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            z-index: 0;
+            pointer-events: none;
+            line-height: 0;
+        }
+
+        .hero-halfmoon-img img {
+            width: 80%;
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
 
         .hero .orb-1 {
@@ -301,8 +320,12 @@
         .logos-section {
             padding: 48px 0;
             position: relative;
+            z-index: 2;
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
+            background: transparent;
+            backdrop-filter: blur(19px);
+            -webkit-backdrop-filter: blur(19px);
         }
 
         .logos-label {
@@ -1288,6 +1311,11 @@
 
     <!-- HERO -->
     <section class="hero">
+        <!-- Half-Moon Image -->
+        <div class="hero-halfmoon-img">
+            <img src="eternityhalfmoonbright.svg" alt="" aria-hidden="true">
+        </div>
+
         <div class="orb orb-purple orb-1"></div>
         <div class="orb orb-blue orb-2"></div>
         <div class="dot-grid"></div>
