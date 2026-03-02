@@ -234,7 +234,7 @@
             padding: 24px 0 calc(29px + 3vw);
             text-align: center;
             position: relative;
-            overflow: visible;
+            overflow: clip;
         }
 
         .hero::after {
@@ -391,13 +391,6 @@
 
         .testimonial-card:hover {
             border-color: var(--border-hover);
-        }
-
-        .testimonial-stars {
-            display: flex;
-            gap: 3px;
-            color: var(--purple-bright);
-            font-size: 13px;
         }
 
         .testimonial-text {
@@ -866,7 +859,7 @@
             position: relative;
             overflow: hidden;
             text-align: center;
-            background: url('purpledetailslastsection.svg') no-repeat center center / cover;
+            background: url('purpledetailslastsection.svg') no-repeat right bottom / contain;
         }
 
         .cta-section .orb-1 {
@@ -1062,7 +1055,7 @@
         /* ===== PURPLE SHINE EFFECT ===== */
         .prp-shine-effect {
             position: absolute;
-            right: -29%;
+            right: -34%;
             top: 50%;
             transform: translateY(-50%) rotate(0deg);
             width: 977px;
@@ -1074,7 +1067,7 @@
         }
 
         .prp-shine-effect.spinning {
-            animation: shine-spin 45s linear infinite;
+            animation: shine-spin 48.195s linear infinite;
         }
 
         @keyframes shine-spin {
@@ -1150,7 +1143,7 @@
             content: '';
             position: absolute;
             top: -100px;
-            right: -100px;
+            right: -120px;
             width: 400px;
             height: 400px;
             background: radial-gradient(circle, rgba(112, 34, 187, 0.08), transparent 70%);
@@ -1332,8 +1325,8 @@
             </p>
 
             <div class="hero-buttons">
-                <a href="#aplicar" class="cta-btn">
-                    Quero aplicar agora <i class="fas fa-arrow-right"></i>
+                <a href="#inscrever" class="cta-btn">
+                    Quero me inscrever agora <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
@@ -1345,9 +1338,7 @@
             <div class="marquee-track">
                 <!-- Cards originais -->
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Em 3 meses apliquei o m&eacute;todo e sa&iacute; de R$40k para R$180k de faturamento mensal. O diagn&oacute;stico mudou completamente minha vis&atilde;o da opera&ccedil;&atilde;o.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">R</div>
@@ -1359,9 +1350,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;A mentoria me deu clareza sobre o que eu estava fazendo errado. Hoje opero em 3 pa&iacute;ses e minha margem l&iacute;quida dobrou.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">A</div>
@@ -1373,23 +1362,19 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;N&atilde;o &eacute; um curso gen&eacute;rico. Eles analisaram minha opera&ccedil;&atilde;o por dentro e montaram um plano espec&iacute;fico. Resultado: 6 d&iacute;gitos em 60 dias.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">L</div>
                         <div>
                             <div class="testimonial-name">Lucas T.</div>
-                            <div class="testimonial-role">Fundador de E-commerce &mdash; EUA</div>
+                            <div class="testimonial-role">Carlos Azevedo &mdash; E-commerce &mdash; EUA</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Eu j&aacute; tinha tentado v&aacute;rias mentorias. A Eternity foi a &uacute;nica que entregou resultado real. Escala consistente sem queimar caixa.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">M</div>
@@ -1401,9 +1386,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;O suporte &eacute; absurdo. Tenho acesso direto ao time que j&aacute; faturou milh&otilde;es. Isso n&atilde;o tem pre&ccedil;o.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">J</div>
@@ -1415,9 +1398,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Comecei do zero absoluto e em 4 meses j&aacute; estava faturando R$90k/m&ecirc;s. O m&eacute;todo &eacute; claro, direto e funciona.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">D</div>
@@ -1430,9 +1411,7 @@
 
                 <!-- Duplicados para loop infinito -->
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Em 3 meses apliquei o m&eacute;todo e sa&iacute; de R$40k para R$180k de faturamento mensal. O diagn&oacute;stico mudou completamente minha vis&atilde;o da opera&ccedil;&atilde;o.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">R</div>
@@ -1444,9 +1423,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;A mentoria me deu clareza sobre o que eu estava fazendo errado. Hoje opero em 3 pa&iacute;ses e minha margem l&iacute;quida dobrou.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">A</div>
@@ -1458,23 +1435,19 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;N&atilde;o &eacute; um curso gen&eacute;rico. Eles analisaram minha opera&ccedil;&atilde;o por dentro e montaram um plano espec&iacute;fico. Resultado: 6 d&iacute;gitos em 60 dias.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">L</div>
                         <div>
                             <div class="testimonial-name">Lucas T.</div>
-                            <div class="testimonial-role">Fundador de E-commerce &mdash; EUA</div>
+                            <div class="testimonial-role">Carlos Azevedo &mdash; E-commerce &mdash; EUA</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Eu j&aacute; tinha tentado v&aacute;rias mentorias. A Eternity foi a &uacute;nica que entregou resultado real. Escala consistente sem queimar caixa.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">M</div>
@@ -1486,9 +1459,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;O suporte &eacute; absurdo. Tenho acesso direto ao time que j&aacute; faturou milh&otilde;es. Isso n&atilde;o tem pre&ccedil;o.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">J</div>
@@ -1500,9 +1471,7 @@
                 </div>
 
                 <div class="testimonial-card">
-                    <div class="testimonial-stars">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
+
                     <p class="testimonial-text">&ldquo;Comecei do zero absoluto e em 4 meses j&aacute; estava faturando R$90k/m&ecirc;s. O m&eacute;todo &eacute; claro, direto e funciona.&rdquo;</p>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">D</div>
@@ -1560,10 +1529,10 @@
                     <div class="why-card-full-content">
                         <div class="why-card-icon"><i class="fas fa-crown"></i></div>
                         <h3>Aprenda com Quem Opera</h3>
-                        <p>O fundador ensina junto com heads e C-levels que operam no dia a dia. Conhecimento operacional real, n&atilde;o teoria de quem nunca vendeu um produto.</p>
+                        <p>Carlos Azevedo ensina junto com heads e C-levels que operam no dia a dia. Conhecimento operacional real, n&atilde;o teoria de quem nunca vendeu um produto.</p>
                     </div>
                     <div class="why-card-full-visual">
-                        <img src="../bio/eahorizonta1.png" alt="Eternity Academy" style="width:120px;opacity:0.5;">
+                        <img src="eahorizonta1.png" alt="Eternity Academy" style="width:120px;opacity:0.5;">
                     </div>
                 </div>
             </div>
@@ -1618,7 +1587,7 @@
             </div>
 
             <div style="text-align:center;margin-top:40px;position:relative;z-index:1;">
-                <a href="#aplicar" class="cta-btn fade-up">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
+                <a href="#inscrever" class="cta-btn fade-up">Quero me inscrever agora <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </section>
@@ -1749,7 +1718,7 @@
 
         <div class="container">
             <div class="section-title fade-up">
-                Resultados de quem j&aacute; passou<br>pela <span class="glow-text">Eternity Academy</span>
+                Resultados de quem j&aacute; passou<br>por mentorias da <span class="glow-text">Eternity</span>
             </div>
 
             <div class="results-grid">
@@ -1773,7 +1742,7 @@
                     <div class="result-card-bg"></div>
                     <div class="result-card-content">
                         <div class="badge">Opera&ccedil;&atilde;o global</div>
-                        <div class="value">6 Pa&iacute;ses</div>
+                        <div class="value">+10 Pa&iacute;ses</div>
                         <div class="sub">em 1 ano</div>
                     </div>
                 </div>
@@ -1790,11 +1759,11 @@
             <!-- Stats -->
             <div class="stats-row">
                 <div class="glass-card stat-card fade-up">
-                    <div class="num">+200</div>
+                    <div class="num">+600</div>
                     <div class="label">Alunos acelerados</div>
                 </div>
                 <div class="glass-card stat-card fade-up fade-up-delay-1">
-                    <div class="num">+$5M</div>
+                    <div class="num">+R$650M</div>
                     <div class="label">Lucro gerado pelos alunos</div>
                 </div>
                 <div class="glass-card stat-card fade-up fade-up-delay-2">
@@ -1802,7 +1771,7 @@
                     <div class="label">Pa&iacute;ses com opera&ccedil;&otilde;es</div>
                 </div>
                 <div class="glass-card stat-card fade-up fade-up-delay-3">
-                    <div class="num">+$11M</div>
+                    <div class="num">R$1BI</div>
                     <div class="label">Vendas nas opera&ccedil;&otilde;es</div>
                 </div>
             </div>
@@ -1877,12 +1846,12 @@
     <div class="section-divider"></div>
 
     <!-- CTA FINAL -->
-    <section class="cta-section" id="aplicar">
+    <section class="cta-section" id="inscrever">
         <div class="container fade-up">
-            <img src="../bio/eahorizonta1.png" alt="Eternity Academy" class="cta-logo">
+            <img src="eahorizonta1.png" alt="Eternity Academy" class="cta-logo">
             <h2>Pronto para construir seu <span class="glow-text">imp&eacute;rio</span>?</h2>
             <p class="cta-sub">Aplique agora para o diagn&oacute;stico estrat&eacute;gico e descubra exatamente o que est&aacute; travando sua opera&ccedil;&atilde;o.</p>
-            <a href="#" class="cta-btn">Quero aplicar agora <i class="fas fa-arrow-right"></i></a>
+            <a href="#" class="cta-btn">Quero me inscrever agora <i class="fas fa-arrow-right"></i></a>
         </div>
     </section>
 
@@ -1891,7 +1860,7 @@
         <div class="container">
             <div class="footer-inner">
                 <a href="#" class="footer-logo">
-                    <img src="../bio/eahorizonta1.png" alt="Eternity Academy">
+                    <img src="eahorizonta1.png" alt="Eternity Academy">
                 </a>
                 <div class="footer-links">
                     <a href="#">Pol&iacute;tica de Privacidade</a>
