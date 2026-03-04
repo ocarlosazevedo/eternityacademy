@@ -237,6 +237,17 @@
             overflow: clip;
         }
 
+        .hero-bg-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         .hero::after {
             content: '';
             position: absolute;
@@ -1293,6 +1304,9 @@
 
     <!-- HERO -->
     <section class="hero">
+        <video class="hero-bg-video" autoplay muted loop playsinline>
+            <source src="/lp-v1/backgroundpurplevideo.mp4" type="video/mp4">
+        </video>
         <div class="orb orb-purple orb-1"></div>
         <div class="orb orb-blue orb-2"></div>
         <div class="dot-grid"></div>
