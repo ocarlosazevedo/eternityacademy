@@ -305,50 +305,32 @@
             width: 100%;
             padding-top: 56.25%;
             border-radius: 20px;
-            overflow: visible;
+            overflow: hidden;
             background: #000;
         }
 
-        /* Neon corner - top left */
-        .vsl-wrapper::before {
-            content: '';
+        .vsl-corner-glow {
             position: absolute;
-            top: -4px;
-            left: -4px;
-            width: 160px;
-            height: 160px;
-            border-top: 5px solid rgba(200, 150, 255, 0.95);
-            border-left: 5px solid rgba(200, 150, 255, 0.95);
-            border-radius: 24px 0 0 0;
-            z-index: 3;
             pointer-events: none;
+            z-index: 3;
             filter:
-                drop-shadow(0 0 3px rgba(200, 150, 255, 1))
-                drop-shadow(0 0 8px rgba(180, 122, 237, 0.9))
-                drop-shadow(0 0 20px rgba(155, 89, 224, 0.7))
-                drop-shadow(0 0 40px rgba(112, 34, 187, 0.5))
-                drop-shadow(0 0 70px rgba(112, 34, 187, 0.3));
+                drop-shadow(0 0 4px rgba(180, 130, 255, 0.9))
+                drop-shadow(0 0 12px rgba(155, 89, 224, 0.6))
+                drop-shadow(0 0 30px rgba(112, 34, 187, 0.4));
         }
 
-        /* Neon corner - bottom right */
-        .vsl-wrapper::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            right: -4px;
-            width: 160px;
-            height: 160px;
-            border-bottom: 5px solid rgba(200, 150, 255, 0.95);
-            border-right: 5px solid rgba(200, 150, 255, 0.95);
-            border-radius: 0 0 24px 0;
-            z-index: 3;
-            pointer-events: none;
-            filter:
-                drop-shadow(0 0 3px rgba(200, 150, 255, 1))
-                drop-shadow(0 0 8px rgba(180, 122, 237, 0.9))
-                drop-shadow(0 0 20px rgba(155, 89, 224, 0.7))
-                drop-shadow(0 0 40px rgba(112, 34, 187, 0.5))
-                drop-shadow(0 0 70px rgba(112, 34, 187, 0.3));
+        .vsl-corner-tl {
+            top: -3px;
+            left: -3px;
+            width: 220px;
+            height: 220px;
+        }
+
+        .vsl-corner-br {
+            bottom: -3px;
+            right: -3px;
+            width: 220px;
+            height: 220px;
         }
 
         .vsl-player iframe {
@@ -1244,6 +1226,32 @@
             </div>
 
             <div class="vsl-wrapper">
+                <!-- Corner glow - top left -->
+                <svg class="vsl-corner-glow vsl-corner-tl" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="glow-tl" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(3,3) scale(210)">
+                            <stop offset="0%" stop-color="#c896ff" stop-opacity="1"/>
+                            <stop offset="0.12" stop-color="#b070f0" stop-opacity="0.85"/>
+                            <stop offset="0.5" stop-color="#7022BB" stop-opacity="0.35"/>
+                            <stop offset="1" stop-color="#7022BB" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                    <path d="M 220 5 L 25 5 Q 5 5 5 25 L 5 220" stroke="url(#glow-tl)" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+
+                <!-- Corner glow - bottom right -->
+                <svg class="vsl-corner-glow vsl-corner-br" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="glow-br" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(217,217) scale(210)">
+                            <stop offset="0%" stop-color="#c896ff" stop-opacity="1"/>
+                            <stop offset="0.12" stop-color="#b070f0" stop-opacity="0.85"/>
+                            <stop offset="0.5" stop-color="#7022BB" stop-opacity="0.35"/>
+                            <stop offset="1" stop-color="#7022BB" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                    <path d="M 0 215 L 195 215 Q 215 215 215 195 L 215 0" stroke="url(#glow-br)" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+
                 <div class="vsl-player">
                     <iframe src="https://www.youtube-nocookie.com/embed/s6eb348GOzg?rel=0&playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
