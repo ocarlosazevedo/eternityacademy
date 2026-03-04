@@ -298,43 +298,22 @@
             max-width: 860px;
             margin: 0 auto;
             position: relative;
-        }
-
-        .vsl-wrapper::before,
-        .vsl-wrapper::after {
-            content: '';
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            z-index: 3;
-            pointer-events: none;
-            border-radius: 20px;
-        }
-
-        .vsl-wrapper::before {
-            top: -1px;
-            left: -1px;
-            border-top: 3px solid var(--purple-light);
-            border-left: 3px solid var(--purple-light);
-            filter: drop-shadow(0 0 6px rgba(155, 89, 224, 0.8)) drop-shadow(0 0 18px rgba(155, 89, 224, 0.4));
-        }
-
-        .vsl-wrapper::after {
-            bottom: -1px;
-            right: -1px;
-            border-bottom: 3px solid var(--purple-light);
-            border-right: 3px solid var(--purple-light);
-            filter: drop-shadow(0 0 6px rgba(155, 89, 224, 0.8)) drop-shadow(0 0 18px rgba(155, 89, 224, 0.4));
+            padding: 6px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--purple-light), var(--purple), var(--purple-deep), var(--purple), var(--purple-light));
+            box-shadow:
+                0 0 15px rgba(155, 89, 224, 0.6),
+                0 0 40px rgba(112, 34, 187, 0.3),
+                0 0 80px rgba(112, 34, 187, 0.15);
         }
 
         .vsl-player {
             position: relative;
             width: 100%;
             padding-top: 56.25%;
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
             background: #000;
-            border: 1px solid rgba(139, 92, 246, 0.15);
         }
 
         .vsl-player iframe {
