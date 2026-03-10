@@ -2,11 +2,11 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/bio",            "destination": "/bio/index.html"                },
-    { "source": "/login",          "destination": "/app/login/index.html"          },
-    { "source": "/dashboard",      "destination": "/app/dashboard/index.html"      },
-    { "source": "/google-callback","destination": "/app/google-callback/index.html"},
-    { "source": "/admin",          "destination": "/app/admin/index.html"          },
-    { "source": "/admin-login",    "destination": "/app/admin-login/index.html"    }
+    { "source": "/bio",             "destination": "/bio/"             },
+    { "source": "/login",           "destination": "/app/login/"           },
+    { "source": "/dashboard",       "destination": "/app/dashboard/"       },
+    { "source": "/google-callback", "destination": "/app/google-callback/" },
+    { "source": "/admin",           "destination": "/app/admin/"           },
+    { "source": "/admin-login",     "destination": "/app/admin-login/"     }
   ]
 }
