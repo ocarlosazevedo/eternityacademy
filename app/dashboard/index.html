@@ -1201,23 +1201,29 @@ async function createBooking() {
   try {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
-    const res = await fetch(`${SUPABASE_FN}/create-booking`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
-      body: JSON.stringify({ year:yr, month:mo, day:sel, slot, callTitle, callNumber, name:form.name, topic:form.topic }),
-    });
-    const json = await res.json();
-    if (json.error) { console.warn('Booking error:', json.error); return; }
+
+    // Monta datas no formato ISO com fuso de Brasília
+    const dateStr = `${yr}-${pad(mo+1)}-${pad(sel)}`;
+    const [hh, mm] = slot.split(':');
+    const startAt  = `${dateStr}T${hh}:${mm}:00-03:00`;
+
+    // Insere booking diretamente no Supabase (RLS permite aluno inserir o próprio)
+    const { data: inserted, error: insErr } = await SB.from('bookings').insert({
+      student_id:   session.user.id,
+      mentor_email: MENTOR_EMAIL,
+      call_number:  callNumber,
+      call_title:   callTitle,
+      scheduled_at: startAt,
+      status:       'confirmed',
+    }).select('id').single();
+
+    if (insErr) { console.warn('Booking insert error:', insErr.message); return; }
 
     // Cria evento no Google Agenda do mentor (e convida o aluno)
     try {
-      const bookingId  = json.bookingId || null;
+      const bookingId  = inserted?.id || null;
       const studentEmail = session.user.email;
       const studentName  = form.name || session.user.user_metadata?.name || 'Aluno';
-      // Monta datas no formato ISO com fuso de Brasília
-      const dateStr  = `${yr}-${pad(mo+1)}-${pad(sel)}`;
-      const [hh, mm] = slot.split(':');
-      const startAt  = `${dateStr}T${hh}:${mm}:00-03:00`;
       const endHour  = String(+hh + 1).padStart(2,'0');
       const endAt    = `${dateStr}T${endHour}:${mm}:00-03:00`;
 
