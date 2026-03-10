@@ -1235,6 +1235,7 @@ async function createBooking() {
           title: callTitle, studentEmail, studentName }),
       });
       const calJson = await calRes.json();
+      if (calJson.error) { console.error('Google Calendar error:', calJson.error); }
       if (calJson.meetLink)  S.gcal.meetLink  = calJson.meetLink;
       if (calJson.eventLink) S.gcal.eventLink = calJson.eventLink;
     } catch(calErr) { console.warn('Google Calendar:', calErr); }
