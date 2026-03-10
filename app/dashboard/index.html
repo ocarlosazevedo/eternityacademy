@@ -922,8 +922,8 @@ function renderBookModal(booked) {
   const mr = document.getElementById('mr');
   const {sel,slot,form} = S.cal;
   mr.innerHTML = `
-  <div class="overlay" data-action="close-book">
-    <div class="modal" onclick="event.stopPropagation()">
+  <div class="overlay" onclick="if(this===event.target)document.getElementById('mr').innerHTML=''">
+    <div class="modal">
       ${booked
         ?`<div style="text-align:center;padding:22px 0">
             <div style="width:72px;height:72px;border-radius:50%;margin:0 auto 20px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;animation:glow 1.4s ease infinite">
