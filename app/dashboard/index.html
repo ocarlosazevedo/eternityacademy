@@ -1099,6 +1099,38 @@ async function saveFeedback() {
   } catch(e) { console.warn('saveFeedback:', e); }
 }
 
+/* ─── Calls → Supabase ─────────────────────────────────────────────── */
+async function loadCalls() {
+  try {
+    const { data } = await SB.from('bookings')
+      .select('id, scheduled_at, call_title, call_number, status')
+      .eq('student_id', S.user.id)
+      .neq('status', 'cancelled')
+      .order('scheduled_at');
+    if (!data) return;
+    CALLS.length = 0;
+    const now = new Date();
+    data.forEach((b, i) => {
+      const dt = new Date(b.scheduled_at);
+      const isPast = dt < now;
+      const pad2 = n => String(n).padStart(2,'0');
+      const dateStr = `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`;
+      const timeStr = `${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
+      CALLS.push({
+        id:        b.call_number || (i + 1),
+        title:     b.call_title  || 'Call de Mentoria',
+        mentor:    'Eternity Academy',
+        done:      isPast && b.status === 'confirmed',
+        sched:     !isPast,
+        date:      isPast  ? dateStr : null,
+        schedDate: !isPast ? dateStr : null,
+        schedTime: !isPast ? timeStr : null,
+        bookingId: b.id,
+      });
+    });
+  } catch(e) { console.warn('loadCalls:', e); }
+}
+
 /* ─── Tasks → Supabase ─────────────────────────────────────────────── */
 async function loadDashTasks() {
   try {
@@ -1163,7 +1195,7 @@ async function createBooking() {
   setTimeout(async () => {
     document.getElementById('mr').innerHTML = '';
     S.cal.sel=null; S.cal.slot=null; S.cal.form={name:'',email:'',topic:''};
-    await loadAvailability(); // recarrega slots (horário agendado some)
+    await Promise.all([loadCalls(), loadAvailability()]); // recarrega slots e calls
   }, 2800);
 
   try {
@@ -1252,6 +1284,7 @@ SB.auth.getSession().then(async function({data:{session}}) {
     loadDashTasks(),
     loadSupportPhone(),
     upsertProfile(session.user),
+    loadCalls(),
   ]);
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='flex';
