@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <title>Dashboard · Eternity Academy</title>
+  <link rel="icon" type="image/png" href="../medias/eternityfavicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #050508; --white: #F7F7F7; --dp: #2F054C; --purple: #7022BB;
+      --surface: #090909; --card: #111111; --border: rgba(255,255,255,0.08);
+      --faint: rgba(255,255,255,0.05); --muted: rgba(247,247,247,0.32);
+      --font: 'Red Hat Display', sans-serif;
+    }
+    html, body { height: 100%; background: var(--black); color: var(--white); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+    /* ── Layout ── */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 216px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    .sb-logo  { padding: 20px 22px; border-bottom: 1px solid var(--border); }
+    .sb-user  { padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .sb-name  { font-weight: 700; font-size: 14px; color: var(--white); }
+    .sb-plan  { font-size: 10px; color: var(--purple); font-weight: 600; letter-spacing: 0.5px; margin-top: 3px; }
+    .sb-nav   { flex: 1; padding: 14px 10px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
+    .sb-foot  { padding: 14px 22px; border-top: 1px solid var(--border); color: rgba(247,247,247,0.12); font-size: 9px; letter-spacing: 1px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: rgba(247,247,247,0.28); font-size: 13px; border-left: 3px solid transparent; transition: all 0.18s; user-select: none; }
+    .nav-item:hover { color: rgba(247,247,247,0.55); background: rgba(255,255,255,0.03); }
+    .nav-item.active { background: rgba(112,34,187,0.15); color: var(--white); font-weight: 700; border-left-color: var(--purple); }
+    .nav-item svg { flex-shrink: 0; }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    .topbar { height: 58px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; flex-shrink: 0; font-size: 12px; color: rgba(247,247,247,0.22); gap: 4px; }
+    .topbar strong { color: var(--white); font-weight: 600; }
+    .page-wrap { flex: 1; overflow-y: auto; padding: 32px 36px; }
+
+    /* ── Cards ── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .card-20 { border-radius: 20px; }
+
+    /* ── Typography helpers ── */
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; color: rgba(247,247,247,0.35); margin-bottom: 10px; }
+    .ph1 { font-weight: 900; font-size: 30px; letter-spacing: -1px; color: var(--white); line-height: 1; margin-bottom: 6px; }
+    .sub { color: rgba(247,247,247,0.35); font-size: 13px; }
+
+    /* ── Buttons ── */
+    .btn-p { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: linear-gradient(135deg,var(--dp),var(--purple)); color: var(--white); border: 1px solid var(--purple); cursor: pointer; font-family: var(--font); box-shadow: 0 4px 14px rgba(112,34,187,0.3); transition: transform .15s, box-shadow .15s; white-space: nowrap; }
+    .btn-p:hover:not([disabled]) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(112,34,187,0.42); }
+    .btn-p:active:not([disabled]) { transform: translateY(0); }
+    .btn-p[disabled] { opacity: 0.38; cursor: not-allowed; }
+    .btn-p.full { width: 100%; padding: 12px; border-radius: 12px; font-size: 12px; }
+    .btn-p.lg  { padding: 13px 24px; border-radius: 12px; font-size: 13px; font-weight: 900; letter-spacing: 1px; }
+    .btn-ghost { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--faint); border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all .15s; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+    .btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1; padding: 11px; border-radius: 10px; background: transparent; color: rgba(247,247,247,0.3); border: 1px solid var(--border); cursor: pointer; font-family: var(--font); font-size: 12px; transition: all .15s; }
+    .btn-outline:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+
+    /* ── Inputs ── */
+    .inp { width: 100%; background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--white); font-size: 13px; font-family: var(--font); font-weight: 500; outline: none; transition: border-color .2s, box-shadow .2s; }
+    .inp::placeholder { color: rgba(247,247,247,0.16); }
+    .inp:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(112,34,187,0.12); }
+    textarea.inp { resize: none; line-height: 1.6; }
+
+    /* ── Progress ── */
+    .prog-track { background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+    .prog-fill  { background: linear-gradient(90deg,var(--dp),var(--purple)); border-radius: 99px; height: 100%; transition: width .6s ease; }
+
+    /* ── Calendar ── */
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-cell { min-height: 72px; border-radius: 12px; padding: 10px 10px 8px; background: var(--card); border: 1px solid var(--border); transition: all .15s; }
+    .cal-cell.avail { cursor: pointer; }
+    .cal-cell.avail:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.18); }
+    .cal-cell.sel { background: rgba(112,34,187,0.15); border-color: var(--purple); }
+    .cal-cell.empty { opacity: 0; pointer-events: none; }
+    .cal-day  { font-size: 13px; font-weight: 500; color: rgba(247,247,247,0.35); margin-bottom: 6px; }
+    .cal-cell.sel .cal-day { color: var(--white); font-weight: 700; }
+    .cal-pill { display: inline-flex; align-items: center; gap: 3px; border-radius: 6px; padding: 3px 8px; font-size: 9px; font-weight: 700; }
+    .cal-pill.av { background: rgba(112,34,187,0.2); color: var(--purple); }
+    .cal-cell.sel .cal-pill.av { background: var(--purple); color: var(--white); }
+    .cal-pill.bl { background: rgba(255,255,255,0.04); color: rgba(247,247,247,0.2); }
+    .slot-btn { padding: 10px 18px; border-radius: 10px; cursor: pointer; font-size: 13px; border: 1px solid var(--border); transition: all .15s; display: inline-flex; align-items: center; gap: 6px; color: rgba(247,247,247,0.35); background: var(--faint); font-weight: 500; }
+    .slot-btn.active { background: var(--purple); border-color: var(--purple); color: var(--white); font-weight: 700; }
+    .slot-btn:hover:not(.active) { background: rgba(112,34,187,0.15); border-color: rgba(112,34,187,0.3); }
+
+    /* ── Award ── */
+    .award-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; transition: transform .2s ease; }
+    .award-card:hover { transform: translateY(-2px); }
+
+    /* ── Modal ── */
+    .overlay { position: fixed; inset: 0; background: rgba(5,5,8,0.94); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(10px); animation: fadeUp .18s ease; }
+    .modal   { background: var(--card); border-radius: 24px; padding: 36px; width: 440px; max-width: calc(100vw - 32px); border: 1px solid var(--border); box-shadow: 0 32px 80px rgba(0,0,0,0.85); animation: scaleIn .22s ease; }
+
+    /* ── Hw row ── */
+    .hw-row { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all .18s; }
+    .hw-row:hover { background: rgba(255,255,255,0.04); }
+    .hw-check { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .hw-check.done { background: #22c55e; border-color: #22c55e; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    input, textarea { font-family: var(--font); }
+
+    /* ── Mobile topbar ── */
+    .mob-top { display:none; }
+
+    /* ── Drawer ── */
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .drw-overlay { display:none; position:fixed; inset:0; z-index:150; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); }
+    .drw-overlay.open { display:block; animation:fadeIn .2s ease; }
+    .drw { position:fixed; top:0; left:0; bottom:0; z-index:200; width:78%; max-width:300px; background:#0e0e0e; border-right:1px solid var(--border); display:flex; flex-direction:column; transform:translateX(-100%); transition:transform .28s cubic-bezier(.4,0,.2,1); will-change:transform; }
+    .drw.open { transform:translateX(0); }
+    .drw-item { display:flex; align-items:center; gap:14px; padding:13px 14px; border-radius:12px; cursor:pointer; border-left:3px solid transparent; transition:all .15s; }
+    .drw-item.active { background:rgba(112,34,187,0.14); border-left-color:var(--purple); }
+    .drw-icon { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:rgba(255,255,255,0.04); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
+    .drw-item.active .drw-icon { background:rgba(112,34,187,0.2); border-color:var(--purple); }
+
+    /* ── Mobile overrides ── */
+    @media (max-width: 768px) {
+      html, body { overflow:hidden; }
+      .sidebar { display:none; }
+      .topbar  { display:none; }
+      .mob-top { display:flex; align-items:center; justify-content:center; position:sticky; top:0; z-index:100; background:rgba(9,9,9,0.97); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:14px 20px; flex-shrink:0; }
+      .page-wrap { padding:16px 16px 40px; }
+      .cal-cell { min-height:46px; padding:6px 4px 4px; }
+      .cal-day  { font-size:12px; }
+      .cal-pill { display:none; }
+      .modal { border-radius:20px 20px 0 0 !important; width:100% !important; max-width:100% !important; position:fixed !important; bottom:0 !important; left:0 !important; right:0 !important; max-height:85vh; overflow-y:auto; padding:24px 20px 40px !important; }
+      .overlay { align-items:flex-end !important; }
+      input, textarea, select { font-size:16px; }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes scaleIn  { from { transform:scale(0.93); opacity:0; } to { transform:scale(1); opacity:1; } }
+    @keyframes glow     { 0%,100%{box-shadow:0 0 30px rgba(112,34,187,.4)}50%{box-shadow:0 0 60px rgba(112,34,187,.7)} }
+    @keyframes spin     { to { transform:rotate(360deg); } }
+    .fu  { animation: fadeUp .3s ease both; }
+    .fu1 { animation: fadeUp .3s ease .06s both; }
+    .fu2 { animation: fadeUp .3s ease .12s both; }
+    .fu3 { animation: fadeUp .3s ease .18s both; }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading" style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999">
+  <div style="width:24px;height:24px;border:2.5px solid rgba(112,34,187,0.2);border-top-color:#7022BB;border-radius:50%;animation:spin .7s linear infinite"></div>
+</div>
+
+<!-- App -->
+<div id="app" class="app" style="display:none">
+
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <img src="../medias/eahorizontalglow.png" alt="Eternity Academy" style="height:36px;width:auto;mix-blend-mode:screen;display:block"/>
+    </div>
+    <div class="sb-user">
+      <div class="sb-name" id="sb-name">—</div>
+      <div class="sb-plan">MDG · INSIDER</div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div id="sb-account" style="padding:8px 10px;border-top:1px solid var(--border)"></div>
+    <div class="sb-foot">ETERNITY HOLDING CO. © 2026</div>
+  </aside>
+
+  <div class="main">
+    <!-- Mobile topbar -->
+    <div class="mob-top">
+      <button data-action="open-drawer" style="position:absolute;left:20px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;flex-shrink:0">
+        <span style="display:block;width:16px;height:1.5px;background:var(--white);border-radius:2px"></span>
+        <span style="display:block;width:12px;height:1.5px;background:rgba(247,247,247,0.5);border-radius:2px;margin-left:-4px"></span>
+        <span style="display:block;width:16px;height:1.5px;background:var(--white);border-radius:2px"></span>
+      </button>
+      <img src="../medias/eahorizontalglow.png" alt="Eternity Academy" style="height:30px;width:auto;mix-blend-mode:screen;display:block"/>
+    </div>
+    <header class="topbar">
+      Início <span style="color:rgba(247,247,247,0.1)">›</span> <strong id="bc">Dashboard</strong>
+    </header>
+    <div id="pc" class="page-wrap"></div>
+  </div>
+</div>
+
+<div id="mr"></div><!-- modal root -->
+
+<!-- Drawer overlay -->
+<div id="drw-overlay" class="drw-overlay" data-action="close-drawer"></div>
+
+<!-- Hamburger Drawer -->
+<div id="drw" class="drw">
+  <div style="padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-weight:900;font-size:18px;color:var(--white);letter-spacing:2px">ETERNITY</div>
+      <div style="font-size:7px;color:rgba(247,247,247,0.3);font-weight:700;letter-spacing:3px;margin-top:1px">ACADEMY</div>
+    </div>
+    <button data-action="close-drawer" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:rgba(247,247,247,0.5);display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+    <div id="drw-avatar" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--dp),var(--purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--white)">EA</div>
+    <div>
+      <div id="drw-name" style="font-weight:700;font-size:13px;color:var(--white)">—</div>
+      <div style="font-size:10px;color:var(--purple);font-weight:600;margin-top:2px">MDG · INSIDER</div>
+    </div>
+  </div>
+  <nav id="drw-nav" style="flex:1;padding:12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto"></nav>
+  <div id="drw-account" style="padding:6px 12px;border-top:1px solid var(--border)"></div>
+  <div style="padding:16px 20px;border-top:1px solid var(--border);font-size:9px;color:rgba(247,247,247,0.12);letter-spacing:1px">ETERNITY HOLDING CO. © 2026</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
+<script>
+'use strict';
+
+/* ─── AUTH ──────────────────────────────────────────────────────────── */
+const SB = supabase.createClient(
+  'https://subsagwkktjjujdfpavf.supabase.co',
+  'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy'
+);
+
+/* ─── DATA ──────────────────────────────────────────────────────────── */
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WDAYS  = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+const SLOTS  = ['09:00','10:00','11:00','14:00','15:00','16:00','17:00'];
+const AVAIL  = {'2026-03-10':'09:00','2026-03-11':'14:00','2026-03-13':'10:00','2026-03-17':'15:00','2026-03-19':'17:00','2026-03-24':'11:00','2026-03-26':'09:00'};
+const BLOCK  = ['2026-03-12','2026-03-25'];
+
+const CALLS = [];
+const HW    = [];
+const AWARDS = [
+  {id:1,label:'Kit Eternity Bronze',      sub:'Marco $10K',       ms:'$10.000',    color:'#CD7F32',borderColor:'rgba(205,127,50,0.28)', progress:0, cur:'$0',kit:['Caixa exclusiva Eternity','Certificado numerado','Brinde surpresa Bronze'],         icon:'medal'},
+  {id:2,label:'Troféu 100K + Kit Gold',   sub:'Marco $100K',      ms:'$100.000',   color:'#E8C840',borderColor:'rgba(232,200,64,0.25)',  progress:0, cur:'$0',kit:['Troféu físico gravado 100K','Caixa premium Gold','Livro exclusivo Eternity','Acesso VIP'],  icon:'trophy'},
+  {id:3,label:'Troféu 500K + Kit Emerald',sub:'Marco $500K',      ms:'$500.000',   color:'#50C878',borderColor:'rgba(80,200,120,0.28)', progress:0, cur:'$0',kit:['Troféu físico gravado 500K','Kit Emerald colecionável','Evento presencial','Mentoria direta'], icon:'gem'},
+  {id:4,label:'Eternity 1M Diamond',      sub:'Marco $1.000.000', ms:'$1.000.000', color:'#B9F2FF',borderColor:'rgba(185,242,255,0.25)',progress:0, cur:'$0',kit:['Troféu Diamond exclusivo','Kit colecionável 1M','Placa honorária'],                           icon:'crown'},
+];
+
+/* ─── STATE ─────────────────────────────────────────────────────────── */
+const S = {
+  page: 'dashboard',
+  user: null,
+  gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
+  dash: { feedback:'', sent:false, rating:0, tasks:null },
+  suporte: { phone: null },
+  cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
+  aw:   { req:{}, modal:null },
+  cfg:  { pw:'', pwConf:'', saved:'' },
+};
+
+const SUPABASE_FN = 'https://subsagwkktjjujdfpavf.supabase.co/functions/v1';
+
+/* ─── HELPERS ───────────────────────────────────────────────────────── */
+const pad = n => String(n).padStart(2,'0');
+const getDays  = (y,m) => new Date(y,m+1,0).getDate();
+const getFirst = (y,m) => { const d=new Date(y,m,1).getDay(); return d===0?6:d-1; };
+const ckey     = d => d?`${S.cal.yr}-${pad(S.cal.mo+1)}-${pad(d)}`:null;
+const avail    = d => !!AVAIL[ckey(d)];
+const blocked  = d => BLOCK.includes(ckey(d));
+
+function ic(name, size=15, extra='') {
+  return `<i data-lucide="${name}" style="width:${size}px;height:${size}px;flex-shrink:0;display:inline-flex;${extra}"></i>`;
+}
+function avatar(name, size=32, bg='#333') {
+  const p=name.trim().split(' ');
+  const ini=p.length>=2?p[0][0]+p[p.length-1][0]:p[0].slice(0,2);
+  const fs=Math.round(size*0.38);
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;background:${bg};border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:${fs}px;color:#F7F7F7;letter-spacing:.5px">${ini.toUpperCase()}</div>`;
+}
+function stars(rating) {
+  return [1,2,3,4,5].map(s=>`
+    <span data-action="rating" data-v="${s}" style="cursor:pointer;display:inline-flex;padding:2px">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="${s<=rating?'#F59E0B':'none'}" stroke="${s<=rating?'#F59E0B':'rgba(247,247,247,0.2)'}" stroke-width="1.5">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    </span>
+  `).join('');
+}
+function userName() {
+  if(!S.user) return 'Aluno';
+  const m=S.user.user_metadata;
+  if(m&&m.name) return m.name.split(' ')[0];
+  const e=(S.user.email||'').split('@')[0];
+  return e.charAt(0).toUpperCase()+e.slice(1);
+}
+function fieldLabel(text) {
+  return `<label style="color:rgba(247,247,247,0.28);font-size:9px;font-weight:700;letter-spacing:2px;display:block;margin-bottom:7px">${text}</label>`;
+}
+
+/* ─── NAV ───────────────────────────────────────────────────────────── */
+const NAV = [
+  {id:'dashboard', ic:'layout-dashboard', label:'Dashboard'},
+  {id:'calendar',  ic:'calendar-days',    label:'Agendar Call'},
+  {id:'progress',  ic:'bar-chart-3',      label:'Progresso'},
+  {id:'awards',    ic:'trophy',           label:'Premiações'},
+  {id:'content',   ic:'video',            label:'Conteúdos'},
+  {id:'suporte',   ic:'headphones',       label:'Suporte'},
+];
+const CRUMBS = {dashboard:'Dashboard',calendar:'Agendar Call',progress:'Progresso',awards:'Premiações',content:'Conteúdos Gravados',suporte:'Suporte',config:'Minha Conta'};
+
+function renderSidebar() {
+  const name = userName();
+  // Desktop sidebar
+  document.getElementById('sb-name').textContent = name;
+  document.getElementById('sb-nav').innerHTML = NAV.map(n=>`
+    <div class="nav-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
+      ${ic(n.ic,15)} <span>${n.label}</span>
+    </div>
+  `).join('');
+  // Mobile topbar breadcrumb
+  const mobBc = document.getElementById('mob-bc');
+  if(mobBc) mobBc.textContent = CRUMBS[S.page]||'';
+  // Drawer user
+  const drwName = document.getElementById('drw-name');
+  const drwAvatar = document.getElementById('drw-avatar');
+  if(drwName) drwName.textContent = name;
+  if(drwAvatar) {
+    const p = name.trim().split(' ');
+    const ini = p.length >= 2 ? p[0][0]+p[p.length-1][0] : p[0].slice(0,2);
+    drwAvatar.textContent = ini.toUpperCase();
+  }
+  // Bottom "Minha Conta" — desktop sidebar
+  const sbAcc = document.getElementById('sb-account');
+  if(sbAcc) sbAcc.innerHTML = `
+    <div class="nav-item${S.page==='config'?' active':''}" data-action="nav" data-page="config">
+      ${ic('user',15)} <span>Minha Conta</span>
+    </div>
+  `;
+  // Drawer nav
+  const drwNav = document.getElementById('drw-nav');
+  if(drwNav) drwNav.innerHTML = NAV.map(n=>`
+    <div class="drw-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
+      <div class="drw-icon">${ic(n.ic,15,'color:'+(S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.35)'))}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:${S.page===n.id?700:500};font-size:13px;color:${S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.6)'};line-height:1;margin-bottom:3px">${n.label}</div>
+      </div>
+      ${S.page===n.id?`<svg style="flex-shrink:0" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`:''}
+    </div>
+  `).join('');
+  // Bottom "Minha Conta" — drawer
+  const drwAcc = document.getElementById('drw-account');
+  if(drwAcc) drwAcc.innerHTML = `
+    <div class="drw-item${S.page==='config'?' active':''}" data-action="nav" data-page="config">
+      <div class="drw-icon">${ic('user',15,'color:'+(S.page==='config'?'#F7F7F7':'rgba(247,247,247,0.35)'))}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:${S.page==='config'?700:500};font-size:13px;color:${S.page==='config'?'#F7F7F7':'rgba(247,247,247,0.6)'};line-height:1;margin-bottom:3px">Minha Conta</div>
+      </div>
+      ${S.page==='config'?`<svg style="flex-shrink:0" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="var(--purple)" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`:''}
+    </div>
+  `;
+}
+
+/* ─── RENDER ROUTER ─────────────────────────────────────────────────── */
+function render(scrollReset=true) {
+  renderSidebar();
+  document.getElementById('bc').textContent = CRUMBS[S.page]||'';
+  const pc = document.getElementById('pc');
+  if(scrollReset) pc.scrollTop=0;
+  switch(S.page) {
+    case 'dashboard': pc.innerHTML=pageDash();    break;
+    case 'calendar':  loadAvailability(); return; // async — renderiza por conta própria
+    case 'progress':  pc.innerHTML=pageProgress();break;
+    case 'awards':    pc.innerHTML=pageAwards();  break;
+    case 'content':   pc.innerHTML=pageContent(); break;
+    case 'suporte':   pc.innerHTML=pageSupport(); break;
+    case 'config':    pc.innerHTML=pageConfig();  break;
+  }
+  lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: DASHBOARD
+═══════════════════════════════════════════════════════════════════════ */
+function pageDash() {
+  const {feedback,sent,rating}=S.dash;
+  const tasks = S.dash.tasks;
+  const pendHw = tasks === null ? HW.filter(h=>!h.done) : tasks.filter(t=>!t.done);
+  const done  = CALLS.filter(c=>c.done).length;
+  const total = CALLS.length;
+  const pct   = total > 0 ? Math.round((done/total)*100) : 0;
+  const lastCall = CALLS.filter(c=>c.done).slice(-1)[0];
+  const pending3 = CALLS.filter(c=>!c.done&&!c.sched).slice(0,3);
+  const daysIn = S.user?.created_at ? Math.max(1, Math.floor((Date.now()-new Date(S.user.created_at).getTime())/(86400000))) : null;
+  // current date string
+  const now = new Date();
+  const DIAS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const MESES_EXT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const dateStr = `${DIAS[now.getDay()]}, ${now.getDate()} de ${MESES_EXT[now.getMonth()]} de ${now.getFullYear()}`;
+  return `
+  <div style="padding:28px 32px;max-width:780px">
+
+    <!-- Welcome -->
+    <div class="fu" style="margin-bottom:24px">
+      <div class="lbl">DASHBOARD</div>
+      <h1 class="ph1">Olá, ${userName()}. <span style="color:rgba(247,247,247,.28);font-weight:400">Bem-vindo de volta.</span></h1>
+      <p class="sub" style="margin-top:4px">${dateStr}</p>
+    </div>
+
+    ${total === 0
+      /* ── NOVO ALUNO — hero para agendar a 1ª call ── */
+      ? `<div style="background:linear-gradient(135deg,rgba(47,5,76,0.6),rgba(112,34,187,0.25));border:1px solid rgba(112,34,187,0.3);border-radius:20px;padding:32px 28px;margin-bottom:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;animation:fadeUp .32s ease">
+          <div style="width:64px;height:64px;border-radius:18px;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center">
+            ${ic('video',28)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:900;font-size:18px;color:#F7F7F7;margin-bottom:6px">Agende sua primeira call</div>
+            <div style="font-size:13px;color:rgba(247,247,247,.45);line-height:1.6;margin-bottom:0">Escolha um horário disponível e dê o primeiro passo da sua mentoria. Sua jornada começa aqui.</div>
+          </div>
+          <button data-action="nav" data-page="calendar" class="btn-p lg" style="flex-shrink:0;padding:14px 28px">
+            AGENDAR AGORA ${ic('arrow-right',14)}
+          </button>
+        </div>`
+      /* ── ALUNO COM CALLS — barra de progresso ── */
+      : `<div class="card fu1" style="padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:160px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <span style="font-size:12px;font-weight:700;color:#F7F7F7">Progresso da Mentoria</span>
+              <span style="font-size:12px;font-weight:800;color:#F7F7F7">${done} / ${total}</span>
+            </div>
+            <div class="prog-track" style="height:5px"><div class="prog-fill" style="width:${pct}%"></div></div>
+          </div>
+          ${daysIn !== null ? `<div style="display:flex;gap:16px">
+            <div style="text-align:center;padding:0 10px;border-left:1px solid rgba(255,255,255,.08)">
+              <div style="font-weight:900;font-size:20px;color:#F7F7F7;line-height:1">${daysIn}</div>
+              <div style="font-size:9px;color:rgba(247,247,247,.28);margin-top:3px">dias na MDG</div>
+            </div>
+          </div>` : ''}
+        </div>`}
+
+    <!-- FEEDBACK DA ÚLTIMA CALL (topo) — só aparece após a primeira call -->
+    ${lastCall ? `
+    <div class="fu2" style="margin-bottom:28px">
+      <div class="lbl" style="margin-bottom:12px">FEEDBACK DA ÚLTIMA CALL</div>
+      <div style="background:#111;border:1px solid ${sent?'rgba(112,34,187,.35)':'rgba(255,255,255,.08)'};border-radius:18px;overflow:hidden;transition:border-color .3s">
+        <div style="background:#171717;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            ${ic('video',22,'color:rgba(247,247,247,.35)')}
+            <div>
+              <div style="font-weight:700;font-size:13px;color:#F7F7F7">${lastCall.title}</div>
+              <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${lastCall.date || ''}</div>
+            </div>
+          </div>
+          ${!sent?`<div>
+            <div style="font-size:8px;color:rgba(247,247,247,.28);font-weight:700;letter-spacing:1.5px;margin-bottom:5px">SUA NOTA</div>
+            <div style="display:flex;gap:2px" id="stars-row">${stars(rating)}</div>
+          </div>`:`<div style="display:flex;align-items:center;gap:6px;background:rgba(112,34,187,.12);border:1px solid rgba(112,34,187,.25);border-radius:8px;padding:5px 12px;font-size:11px;color:#7022BB;font-weight:700">${ic('check',11,'color:#7022BB')} Enviado</div>`}
+        </div>
+        <div style="padding:18px 20px">
+          ${sent
+            ?`<div style="display:flex;align-items:center;gap:16px">
+                <div style="display:flex;justify-content:center;flex-shrink:0">${ic('heart',32,'color:#7022BB')}</div>
+                <div>
+                  <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:4px">Obrigado pelo feedback!</div>
+                  <div style="font-size:12px;color:rgba(247,247,247,.32);line-height:1.5">Sua opinião foi registrada e vai direto para o mentor.</div>
+                </div>
+              </div>`
+            :`<label style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.28);display:block;margin-bottom:8px">O QUE VOCÊ ACHOU DA CALL?</label>
+             <textarea id="fb-ta" data-input="feedback" class="inp" rows="3" placeholder="O que foi mais valioso? O que pode melhorar na próxima?">${feedback}</textarea>
+             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px;flex-wrap:wrap">
+               <div style="font-size:10px;color:rgba(247,247,247,.18)">Seu feedback vai direto para o mentor.</div>
+               <button data-action="send-fb" class="btn-p" style="${!feedback.trim()?'opacity:.35;cursor:not-allowed':''}" ${!feedback.trim()?'disabled':''}>
+                 ${ic('send',12)} ENVIAR
+               </button>
+             </div>`}
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Calls para agendar -->
+    <div style="margin-bottom:24px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="lbl" style="margin-bottom:0">CALLS PARA AGENDAR</div>
+        <span data-action="nav" data-page="calendar" style="font-size:11px;color:rgba(247,247,247,.45);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">Ver calendário ${ic('arrow-right',11)}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${pending3.length === 0
+          ? `<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px">${ic('calendar',14)} Nenhuma call pendente no momento</div>`
+          : pending3.map(c=>`
+            <div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px">
+              <div style="width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#F7F7F7">${c.id}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title}</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.3)">com ${c.mentor}</div>
+              </div>
+              <button data-action="nav" data-page="calendar" class="btn-p" style="flex-shrink:0">Agendar ${ic('arrow-right',11)}</button>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+
+    <!-- Tarefas -->
+    <div>
+      <div class="lbl" style="margin-bottom:12px">TAREFAS DE EXECUÇÃO</div>
+      ${pendHw.length===0
+        ?`<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px">${ic('check',14)} Nenhuma tarefa pendente — excelente execução!</div>`
+        :`<div style="display:flex;flex-direction:column;gap:7px">
+          ${pendHw.map(h=>{
+            // suporta formato DB (tasks) e formato legado (HW)
+            const isDone = h.done || false;
+            const callRef = h.call_number ?? h.call;
+            const mentorRef = h.mentor_note ?? h.mentor ?? '';
+            const isNew = h.isNew || (h.created_at && (Date.now()-new Date(h.created_at).getTime()) < 24*3600*1000);
+            return `<div class="hw-row" data-action="toggle-hw" data-id="${h.id}" style="border-color:${isDone?'rgba(34,197,94,.15)':'rgba(255,255,255,.08)'};opacity:${isDone?.5:1}">
+              <div class="hw-check${isDone?' done':''}">
+                ${isDone?`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:''}
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:13px;color:${isDone?'rgba(247,247,247,.3)':'#F7F7F7'};text-decoration:${isDone?'line-through':'none'};margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.title}</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.28);display:flex;align-items:center;gap:6px">
+                  ${callRef?`Call ${callRef}`:''}${mentorRef?` · ${mentorRef}`:''}
+                  ${isNew?`<span style="background:rgba(112,34,187,.18);color:#7022BB;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">NOVA</span>`:''}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`}
+    </div>
+
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: CALENDAR
+═══════════════════════════════════════════════════════════════════════ */
+/* ─── Disponibilidade real ─────────────────────────────────────────── */
+async function loadAvailability() {
+  S.cal.loadingAvail = true;
+  S.cal.sel = null; S.cal.slot = null;
+  document.getElementById('pc').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;height:300px;gap:12px;color:rgba(247,247,247,.3);font-size:13px">
+      <div style="width:18px;height:18px;border:2px solid rgba(112,34,187,.3);border-top-color:#7022BB;border-radius:50%;animation:spin .7s linear infinite"></div>
+      Carregando disponibilidade...
+    </div>`;
+  try {
+    const {data:{session}} = await SB.auth.getSession();
+    const res = await fetch(`${SUPABASE_FN}/get-availability`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
+      body: JSON.stringify({ year: S.cal.yr, month: S.cal.mo }),
+    });
+    const json = await res.json();
+    if (json.availability) S.cal.availability = json.availability;
+  } catch(_) { /* mantém disponibilidade anterior */ }
+  S.cal.loadingAvail = false;
+  document.getElementById('pc').innerHTML = pageCal();
+  lucide.createIcons();
+}
+
+function pageCal() {
+  const {yr,mo,sel,slot,availability}=S.cal;
+  const days=getDays(yr,mo), first=getFirst(yr,mo);
+  const cells=[...Array(first).fill(null),...Array.from({length:days},(_,i)=>i+1)];
+  while(cells.length%7!==0) cells.push(null);
+  const dayAvail = d => d ? (availability[`${yr}-${pad(mo+1)}-${pad(d)}`]||[]) : [];
+  const selSlots = sel ? dayAvail(sel) : [];
+  return `
+  <div style="padding:32px 36px;max-width:860px">
+    <!-- Header -->
+    <div class="fu1" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+      <div>
+        <div class="lbl">CALENDÁRIO DE CALLS</div>
+        <h1 class="ph1" style="font-size:28px">${MONTHS[mo]} <span style="color:rgba(247,247,247,.18);font-weight:400">${yr}</span></h1>
+        <p class="sub" style="font-size:12px;margin-top:5px">Selecione um dia disponível para agendar sua mentoria</p>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button data-action="prev-mo" class="btn-ghost">${ic('chevron-left',16)}</button>
+        <button data-action="next-mo" class="btn-ghost">${ic('chevron-right',16)}</button>
+      </div>
+    </div>
+
+    <!-- Weekdays -->
+    <div class="cal-grid" style="margin-bottom:4px">
+      ${WDAYS.map(d=>`<div style="text-align:center;color:rgba(247,247,247,.18);font-size:9px;font-weight:700;letter-spacing:2px;padding:6px 0">${d}</div>`).join('')}
+    </div>
+
+    <!-- Grid -->
+    <div class="cal-grid">
+      ${cells.map((day,i)=>{
+        if(!day) return `<div class="cal-cell empty"></div>`;
+        const slots=dayAvail(day), av=slots.length>0, isSel=sel===day;
+        return `<div class="cal-cell${av?' avail':''}${isSel?' sel':''}" ${av?`data-action="sel-day" data-v="${day}"`:''} style="animation:fadeUp .28s ease ${(i%7)*.022}s both">
+          <div class="cal-day">${day}</div>
+          ${av?`<div class="cal-pill av">${ic('check',8)} ${slots.length}h</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Legenda -->
+    <div style="display:flex;gap:16px;margin-top:12px;font-size:10px;color:rgba(247,247,247,.28)">
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#7022BB"></div>Disponível</div>
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:rgba(247,247,247,.15)"></div>Indisponível</div>
+    </div>
+
+    <!-- Slots -->
+    ${sel&&selSlots.length?`
+    <div class="card" style="margin-top:18px;padding:20px 22px;animation:scaleIn .22s ease">
+      <div style="font-weight:800;font-size:13px;color:#F7F7F7;margin-bottom:2px">Horários — ${pad(sel)} de ${MONTHS[mo]}</div>
+      <div style="color:rgba(247,247,247,.28);font-size:11px;margin-bottom:14px">Escolha o melhor horário</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${selSlots.map(s=>`<div class="slot-btn${slot===s?' active':''}" data-action="sel-slot" data-v="${s}">${ic('clock',12)} ${s}</div>`).join('')}
+      </div>
+      ${slot?`<button data-action="open-book" class="btn-p" style="margin-top:16px;padding:12px 28px;border-radius:12px;font-size:13px;font-weight:900;letter-spacing:.5px">CONFIRMAR AGENDAMENTO ${ic('arrow-right',13)}</button>`:''}
+    </div>
+    `:''}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: PROGRESS
+═══════════════════════════════════════════════════════════════════════ */
+function pageProgress() {
+  const done=CALLS.filter(c=>c.done).length, total=CALLS.length;
+  const pct=total>0?Math.round((done/total)*100):0;
+  const allTasks = S.dash.tasks || HW;
+  return `
+  <div style="padding:32px 36px">
+    <div class="fu" style="margin-bottom:28px">
+      <div class="lbl">PROGRESSO</div>
+      <h1 class="ph1">Suas Calls</h1>
+      <p class="sub">${total>0 ? `${done} de ${total} calls concluídas · ${pct}% da mentoria` : 'Sua mentoria começa com o primeiro agendamento'}</p>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="card fu1" style="padding:16px 20px;margin-bottom:28px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:#F7F7F7;font-weight:700">Progresso Geral</span>
+        <span style="font-size:12px;color:#F7F7F7;font-weight:800">${pct}%</span>
+      </div>
+      <div class="prog-track" style="height:8px"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;gap:20px;margin-top:10px">
+        ${[{l:'Concluídas',v:done,c:'#22c55e'},{l:'Agendadas',v:CALLS.filter(c=>c.sched).length,c:'#7022BB'},{l:'Pendentes',v:CALLS.filter(c=>!c.done&&!c.sched).length,c:'rgba(247,247,247,.28)'}].map(s=>`
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:8px;height:8px;border-radius:50%;background:${s.c}"></div>
+            <span style="font-size:11px;color:rgba(247,247,247,.35)">${s.v} ${s.l}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Call list -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${CALLS.length === 0
+        ? `<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:28px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px">
+            ${ic('calendar-days',24)}
+            <span>Nenhuma call registrada ainda.<br>Agende sua primeira call para começar.</span>
+            <button data-action="nav" data-page="calendar" class="btn-p" style="margin-top:4px;font-size:11px">Agendar Call</button>
+          </div>`
+        : CALLS.map((c,i)=>`
+          <div style="background:#111;border:1px solid ${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.2)':'rgba(255,255,255,.08)'};border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;opacity:${c.done?.55:1};animation:fadeUp .3s ease ${i*.04}s both">
+            <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;background:${c.done?'rgba(34,197,94,.12)':c.sched?'linear-gradient(135deg,#2F054C,#7022BB)':'rgba(255,255,255,.04)'};border:2px solid ${c.done?'#22c55e':c.sched?'#7022BB':'rgba(255,255,255,.1)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${c.done?'#22c55e':c.sched?'#F7F7F7':'rgba(247,247,247,.2)'}">
+              ${c.done?`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:c.id}
+            </div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:13px;color:${c.done?'rgba(247,247,247,.3)':'#F7F7F7'};text-decoration:${c.done?'line-through':'none'};margin-bottom:3px">${c.title}</div>
+              <div style="display:flex;gap:12px;align-items:center">
+                <span style="font-size:10px;color:rgba(247,247,247,.28)">com ${c.mentor}</span>
+                ${c.done&&c.date?`<span style="font-size:10px;color:rgba(34,197,94,.6);display:flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>${c.date}</span>`:''}
+                ${c.sched&&c.schedDate?`<span style="font-size:10px;color:#7022BB;font-weight:600;display:flex;align-items:center;gap:3px">${ic('calendar-days',9)} ${c.schedDate} · ${c.schedTime}</span>`:''}
+              </div>
+            </div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:8px;background:${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.15)':'rgba(255,255,255,.04)'};color:${c.done?'#22c55e':c.sched?'#7022BB':'rgba(247,247,247,.2)'};border:1px solid ${c.done?'rgba(34,197,94,.2)':c.sched?'rgba(112,34,187,.25)':'rgba(255,255,255,.06)'}">${c.done?'CONCLUÍDA':c.sched?'AGENDADA':'PENDENTE'}</div>
+          </div>
+        `).join('')}
+    </div>
+
+    <!-- Tarefas -->
+    <div style="margin-top:32px">
+      <div class="lbl" style="margin-bottom:16px">TAREFAS DE EXECUÇÃO</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${allTasks.length === 0
+          ? `<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px">${ic('check-square',14)} Nenhuma tarefa atribuída ainda</div>`
+          : allTasks.map((h,i)=>`
+            <div style="background:#111;border:1px solid ${h.done?'rgba(34,197,94,.1)':'rgba(255,255,255,.08)'};border-radius:12px;padding:13px 18px;display:flex;align-items:center;gap:14px;opacity:${h.done?.45:1};animation:fadeUp .3s ease ${i*.04}s both">
+              <div style="width:20px;height:20px;border-radius:6px;flex-shrink:0;background:${h.done?'rgba(34,197,94,.15)':'transparent'};border:2px solid ${h.done?'#22c55e':'rgba(255,255,255,.12)'};display:flex;align-items:center;justify-content:center">
+                ${h.done?`<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:''}
+              </div>
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13px;color:${h.done?'rgba(247,247,247,.28)':'#F7F7F7'};text-decoration:${h.done?'line-through':'none'};margin-bottom:2px">${h.title}</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.25)">${h.call_number??h.call?`Call ${h.call_number??h.call}`:''} ${h.mentor_note??h.mentor?`· ${h.mentor_note??h.mentor}`:''}</div>
+              </div>
+              <div style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:6px;background:${h.done?'rgba(34,197,94,.08)':'rgba(255,255,255,.04)'};color:${h.done?'#22c55e':'rgba(247,247,247,.2)'};border:1px solid ${h.done?'rgba(34,197,94,.15)':'rgba(255,255,255,.06)'}">${h.done?'FEITO':'PENDENTE'}</div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: AWARDS
+═══════════════════════════════════════════════════════════════════════ */
+function pageAwards() {
+  return `
+  <div style="padding:32px 36px">
+    <div class="fu" style="margin-bottom:28px">
+      <div class="lbl">PREMIAÇÕES</div>
+      <h1 class="ph1">Conquistas & Marcos</h1>
+      <p class="sub">Plano MDG · INSIDER — premiações físicas desbloqueadas por faturamento em dólares</p>
+    </div>
+
+    <!-- Faturamento -->
+    <div class="card fu1" style="padding:18px 22px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.28);margin-bottom:6px">SEU FATURAMENTO ATUAL</div>
+        <div style="font-weight:900;font-size:28px;color:#F7F7F7;letter-spacing:-1px">$0 <span style="font-weight:400;font-size:14px;color:rgba(247,247,247,.25)">/ mês</span></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:9px;color:rgba(247,247,247,.25);margin-bottom:4px">Próximo marco</div>
+        <div style="font-weight:800;font-size:16px;color:#CD7F32">$10.000</div>
+        <div style="font-size:11px;color:rgba(247,247,247,.28);margin-top:2px">faltam $10.000</div>
+      </div>
+    </div>
+
+    <!-- Award cards -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+      ${AWARDS.map((a,i)=>`
+        <div class="award-card" style="border-color:${S.aw.req[a.id]?a.borderColor:'rgba(255,255,255,.08)'};animation:fadeUp .32s ease ${i*.07}s both">
+          <div style="padding:22px 24px;display:flex;align-items:flex-start;gap:18px">
+            <div style="width:68px;height:68px;border-radius:16px;flex-shrink:0;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;filter:grayscale(1) opacity(.25)">
+              ${ic(a.icon,28,'color:rgba(247,247,247,.3)')}
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+                <div style="font-weight:900;font-size:16px;color:rgba(247,247,247,.28)">${a.label}</div>
+                <div style="font-size:8px;font-weight:800;padding:3px 8px;border-radius:7px;background:rgba(255,255,255,.04);color:rgba(247,247,247,.18);border:1px solid rgba(255,255,255,.08)">BLOQUEADO</div>
+                <div style="font-size:8px;font-weight:700;padding:3px 8px;border-radius:7px;background:${a.color}18;color:${a.color};border:1px solid ${a.color}33">${a.sub}</div>
+              </div>
+              <div style="font-weight:900;font-size:20px;margin-bottom:6px;color:rgba(247,247,247,.18)">${a.ms}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+                ${a.kit.map(k=>`<div style="font-size:10px;padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.04);color:rgba(247,247,247,.22);border:1px solid rgba(255,255,255,.06);filter:blur(2.5px) grayscale(1)">— ${k}</div>`).join('')}
+              </div>
+              <div style="margin-bottom:14px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                  <span style="font-size:10px;color:rgba(247,247,247,.22);font-weight:600">Progresso</span>
+                  <span style="font-size:10px;color:${a.color};font-weight:700">${a.cur} de ${a.ms}${a.progress>0?` · ${a.progress}%`:''}</span>
+                </div>
+                <div class="prog-track" style="height:5px"><div class="prog-fill" style="width:${Math.max(a.progress,.5)}%;background:linear-gradient(90deg,#2F054C,${a.color})"></div></div>
+              </div>
+              ${S.aw.req[a.id]
+                ?`<div style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2);font-size:12px;font-weight:700"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg> Solicitação enviada</div>`
+                :`<button data-action="open-award" data-id="${a.id}" class="btn-p" style="opacity:.38;cursor:not-allowed" disabled>${ic('lock',13)} SOLICITAR PREMIAÇÃO</button>`}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: CONTENT
+═══════════════════════════════════════════════════════════════════════ */
+function pageContent() {
+  return `
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 36px">
+    <div style="max-width:420px;width:100%;text-align:center;animation:fadeUp .32s ease">
+      <div style="width:80px;height:80px;border-radius:22px;margin:0 auto 24px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center">
+        ${ic('video',34)}
+      </div>
+      <div class="lbl" style="margin-bottom:10px">CONTEÚDOS GRAVADOS</div>
+      <p style="color:rgba(247,247,247,.45);font-size:14px;line-height:1.8;margin-bottom:32px">Para acessar nossos conteúdos gravados, entre no link abaixo.</p>
+      <button data-action="kiwify" class="btn-p" style="width:100%;padding:16px;border-radius:14px;font-size:14px;font-weight:900;letter-spacing:.5px" id="kiwify-btn">
+        ACESSAR CONTEÚDOS ${ic('external-link',14)}
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: SUPORTE
+═══════════════════════════════════════════════════════════════════════ */
+function pageSupport() {
+  const phone = S.suporte.phone;
+  const clean = phone ? phone.replace(/\D/g,'') : '';
+  return `
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 36px">
+    <div style="max-width:420px;width:100%;text-align:center;animation:fadeUp .32s ease">
+      <div style="width:80px;height:80px;border-radius:22px;margin:0 auto 24px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center">
+        ${ic('headphones',34)}
+      </div>
+      <div class="lbl" style="margin-bottom:10px">SUPORTE</div>
+      <h1 class="ph1" style="margin-bottom:12px">Fale com seu Mentor</h1>
+      ${phone
+        ? `<p style="color:rgba(247,247,247,.45);font-size:14px;line-height:1.8;margin-bottom:32px">
+            Entre em contato pelo WhatsApp para tirar dúvidas, alinhar tarefas ou qualquer outro suporte.
+           </p>
+           <a href="https://wa.me/${clean}" target="_blank" rel="noopener" style="text-decoration:none;display:block">
+             <button class="btn-p" style="width:100%;padding:16px;border-radius:14px;font-size:14px;font-weight:900;letter-spacing:.5px">
+               ${ic('message-circle',16)} ABRIR WHATSAPP
+             </button>
+           </a>`
+        : `<p style="color:rgba(247,247,247,.45);font-size:14px;line-height:1.8">
+            Seu contato de suporte ainda não foi configurado.<br>Aguarde seu mentor cadastrar as informações.
+           </p>`
+      }
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: CONFIG
+═══════════════════════════════════════════════════════════════════════ */
+function pageConfig() {
+  const {pw,pwConf,saved}=S.cfg;
+  const userEmail = S.user?.email||'';
+  const saveBtnHtml=(id,label)=>`
+    <button data-action="save-cfg" data-id="${id}" class="btn-p" style="padding:11px 24px;border-radius:10px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:7px">
+      ${saved===id?`<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg> Salvo!`:label}
+    </button>`;
+  return `
+  <div style="padding:32px 36px">
+    <div class="fu" style="margin-bottom:28px">
+      <div class="lbl">CONFIGURAÇÕES</div>
+      <h1 class="ph1">Minha Conta</h1>
+    </div>
+    <div style="max-width:560px">
+
+      <!-- Plan -->
+      <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.35);margin-bottom:6px">PLANO ATUAL</div>
+          <div style="font-weight:900;font-size:22px;color:#F7F7F7;letter-spacing:-.5px">MDG · INSIDER</div>
+          <div style="font-size:12px;color:rgba(247,247,247,.4);margin-top:4px">R$ 7.997 · 3 meses · 12 calls incluídas</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:rgba(247,247,247,.25);margin-bottom:4px">Vence em</div>
+          <div style="font-weight:800;font-size:14px;color:#F7F7F7">25/05/2026</div>
+          <div style="margin-top:8px;font-size:9px;font-weight:700;padding:4px 10px;border-radius:8px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2);display:inline-block">ATIVO</div>
+        </div>
+      </div>
+
+
+      <!-- E-mail -->
+      <div class="card" style="padding:22px 24px;margin-bottom:16px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">E-mail</div>
+        ${fieldLabel('E-MAIL')}
+        <input id="cfg-email" type="email" class="inp" value="${userEmail}" placeholder="seu@email.com" style="margin-bottom:16px"/>
+        ${saveBtnHtml('email','Salvar alterações')}
+      </div>
+
+      <!-- Senha -->
+      <div class="card" style="padding:22px 24px;margin-bottom:16px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">Senha</div>
+        ${fieldLabel('NOVA SENHA')}
+        <input id="cfg-pw" data-input="cfg-pw" type="password" class="inp" placeholder="Mínimo 8 caracteres" value="${pw}" style="margin-bottom:14px"/>
+        ${fieldLabel('CONFIRMAR SENHA')}
+        <input id="cfg-pwc" data-input="cfg-pwc" type="password" class="inp" placeholder="Repita a senha" value="${pwConf}" style="margin-bottom:${pw&&pwConf&&pw!==pwConf?8:16}px"/>
+        ${pw&&pwConf&&pw!==pwConf?`<div style="font-size:11px;color:#f87171;margin-bottom:14px;display:flex;align-items:center;gap:5px">${ic('alert-circle',12)} As senhas não coincidem.</div>`:''}
+        ${saveBtnHtml('senha','Salvar alterações')}
+      </div>
+
+      <!-- Telefone -->
+      <div class="card" style="padding:22px 24px;margin-bottom:16px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">Telefone</div>
+        ${fieldLabel('NÚMERO / WHATSAPP')}
+        <input id="cfg-phone" type="tel" class="inp" placeholder="+55 00 00000-0000" value="+55 31 99999-0000" style="margin-bottom:8px"/>
+        <div style="font-size:11px;color:rgba(247,247,247,.22);margin-bottom:16px">Usado para lembretes de call e contato com o mentor.</div>
+        ${saveBtnHtml('telefone','Salvar alterações')}
+      </div>
+
+      <!-- Sign out -->
+      <button data-action="signout" style="width:100%;padding:13px;border-radius:12px;background:transparent;color:rgba(247,247,247,.3);font-family:inherit;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.3)'" onmouseleave="this.style.color='rgba(247,247,247,.3)';this.style.borderColor='rgba(255,255,255,.08)'">
+        ${ic('log-out',14)} Sair da conta
+      </button>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BOOKING MODAL
+═══════════════════════════════════════════════════════════════════════ */
+function openBookModal() {
+  S.cal.form = { name:'', email: S.user?.email||'', topic:'' };
+  renderBookModal(false);
+}
+function renderBookModal(booked) {
+  const mr = document.getElementById('mr');
+  const {sel,slot,form} = S.cal;
+  mr.innerHTML = `
+  <div class="overlay" data-action="close-book">
+    <div class="modal" onclick="event.stopPropagation()">
+      ${booked
+        ?`<div style="text-align:center;padding:22px 0">
+            <div style="width:72px;height:72px;border-radius:50%;margin:0 auto 20px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;animation:glow 1.4s ease infinite">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>
+            </div>
+            <div style="font-weight:900;font-size:21px;color:#F7F7F7;margin-bottom:10px">Call Agendada!</div>
+            <div style="color:rgba(247,247,247,.4);font-size:13px;line-height:1.7">${pad(sel)}/${pad(S.cal.mo+1)}/${S.cal.yr} às ${slot}<br/>Confirmação enviada por e-mail.</div>
+            <div style="margin-top:18px;font-size:9px;color:rgba(247,247,247,.3);font-weight:700;letter-spacing:2px">TRANSFORMAR OPERAÇÕES EM IMPÉRIOS.</div>
+          </div>`
+        :`<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px">
+            <div>
+              <div class="lbl">ETERNITY ACADEMY</div>
+              <div style="font-weight:900;font-size:19px;color:#F7F7F7">Confirmar Agendamento</div>
+              <div style="color:rgba(247,247,247,.3);font-size:12px;margin-top:4px">${pad(sel)} de ${MONTHS[S.cal.mo]} · ${slot}</div>
+            </div>
+            <button data-action="close-book" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;display:flex;padding:4px">${ic('x',18)}</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px;margin-bottom:20px">
+            <div>${fieldLabel('NOME COMPLETO')}<input id="bk-name" data-input="bk-name" type="text" class="inp" placeholder="João da Silva" value="${form.name}"/></div>
+            <div>${fieldLabel('E-MAIL')}<input id="bk-email" data-input="bk-email" type="email" class="inp" placeholder="joao@email.com" value="${form.email}"/></div>
+            <div>${fieldLabel('TÓPICO PRINCIPAL')}<textarea id="bk-topic" data-input="bk-topic" class="inp" rows="3" placeholder="Ex: Quero revisar minha estratégia de tráfego...">${form.topic}</textarea></div>
+          </div>
+          <button data-action="confirm-book" class="btn-p lg" id="btn-confirm-book" style="width:100%;justify-content:center;${!form.name||!form.email?'opacity:.35;cursor:not-allowed':''}" ${!form.name||!form.email?'disabled':''}>
+            CONFIRMAR ${ic('arrow-right',13)}
+          </button>`}
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   EVENT HANDLING — single delegated listener
+═══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('click', function(e) {
+  const t = e.target.closest('[data-action]');
+  if(!t) return;
+  const {action, page, id, v} = t.dataset;
+
+  switch(action) {
+    case 'open-drawer':
+      document.getElementById('drw').classList.add('open');
+      document.getElementById('drw-overlay').classList.add('open');
+      break;
+    case 'close-drawer':
+      document.getElementById('drw').classList.remove('open');
+      document.getElementById('drw-overlay').classList.remove('open');
+      break;
+    case 'nav':
+      S.page = page;
+      document.getElementById('drw').classList.remove('open');
+      document.getElementById('drw-overlay').classList.remove('open');
+      render();
+      break;
+    case 'toggle-hw':
+      if (S.dash.tasks !== null) {
+        // DB tasks — persist change
+        const task = S.dash.tasks.find(t => t.id === id);
+        if (task) {
+          task.done = !task.done;
+          SB.from('tasks').update({ done: task.done }).eq('id', id); // fire-and-forget
+        }
+      } else {
+        // Legacy local HW
+        const hw = HW.find(h => String(h.id) === id);
+        if (hw) hw.done = !hw.done;
+      }
+      document.getElementById('pc').innerHTML = pageDash();
+      lucide.createIcons();
+      break;
+    case 'rating':
+      S.dash.rating = +v;
+      document.getElementById('stars-row').innerHTML = stars(+v);
+      break;
+    case 'send-fb':
+      if(!S.dash.feedback.trim()) return;
+      S.dash.sent = true;
+      saveFeedback(); // fire-and-forget
+      document.getElementById('pc').innerHTML = pageDash();
+      lucide.createIcons();
+      break;
+    case 'prev-mo':
+      if(S.cal.mo===0){S.cal.mo=11;S.cal.yr--;}else S.cal.mo--;
+      loadAvailability();
+      break;
+    case 'next-mo':
+      if(S.cal.mo===11){S.cal.mo=0;S.cal.yr++;}else S.cal.mo++;
+      loadAvailability();
+      break;
+    case 'sel-day':
+      S.cal.sel = +v; S.cal.slot = null;
+      document.getElementById('pc').innerHTML = pageCal();
+      lucide.createIcons();
+      break;
+    case 'sel-slot':
+      S.cal.slot = v;
+      document.getElementById('pc').innerHTML = pageCal();
+      lucide.createIcons();
+      break;
+    case 'open-book':
+      openBookModal();
+      break;
+    case 'close-book':
+      document.getElementById('mr').innerHTML = '';
+      break;
+    case 'confirm-book':
+      renderBookModal(true);
+      createBooking();
+      break;
+    case 'connect-gcal':
+      connectGoogleCalendar();
+      break;
+    case 'open-award':
+      // awards are locked for now — no-op
+      break;
+    case 'kiwify':
+      t.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(247,247,247,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px"></span>Abrindo Kiwify...`;
+      t.disabled=true;
+      setTimeout(()=>{ window.open('https://members.kiwify.com.br','_blank'); t.innerHTML=`ACESSAR CONTEÚDOS GRAVADOS ${ic('external-link',14)}`; t.disabled=false; }, 900);
+      break;
+    case 'save-cfg':
+      saveCfg(id);
+      break;
+    case 'signout':
+      SB.auth.signOut().then(()=>{ window.location.href='/login'; });
+      break;
+  }
+});
+
+/* ─── Input delegation ─────────────────────────────────────────────── */
+document.addEventListener('input', function(e) {
+  const t = e.target.closest('[data-input]');
+  if(!t) return;
+  const val = t.value;
+  switch(t.dataset.input) {
+    case 'feedback':
+      S.dash.feedback = val;
+      const btn = document.getElementById('btn-feedback');
+      if(btn){ btn.disabled=!val.trim(); btn.style.opacity=val.trim()?'1':'.35'; btn.style.cursor=val.trim()?'pointer':'not-allowed'; }
+      break;
+    case 'bk-name':
+      S.cal.form.name=val;
+      updateBookBtn();
+      break;
+    case 'bk-email':
+      S.cal.form.email=val;
+      updateBookBtn();
+      break;
+    case 'bk-topic':
+      S.cal.form.topic=val;
+      break;
+    case 'cfg-pw':
+      S.cfg.pw=val;
+      break;
+    case 'cfg-pwc':
+      S.cfg.pwConf=val;
+      break;
+  }
+});
+
+/* ─── Feedback → Supabase ──────────────────────────────────────────── */
+async function saveFeedback() {
+  try {
+    const { data: { session } } = await SB.auth.getSession();
+    if (!session) return;
+    const lastCall = CALLS.filter(c => c.done).slice(-1)[0];
+    await SB.from('feedbacks').insert({
+      student_id:   session.user.id,
+      student_name: userName(),
+      call_title:   lastCall ? lastCall.title : 'Call de Mentoria',
+      rating:       S.dash.rating || null,
+      body:         S.dash.feedback,
+    });
+  } catch(e) { console.warn('saveFeedback:', e); }
+}
+
+/* ─── Tasks → Supabase ─────────────────────────────────────────────── */
+async function loadDashTasks() {
+  try {
+    const { data: { session } } = await SB.auth.getSession();
+    if (!session) return;
+    const { data } = await SB.from('tasks')
+      .select('*')
+      .eq('student_id', session.user.id)
+      .order('created_at');
+    S.dash.tasks = data || [];
+  } catch(e) { S.dash.tasks = null; /* fallback to hardcoded HW */ }
+}
+
+/* ─── Support phone ────────────────────────────────────────────────── */
+async function loadSupportPhone() {
+  try {
+    const { data: { session } } = await SB.auth.getSession();
+    if (!session) return;
+    const { data } = await SB.from('student_profiles')
+      .select('support_phone')
+      .eq('id', session.user.id)
+      .single();
+    S.suporte.phone = data?.support_phone || null;
+  } catch(e) { /* silencioso */ }
+}
+
+/* ─── Student profile upsert ───────────────────────────────────────── */
+async function upsertProfile(user) {
+  try {
+    const name = user.user_metadata?.name || user.email?.split('@')[0] || '';
+    await SB.from('student_profiles').upsert({
+      id:        user.id,
+      full_name: name,
+      email:     user.email,
+    }, { onConflict: 'id', ignoreDuplicates: true });
+  } catch(e) { /* não critico — profile é best-effort */ }
+}
+
+/* ─── Google Calendar ──────────────────────────────────────────────── */
+function connectGoogleCalendar() {
+  const clientId   = '53857295220-gj2i5co7b2d4kvcnh448bhsro9i16ko1.apps.googleusercontent.com';
+  const redirectUri = encodeURIComponent(window.location.origin + '/google-callback');
+  const scope      = encodeURIComponent('https://www.googleapis.com/auth/calendar.events');
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+  window.location.href = url;
+}
+
+async function checkGCalConnected() {
+  const { data: { session } } = await SB.auth.getSession();
+  if (!session) return;
+  const { data } = await SB.from('google_tokens').select('user_id').eq('user_id', session.user.id).single();
+  S.gcal.connected = !!data;
+}
+
+async function createBooking() {
+  const { sel, slot, yr, mo, form } = S.cal;
+  const nextCall = CALLS.filter(c => !c.done && !c.sched)[0];
+  const callTitle  = nextCall ? nextCall.title : 'Call de Mentoria';
+  const callNumber = nextCall ? nextCall.id : null;
+
+  // Fecha modal e recarrega calendário após 2.8s
+  setTimeout(async () => {
+    document.getElementById('mr').innerHTML = '';
+    S.cal.sel=null; S.cal.slot=null; S.cal.form={name:'',email:'',topic:''};
+    await loadAvailability(); // recarrega slots (horário agendado some)
+  }, 2800);
+
+  try {
+    const { data: { session } } = await SB.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`${SUPABASE_FN}/create-booking`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
+      body: JSON.stringify({ year:yr, month:mo, day:sel, slot, callTitle, callNumber, name:form.name, topic:form.topic }),
+    });
+    const json = await res.json();
+    if (json.meetLink) {
+      S.gcal.meetLink  = json.meetLink;
+      S.gcal.eventLink = json.eventLink;
+    }
+    if (json.error) console.warn('Booking error:', json.error);
+  } catch(e) { console.warn('createBooking:', e); }
+}
+
+function updateBookBtn() {
+  const btn=document.getElementById('btn-confirm-book');
+  if(!btn) return;
+  const ok=!!(S.cal.form.name&&S.cal.form.email);
+  btn.disabled=!ok; btn.style.opacity=ok?'1':'.35'; btn.style.cursor=ok?'pointer':'not-allowed';
+}
+
+/* ─── Config save ──────────────────────────────────────────────────── */
+async function saveCfg(id) {
+  if(id==='senha') {
+    const pw=document.getElementById('cfg-pw')?.value||'';
+    const pwc=document.getElementById('cfg-pwc')?.value||'';
+    if(!pw||pw!==pwc||pw.length<6) return;
+    const {error}=await SB.auth.updateUser({password:pw});
+    if(error){alert('Erro: '+error.message);return;}
+    S.cfg.pw=''; S.cfg.pwConf='';
+  } else if(id==='email') {
+    const em=document.getElementById('cfg-email')?.value||'';
+    if(!em) return;
+    const {error}=await SB.auth.updateUser({email:em});
+    if(error){alert('Erro: '+error.message);return;}
+  }
+  S.cfg.saved=id;
+  document.getElementById('pc').innerHTML=pageConfig();
+  lucide.createIcons();
+  setTimeout(()=>{S.cfg.saved=''; document.getElementById('pc').innerHTML=pageConfig(); lucide.createIcons();}, 2200);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   INIT — auth guard
+═══════════════════════════════════════════════════════════════════════ */
+SB.auth.getSession().then(async function({data:{session}}) {
+  if(!session) {
+    window.location.replace('/login');
+    return;
+  }
+  S.user = session.user;
+  // Verificar se veio do callback de conexão
+  if(new URLSearchParams(window.location.search).get('calendar')==='connected') {
+    S.gcal.connected = true;
+    history.replaceState(null,'','/dashboard');
+    S.page = 'config';
+  }
+  // Carregar dados em paralelo
+  await Promise.all([
+    checkGCalConnected(),
+    loadDashTasks(),
+    loadSupportPhone(),
+    upsertProfile(session.user),
+  ]);
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='flex';
+  render();
+});
+
+SB.auth.onAuthStateChange(function(event, session) {
+  if(event==='SIGNED_OUT') window.location.replace('/login');
+});
+</script>
+</body>
+</html>
