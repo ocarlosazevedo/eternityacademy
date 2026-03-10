@@ -540,13 +540,50 @@ async function loadAvailability() {
     </div>`;
   try {
     const {data:{session}} = await SB.auth.getSession();
-    const res = await fetch(`${SUPABASE_FN}/get-availability`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
-      body: JSON.stringify({ year: S.cal.yr, month: S.cal.mo }),
-    });
-    const json = await res.json();
-    if (json.availability) S.cal.availability = json.availability;
+    // Busca disponibilidade configurada (slots + bloqueios)
+    const [availRes, busyRes] = await Promise.allSettled([
+      fetch(`${SUPABASE_FN}/get-availability`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
+        body: JSON.stringify({ year: S.cal.yr, month: S.cal.mo }),
+      }),
+      // Busca horários ocupados no Google Agenda do mentor
+      fetch(`${SUPABASE_FN}/google-calendar`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          action: 'busy',
+          timeMin: new Date(S.cal.yr, S.cal.mo, 1).toISOString(),
+          timeMax: new Date(S.cal.yr, S.cal.mo + 1, 0, 23, 59).toISOString(),
+        }),
+      }),
+    ]);
+
+    if (availRes.status === 'fulfilled') {
+      const json = await availRes.value.json();
+      if (json.availability) S.cal.availability = json.availability;
+    }
+
+    // Remove slots que já estão ocupados no Google Agenda
+    if (busyRes.status === 'fulfilled') {
+      const bj = await busyRes.value.json();
+      if (bj.busy?.length) {
+        const avail = S.cal.availability;
+        for (const { start, end } of bj.busy) {
+          const busyStart = new Date(start);
+          const busyEnd   = new Date(end);
+          for (const dateKey of Object.keys(avail)) {
+            avail[dateKey] = avail[dateKey].filter((slot) => {
+              const [hh, mm] = slot.split(':');
+              const slotDate = new Date(dateKey);
+              slotDate.setHours(+hh, +mm, 0, 0);
+              return slotDate < busyStart || slotDate >= busyEnd;
+            });
+            if (!avail[dateKey].length) delete avail[dateKey];
+          }
+        }
+      }
+    }
   } catch(_) { /* mantém disponibilidade anterior */ }
   S.cal.loadingAvail = false;
   document.getElementById('pc').innerHTML = pageCal();
@@ -1137,11 +1174,31 @@ async function createBooking() {
       body: JSON.stringify({ year:yr, month:mo, day:sel, slot, callTitle, callNumber, name:form.name, topic:form.topic }),
     });
     const json = await res.json();
-    if (json.meetLink) {
-      S.gcal.meetLink  = json.meetLink;
-      S.gcal.eventLink = json.eventLink;
-    }
-    if (json.error) console.warn('Booking error:', json.error);
+    if (json.error) { console.warn('Booking error:', json.error); return; }
+
+    // Cria evento no Google Agenda do mentor (e convida o aluno)
+    try {
+      const bookingId  = json.bookingId || null;
+      const studentEmail = session.user.email;
+      const studentName  = form.name || session.user.user_metadata?.name || 'Aluno';
+      // Monta datas no formato ISO com fuso de Brasília
+      const dateStr  = `${yr}-${pad(mo+1)}-${pad(sel)}`;
+      const [hh, mm] = slot.split(':');
+      const startAt  = `${dateStr}T${hh}:${mm}:00-03:00`;
+      const endHour  = String(+hh + 1).padStart(2,'0');
+      const endAt    = `${dateStr}T${endHour}:${mm}:00-03:00`;
+
+      const calRes = await fetch(`${SUPABASE_FN}/google-calendar`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
+        body: JSON.stringify({ action:'create', bookingId, startAt, endAt,
+          title: callTitle, studentEmail, studentName }),
+      });
+      const calJson = await calRes.json();
+      if (calJson.meetLink)  S.gcal.meetLink  = calJson.meetLink;
+      if (calJson.eventLink) S.gcal.eventLink = calJson.eventLink;
+    } catch(calErr) { console.warn('Google Calendar:', calErr); }
+
   } catch(e) { console.warn('createBooking:', e); }
 }
 

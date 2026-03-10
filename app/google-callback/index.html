@@ -58,7 +58,10 @@ async function run() {
 
     document.getElementById('sp').style.display  = 'none';
     document.getElementById('msg').textContent   = '✓ Google Agenda conectado! Redirecionando...';
-    setTimeout(() => window.location.replace('/dashboard?calendar=connected'), 1500);
+    // Redireciona para admin se for o mentor, senão para o dashboard
+    const { data: { session: sess } } = await sb.auth.getSession();
+    const dest = sess?.user?.email === 'academy@eternityholding.com' ? '/admin?calendar=connected' : '/dashboard?calendar=connected';
+    setTimeout(() => window.location.replace(dest), 1500);
   } catch (e) {
     document.getElementById('sp').style.display = 'none';
     document.getElementById('msg').textContent  = 'Erro ao conectar.';
