@@ -914,7 +914,8 @@ function pageConfig() {
    BOOKING MODAL
 ═══════════════════════════════════════════════════════════════════════ */
 function openBookModal() {
-  S.cal.form = { name:'', email: S.user?.email||'', topic:'' };
+  const name = S.user?.user_metadata?.name || S.user?.email?.split('@')[0] || '';
+  S.cal.form = { name, email: S.user?.email||'', topic:'' };
   renderBookModal(false);
 }
 function renderBookModal(booked) {
