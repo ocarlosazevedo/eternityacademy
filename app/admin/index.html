@@ -1443,7 +1443,7 @@ async function loadGCalStatus() {
 
 function connectGoogleCalendarAdmin() {
   const clientId    = '53857295220-gj2i5co7b2d4kvcnh448bhsro9i16ko1.apps.googleusercontent.com';
-  const redirectUri = encodeURIComponent(window.location.origin + '/google-callback');
+  const redirectUri = encodeURIComponent('https://eternityacademy.com.br/google-callback');
   const scope       = encodeURIComponent('https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly');
   const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
   window.location.href = url;
