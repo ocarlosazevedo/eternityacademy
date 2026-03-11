@@ -669,9 +669,11 @@ async function loadAvailability() {
 function pageCal() {
   const {yr,mo,sel,slot,availability}=S.cal;
 
-  // Lock check: next call to book is locked if previous isn't done
-  const nextPending = CALLS.find(c => !c.done && !c.sched);
-  const calLocked = nextPending && nextPending.locked;
+  // Lock check: only block if the student already has a scheduled call
+  // and the next call to book is locked (previous not done yet)
+  const hasScheduled = CALLS.some(c => c.sched);
+  const nextToBook   = CALLS.find(c => !c.done && !c.sched);
+  const calLocked    = hasScheduled && nextToBook && nextToBook.locked;
 
   if (calLocked) {
     return `
@@ -688,7 +690,7 @@ function pageCal() {
         </div>
         <div style="background:rgba(0,0,0,.02);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 20px;margin-top:4px">
           <div style="font-size:10px;color:#9CA3AF;letter-spacing:1px;margin-bottom:4px">PRÓXIMA A DESBLOQUEAR</div>
-          <div style="font-size:14px;font-weight:700;color:#9CA3AF">Call ${nextPending.id} · ${nextPending.title}</div>
+          <div style="font-size:14px;font-weight:700;color:#9CA3AF">Call ${nextToBook.id} · ${nextToBook.title}</div>
         </div>
       </div>
     </div>`;
@@ -1426,11 +1428,13 @@ async function createBooking() {
   const callTitle  = nextCall ? nextCall.title : 'Call de Mentoria';
   const callNumber = nextCall ? nextCall.id : null;
 
-  // Fecha modal e recarrega calendário após 2.8s
+  // Fecha modal e volta para dashboard após 2.8s
   setTimeout(async () => {
     document.getElementById('mr').innerHTML = '';
     S.cal.sel=null; S.cal.slot=null; S.cal.form={name:'',email:'',topic:''};
-    await Promise.all([loadCalls(), loadAvailability()]); // recarrega slots e calls
+    await loadCalls(); // atualiza estado das calls
+    S.page = 'dashboard';
+    render();
   }, 2800);
 
   try {
