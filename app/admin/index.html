@@ -1153,7 +1153,7 @@ async function saveStudent() {
 
 async function saveTask() {
   const { studentId, callNum, title, note } = S.newTask;
-  if (!studentId || !title) return;
+  if (!studentId || !title || S.newTask.saving) return;
   S.newTask.saving = true; S.newTask.err = '';
   renderModal();
   try {

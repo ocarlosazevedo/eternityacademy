@@ -1200,7 +1200,7 @@ function connectGoogleCalendar() {
 async function checkGCalConnected() {
   const { data: { session } } = await SB.auth.getSession();
   if (!session) return;
-  const { data } = await SB.from('google_tokens').select('user_id').eq('user_id', session.user.id).single();
+  const { data } = await SB.from('google_tokens').select('user_id').eq('user_id', session.user.id).maybeSingle();
   S.gcal.connected = !!data;
 }
 
