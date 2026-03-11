@@ -1386,7 +1386,7 @@ async function loadLinks() {
     if (!session) return;
     const [profileRes, linksRes] = await Promise.all([
       SB.from('student_profiles').select('plan').eq('id', session.user.id).maybeSingle(),
-      SB.from('important_links').select('id,name,url,order').order('order').order('created_at'),
+      SB.from('important_links').select('id,name,url,order').eq('student_id', session.user.id).order('order').order('created_at'),
     ]);
     S.dash.plan  = profileRes.data?.plan || null;
     S.links.list = linksRes.data || [];
