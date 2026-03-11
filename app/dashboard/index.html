@@ -474,18 +474,15 @@ function pageDash() {
     </div>
 
     ${total === 0
-      /* ── NOVO ALUNO — hero para agendar a 1ª call ── */
+      /* ── NOVO ALUNO — aguardando agendamento ── */
       ? `<div style="background:linear-gradient(135deg,rgba(47,5,76,0.6),rgba(112,34,187,0.25));border:1px solid rgba(112,34,187,0.3);border-radius:20px;padding:32px 28px;margin-bottom:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;animation:fadeUp .32s ease">
           <div style="width:64px;height:64px;border-radius:18px;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center">
             ${ic('video',28)}
           </div>
           <div style="flex:1;min-width:0">
-            <div style="font-weight:900;font-size:18px;color:#F7F7F7;margin-bottom:6px">Agende sua primeira call</div>
-            <div style="font-size:13px;color:rgba(247,247,247,.45);line-height:1.6;margin-bottom:0">Escolha um horário disponível e dê o primeiro passo da sua mentoria. Sua jornada começa aqui.</div>
+            <div style="font-weight:900;font-size:18px;color:#F7F7F7;margin-bottom:6px">Sua mentoria começa em breve</div>
+            <div style="font-size:13px;color:rgba(247,247,247,.45);line-height:1.6">Sua primeira call será confirmada pela equipe Eternity. Aguarde o contato do seu mentor.</div>
           </div>
-          <button data-action="nav" data-page="calls" class="btn-p lg" style="flex-shrink:0;padding:14px 28px">
-            AGENDAR AGORA ${ic('arrow-right',14)}
-          </button>
         </div>`
       /* ── ALUNO COM CALLS — barra de progresso ── */
       : `<div class="card fu1" style="padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -543,27 +540,31 @@ function pageDash() {
       </div>
     </div>` : ''}
 
-    <!-- Calls para agendar -->
+    <!-- Próximas Calls (agendadas pelo admin) -->
+    ${(() => {
+      const upcoming = CALLS.filter(c => c.sched && c.scheduledAt && new Date(c.scheduledAt) >= now);
+      if (upcoming.length === 0) return '';
+      return `
     <div style="margin-bottom:24px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div class="lbl" style="margin-bottom:0">CALLS PARA AGENDAR</div>
-        <span data-action="nav" data-page="calls" style="font-size:11px;color:rgba(247,247,247,.45);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">Ver calendário ${ic('arrow-right',11)}</span>
+        <div class="lbl" style="margin-bottom:0">PRÓXIMAS CALLS</div>
+        <span data-action="nav" data-page="calls" style="font-size:11px;color:rgba(247,247,247,.45);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px">Ver todas ${ic('arrow-right',11)}</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        ${pending3.length === 0
-          ? `<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px">${ic('calendar',14)} Nenhuma call pendente no momento</div>`
-          : pending3.map(c=>`
-            <div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px">
-              <div style="width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#F7F7F7">${c.id}</div>
-              <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title}</div>
-                <div style="font-size:10px;color:rgba(247,247,247,.3)">com ${c.mentor}</div>
-              </div>
-              <button data-action="nav" data-page="calls" class="btn-p" style="flex-shrink:0">Agendar ${ic('arrow-right',11)}</button>
+        ${upcoming.map(c => `
+          <div style="background:rgba(112,34,187,0.08);border:1px solid rgba(112,34,187,0.25);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px">
+            <div style="width:42px;height:42px;border-radius:12px;flex-shrink:0;background:rgba(112,34,187,0.2);border:1px solid rgba(112,34,187,0.4);display:flex;align-items:center;justify-content:center">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
-          `).join('')}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.title}</div>
+              <div style="font-size:11px;color:rgba(247,247,247,.45)">${c.schedDate || '—'}${c.schedTime ? ' às ' + c.schedTime : ''}</div>
+            </div>
+            <span style="font-size:9px;font-weight:800;letter-spacing:1px;color:#c084fc;background:rgba(112,34,187,.15);border-radius:6px;padding:3px 9px;flex-shrink:0">AGENDADA</span>
+          </div>`).join('')}
       </div>
-    </div>
+    </div>`;
+    })()}
 
     <!-- Tarefas -->
     <div>
