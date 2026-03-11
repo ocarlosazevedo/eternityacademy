@@ -465,8 +465,8 @@ function pageDash() {
             :`<label style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.28);display:block;margin-bottom:8px">O QUE VOCÊ ACHOU DA CALL?</label>
              <textarea id="fb-ta" data-input="feedback" class="inp" rows="3" placeholder="O que foi mais valioso? O que pode melhorar na próxima?">${feedback}</textarea>
              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px;flex-wrap:wrap">
-               <div style="font-size:10px;color:rgba(247,247,247,.18)">Seu feedback vai direto para o mentor.</div>
-               <button data-action="send-fb" class="btn-p" style="${!feedback.trim()?'opacity:.35;cursor:not-allowed':''}" ${!feedback.trim()?'disabled':''}>
+               <div style="font-size:10px;color:rgba(247,247,247,.18)">Seu feedback é anônimo :)</div>
+               <button id="btn-feedback" data-action="send-fb" class="btn-p" style="${!feedback.trim()?'opacity:.35;cursor:not-allowed':''}" ${!feedback.trim()?'disabled':''}>
                  ${ic('send',12)} ENVIAR
                </button>
              </div>`}
