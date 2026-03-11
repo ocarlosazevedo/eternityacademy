@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#F4F5F7" />
+  <meta name="theme-color" content="#F0EFF4" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Entrar · Eternity Academy</title>
   <link rel="icon" type="image/png" href="/medias/eternityfavicon.png" />
@@ -12,624 +12,355 @@
   <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* ─── RESET ──────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ─── TOKENS ─────────────────────────────────────────────────────── */
     :root {
-      --black:   #111827;
-      --white:   #FFFFFF;
-      --dp:      #5B18A0;
-      --purple:  #7022BB;
-      --surface: #F4F5F7;
-      --card:    #FFFFFF;
-      --border:  rgba(0,0,0,0.08);
-      --faint:   rgba(0,0,0,0.04);
-      --muted:   rgba(17,24,39,0.45);
-      --font:    'Red Hat Display', sans-serif;
+      --navy:   #0F1629;
+      --purple: #7022BB;
+      --dp:     #5B18A0;
+      --surface:#F0EFF4;
+      --white:  #FFFFFF;
+      --text:   #111827;
+      --muted:  #6B7280;
+      --border: #D1D5DB;
+      --font:   'Red Hat Display', sans-serif;
     }
 
-    /* ─── BASE ───────────────────────────────────────────────────────── */
     html, body {
       height: 100%;
-      background: #F4F5F7;
-      color: #111827;
+      background: var(--surface);
+      color: var(--text);
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow: hidden;
     }
 
-    /* ─── LAYOUT ─────────────────────────────────────────────────────── */
+    /* ── Background decoration ── */
+    .bg-deco {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .bg-deco::before {
+      content: '';
+      position: absolute;
+      top: -120px; right: -120px;
+      width: 480px; height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(112,34,187,0.09) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    .bg-deco::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -80px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15,22,41,0.06) 0%, transparent 70%);
+      filter: blur(50px);
+    }
+
+    /* ── Page layout ── */
     .page {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-    }
-
-    /* ─── LEFT PANEL ─────────────────────────────────────────────────── */
-    .panel-form {
-      width: 46%;
-      min-width: 400px;
-      display: flex;
-      flex-direction: column;
-      padding: 48px 56px;
-      background: #FFFFFF;
       position: relative;
-      z-index: 2;
-      justify-content: space-between;
-      box-shadow: 2px 0 24px rgba(0,0,0,0.06);
-    }
-
-    /* ─── LOGO ───────────────────────────────────────────────────────── */
-    .logo {
-      display: block;
-      height: 48px;
-      width: auto;
-    }
-
-    /* ─── FORM BODY ──────────────────────────────────────────────────── */
-    .form-body {
-      flex: 1;
+      z-index: 1;
+      min-height: 100dvh;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      padding-top: 32px;
+      padding: 32px 20px;
     }
 
-    /* ─── HEADING ────────────────────────────────────────────────────── */
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-radius: 24px;
+      padding: 44px 44px 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08);
+      animation: fadeUp 0.45s ease both;
+    }
+
+    /* ── Logo ── */
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .logo-wrap img {
+      height: 42px;
+      width: auto;
+      display: block;
+    }
+
+    /* ── Heading ── */
     .heading {
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
-
     .heading h1 {
-      font-size: 38px;
+      font-size: 26px;
       font-weight: 900;
-      color: #111827;
-      line-height: 1.1;
-      letter-spacing: -0.5px;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+      margin-bottom: 6px;
     }
 
-    .heading h1 .gradient-text {
-      background: linear-gradient(135deg, #A040E0, #7022BB);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .heading p {
-      color: #6B7280;
-      font-size: 13.5px;
-      margin-top: 10px;
-      font-weight: 400;
-    }
-
-    /* ─── FIELDS ─────────────────────────────────────────────────────── */
-    .field {
-      margin-bottom: 18px;
-    }
+    /* ── Fields ── */
+    .field { margin-bottom: 16px; }
 
     .field-label {
       display: block;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      color: #6B7280;
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
     }
 
-    .input-wrap {
-      position: relative;
-    }
+    .input-wrap { position: relative; }
 
     .ea-input {
       width: 100%;
-      background: #FFFFFF;
-      border: 1.5px solid #D1D5DB;
-      border-radius: 14px;
-      padding: 15px 18px;
-      color: #111827;
-      font-size: 14.5px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-size: 15px;
       font-family: var(--font);
       font-weight: 500;
       outline: none;
-      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       -webkit-appearance: none;
     }
-
-    .ea-input::placeholder {
-      color: #9CA3AF;
-    }
-
+    .ea-input::placeholder { color: #9CA3AF; }
     .ea-input:focus {
-      border-color: var(--purple);
-      background: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(112,34,187,0.14), 0 0 18px rgba(112,34,187,0.10);
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(15,22,41,0.08);
     }
-
-    .ea-input.pw { padding-right: 52px; }
+    .ea-input.pw { padding-right: 50px; }
 
     /* eye toggle */
     .pw-toggle {
       position: absolute;
-      right: 16px;
+      right: 14px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
       border: none;
       cursor: pointer;
       color: #9CA3AF;
-      font-size: 16px;
-      line-height: 1;
-      transition: color 0.2s;
       display: flex;
       align-items: center;
       padding: 4px;
-    }
-
-    .pw-toggle:hover { color: var(--purple); }
-
-    .pw-toggle svg {
-      width: 17px;
-      height: 17px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* ─── META ROW ───────────────────────────────────────────────────── */
-    .forgot-row {
-      text-align: right;
-      margin-bottom: 32px;
-      margin-top: -4px;
-    }
-
-    .ea-link {
-      color: #6B7280;
-      font-size: 12.5px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
       transition: color 0.2s;
     }
+    .pw-toggle:hover { color: var(--navy); }
+    .pw-toggle svg {
+      width: 17px; height: 17px;
+      fill: none; stroke: currentColor;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
 
-    .ea-link:hover { color: var(--purple); }
+    /* ── Forgot ── */
+    .forgot-row {
+      text-align: right;
+      margin-top: 6px;
+      margin-bottom: 24px;
+    }
+    .ea-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+    .ea-link:hover { color: var(--navy); }
 
-    /* ─── BUTTON ─────────────────────────────────────────────────────── */
+    /* ── Button ── */
     .ea-btn {
       width: 100%;
-      padding: 16px;
+      padding: 15px;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
       font-family: var(--font);
       font-weight: 800;
       font-size: 15px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      background: linear-gradient(135deg, #7022BB 0%, #A040E0 50%, #7022BB 100%);
-      background-size: 200% 200%;
+      background: var(--navy);
       color: #FFFFFF;
-      transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
-      box-shadow: 0 4px 24px rgba(112,34,187,0.38);
-      position: relative;
-      overflow: hidden;
+      transition: background 0.18s, transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(15,22,41,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
-
     .ea-btn:hover:not(:disabled) {
+      background: #1a2540;
       transform: translateY(-1px);
-      box-shadow: 0 8px 32px rgba(112,34,187,0.52);
-      animation: gradientFlow 2s ease infinite;
+      box-shadow: 0 6px 24px rgba(15,22,41,0.28);
     }
-
     .ea-btn:active:not(:disabled) { transform: translateY(0); }
-    .ea-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .ea-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* spinner */
     .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2.5px solid rgba(255,255,255,0.35);
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
       border-top-color: #FFFFFF;
       border-radius: 50%;
       animation: spin 0.75s linear infinite;
       display: none;
     }
+    .ea-btn.loading .btn-label { display: none; }
+    .ea-btn.loading .spinner   { display: block; }
 
-    .ea-btn.loading .btn-label  { display: none; }
-    .ea-btn.loading .spinner    { display: block; }
-
-    /* ─── DIVIDER ────────────────────────────────────────────────────── */
-    .divider {
-      display: flex;
+    /* ── Error banner ── */
+    .error-banner {
+      display: none;
       align-items: center;
-      gap: 12px;
-      margin: 28px 0;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(0,0,0,0.08);
-    }
-
-    .divider span {
-      font-size: 11px;
-      color: #9CA3AF;
-      font-weight: 600;
-      letter-spacing: 1px;
-    }
-
-    /* ─── SIGNUP ROW ─────────────────────────────────────────────────── */
-    .signup-row {
-      text-align: center;
-    }
-
-    .signup-row p {
-      color: #6B7280;
+      gap: 10px;
+      background: rgba(239,68,68,0.06);
+      border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 16px;
       font-size: 13px;
-    }
-
-    .ea-link-main {
-      color: #4B5563;
-      font-size: 13px;
+      color: #DC2626;
       font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
-      border-bottom: 1px solid rgba(112,34,187,0.3);
-      padding-bottom: 1px;
     }
+    .error-banner svg { flex-shrink: 0; }
 
-    .ea-link-main:hover {
-      color: var(--purple);
-      border-bottom-color: var(--purple);
-    }
-
-    /* ─── PANEL FOOTER ───────────────────────────────────────────────── */
-    .panel-footer {
+    /* ── Footer ── */
+    .card-footer {
+      text-align: center;
+      margin-top: 28px;
       font-size: 10px;
       color: #9CA3AF;
-      letter-spacing: 1px;
-      text-align: center;
-      padding-top: 16px;
+      letter-spacing: 0.8px;
     }
 
-    /* ─── RIGHT PANEL ────────────────────────────────────────────────── */
-    .panel-image {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .panel-image img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
-
-    .overlay { position: absolute; inset: 0; pointer-events: none; }
-
-    .overlay-grade {
-      background: linear-gradient(160deg,
-        rgba(47,5,76,0.65) 0%,
-        rgba(112,34,187,0.18) 45%,
-        rgba(5,5,8,0.25) 100%
-      );
-    }
-
-    .overlay-left {
-      background: linear-gradient(to right, rgba(5,5,8,0.95) 0%, rgba(5,5,8,0.0) 18%);
-    }
-
-    .overlay-top {
-      bottom: unset;
-      height: 200px;
-      background: linear-gradient(to bottom, rgba(5,5,8,0.60) 0%, transparent 100%);
-    }
-
-    .overlay-bottom {
-      top: unset;
-      height: 220px;
-      background: linear-gradient(to top, rgba(5,5,8,0.85) 0%, transparent 100%);
-    }
-
-    .rim-light {
-      position: absolute;
-      top: -120px; right: -80px;
-      width: 500px; height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(112,34,187,0.28) 0%, transparent 70%);
-      filter: blur(60px);
-      pointer-events: none;
-    }
-
-    .border-accent {
-      position: absolute;
-      top: 0; left: 0;
-      width: 1px; height: 100%;
-      background: linear-gradient(to bottom,
-        transparent 10%,
-        rgba(112,34,187,0.4) 50%,
-        transparent 90%
-      );
-      pointer-events: none;
-    }
-
-    /* ─── ANIMATIONS ─────────────────────────────────────────────────── */
+    /* ── Animations ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0);    }
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes gradientFlow {
-      0%   { background-position: 0%   50%; }
-      50%  { background-position: 100% 50%; }
-      100% { background-position: 0%   50%; }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .ea-fade-1 { animation: fadeUp 0.55s ease both; animation-delay: 0.05s; }
-    .ea-fade-2 { animation: fadeUp 0.55s ease both; animation-delay: 0.15s; }
-    .ea-fade-3 { animation: fadeUp 0.55s ease both; animation-delay: 0.25s; }
-    .ea-fade-4 { animation: fadeUp 0.55s ease both; animation-delay: 0.35s; }
-    .ea-fade-5 { animation: fadeUp 0.55s ease both; animation-delay: 0.45s; }
-    .ea-fade-6 { animation: fadeUp 0.55s ease both; animation-delay: 0.55s; }
-
-    /* ─── ORBS (mobile background) ──────────────────────────────────── */
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      display: none; /* hidden on desktop — right panel has its own lighting */
-    }
-
-    /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
-    @media (max-width: 768px) {
-      html, body { overflow: auto; height: auto; }
-
-      .page {
-        height: auto;
-        min-height: 100dvh;
-        overflow: visible;
-        flex-direction: column;
-      }
-
-      /* show orbs on mobile */
-      .orb { display: block; }
-
-      .orb-top {
-        top: -100px; right: -80px;
-        width: 340px; height: 340px;
-        background: radial-gradient(circle, rgba(112,34,187,0.22) 0%, transparent 70%);
-        filter: blur(70px);
-      }
-
-      .orb-bottom {
-        bottom: -60px; left: -60px;
-        width: 260px; height: 260px;
-        background: radial-gradient(circle, rgba(47,5,76,0.40) 0%, transparent 70%);
-        filter: blur(60px);
-      }
-
-      /* hide image panel */
-      .panel-image { display: none; }
-
-      /* form panel full width */
-      .panel-form {
-        width: 100%;
-        min-width: unset;
-        min-height: 100dvh;
-        padding: 56px 28px 48px;
-        position: relative;
-        z-index: 2;
-      }
-
-      /* logo → centered */
-      .logo-wrap {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 0;
-      }
-
-      .logo {
-        height: 40px;
-        mix-blend-mode: normal;
-      }
-
-      /* heading → centered */
-      .heading {
-        text-align: center;
-        margin-bottom: 32px;
-      }
-
-      .heading h1 { font-size: 32px; }
-      .heading p  { font-size: 13px; }
-
-      /* form body — no top padding needed, orbs handle depth */
-      .form-body { padding-top: 20px; }
-
-      /* inputs — 16px prevents iOS auto-zoom */
-      .ea-input { font-size: 16px; padding: 17px 18px; border-radius: 16px; }
-      .ea-input.pw { padding-right: 52px; }
-
-      /* button */
-      .ea-btn { padding: 17px; border-radius: 16px; letter-spacing: 2px; }
-
-      /* forgot → centered */
-      .forgot-row { text-align: center; }
-
-      /* footer */
-      .panel-footer { padding-top: 28px; }
+    /* ── Mobile ── */
+    @media (max-width: 540px) {
+      .card { padding: 36px 24px 32px; border-radius: 20px; }
+      .heading h1 { font-size: 22px; }
+      .ea-input { font-size: 16px; }
     }
   </style>
 </head>
 
 <body>
-<!-- orbs — only rendered on mobile via CSS -->
-<div class="orb orb-top"    aria-hidden="true"></div>
-<div class="orb orb-bottom" aria-hidden="true"></div>
+<div class="bg-deco" aria-hidden="true"></div>
 
 <div class="page">
-
-  <!-- ── LEFT PANEL — FORM ────────────────────────────────────────── -->
-  <div class="panel-form">
+  <div class="card">
 
     <!-- Logo -->
-    <div class="logo-wrap ea-fade-1">
-      <img
-        src="/medias/eahorizontalglow.png"
-        alt="Eternity Academy"
-        class="logo"
-      />
+    <div class="logo-wrap">
+      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" />
     </div>
 
-    <!-- Form body -->
-    <div class="form-body">
+    <!-- Heading -->
+    <div class="heading">
+      <h1>Acesse sua conta Eternity</h1>
+    </div>
 
-      <!-- Heading -->
-      <div class="heading ea-fade-2">
-        <h1>Faça seu <span class="gradient-text">Login.</span></h1>
-        <p>Bem-vindo de volta à sua jornada de escala.</p>
+    <form id="loginForm" novalidate>
+
+      <!-- Error banner -->
+      <div id="errorBanner" class="error-banner" role="alert">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="errorText"></span>
       </div>
 
-      <form id="loginForm" novalidate>
+      <!-- Email -->
+      <div class="field">
+        <label class="field-label" for="email">E-mail</label>
+        <input
+          class="ea-input"
+          type="email"
+          id="email"
+          name="email"
+          placeholder="seuemail@empresa.com"
+          autocomplete="email"
+          inputmode="email"
+          required
+        />
+      </div>
 
-        <!-- Error banner -->
-        <div id="errorBanner" role="alert" style="
-          display:none; align-items:center; gap:10px;
-          background:rgba(255,77,106,0.08); border:1px solid rgba(255,77,106,0.2);
-          border-radius:12px; padding:12px 16px; margin-bottom:18px;
-          font-size:13px; color:#FF8097; font-weight:600;
-        ">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span id="errorText"></span>
-        </div>
-
-        <!-- Email -->
-        <div class="field ea-fade-3">
-          <label class="field-label" for="email">E-mail</label>
+      <!-- Senha -->
+      <div class="field">
+        <label class="field-label" for="password">Senha</label>
+        <div class="input-wrap">
           <input
-            class="ea-input"
-            type="email"
-            id="email"
-            name="email"
-            placeholder="seuemail@empresa.com"
-            autocomplete="email"
-            inputmode="email"
+            class="ea-input pw"
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
             required
           />
-        </div>
-
-        <!-- Senha -->
-        <div class="field ea-fade-4">
-          <label class="field-label" for="password">Senha</label>
-          <div class="input-wrap">
-            <input
-              class="ea-input pw"
-              type="password"
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              autocomplete="current-password"
-              required
-            />
-            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Mostrar senha">
-              <!-- eye -->
-              <svg id="eyeOpen" viewBox="0 0 24 24">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <!-- eye-off -->
-              <svg id="eyeOff" viewBox="0 0 24 24" style="display:none">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Forgot -->
-        <div class="forgot-row ea-fade-4">
-          <a class="ea-link" href="#" id="forgotLink">Esqueci minha senha</a>
-        </div>
-
-        <!-- Submit -->
-        <div class="ea-fade-5">
-          <button type="submit" class="ea-btn" id="btnSubmit">
-            <span class="btn-label">Entrar</span>
-            <div class="spinner" aria-hidden="true"></div>
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Mostrar senha">
+            <svg id="eyeOpen" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="eyeOff" viewBox="0 0 24 24" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
           </button>
         </div>
+      </div>
 
+      <!-- Forgot -->
+      <div class="forgot-row">
+        <a class="ea-link" href="#" id="forgotLink">Esqueci minha senha</a>
+      </div>
 
-      </form>
-    </div>
+      <!-- Submit -->
+      <button type="submit" class="ea-btn" id="btnSubmit">
+        <span class="btn-label">Entrar</span>
+        <div class="spinner" aria-hidden="true"></div>
+      </button>
 
-    <!-- Footer -->
-    <p class="panel-footer">© 2026 ETERNITY HOLDING CO. — TODOS OS DIREITOS RESERVADOS</p>
+    </form>
+
+    <p class="card-footer">© 2026 ETERNITY HOLDING CO. — TODOS OS DIREITOS RESERVADOS</p>
   </div>
-
-  <!-- ── RIGHT PANEL — CINEMATIC IMAGE ────────────────────────────── -->
-  <div class="panel-image">
-    <img
-      src="https://images.unsplash.com/photo-NYwZhS4afQc?w=1400&q=90&fit=crop"
-      alt=""
-      fetchpriority="high"
-      onerror="this.src='https://images.unsplash.com/photo-TDBUlxFNNUE?w=1400&q=90&fit=crop'"
-    />
-    <div class="overlay overlay-grade"></div>
-    <div class="overlay overlay-left"></div>
-    <div class="overlay overlay-top"></div>
-    <div class="overlay overlay-bottom"></div>
-    <div class="rim-light"></div>
-    <div class="border-accent"></div>
-  </div>
-
 </div>
 
-<!-- Supabase JS (UMD — funciona em HTML estático sem build) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <script>
 (function () {
   'use strict';
 
-  /* ─────────────────────────────────────────────────────────────────
-   * CONFIGURAÇÃO SUPABASE
-   * 1. Acesse app.supabase.com → seu projeto → Settings → API
-   * 2. Copie "Project URL" e "anon public" e cole abaixo
-   * ───────────────────────────────────────────────────────────────── */
   var SUPABASE_URL  = 'https://subsagwkktjjujdfpavf.supabase.co';
   var SUPABASE_ANON = 'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy';
 
-  /* ─── Rota para redirecionar após login ─────────────────────────── */
   var ADMIN_EMAIL          = 'academy@eternityholding.com';
   var REDIRECT_AFTER_LOGIN = '/dashboard/index.html';
   var REDIRECT_ADMIN       = '/admin/index.html';
 
-  /* ─── Init ──────────────────────────────────────────────────────── */
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  /* ─── DOM refs ──────────────────────────────────────────────────── */
   var form        = document.getElementById('loginForm');
   var emailEl     = document.getElementById('email');
   var passEl      = document.getElementById('password');
@@ -640,7 +371,7 @@
   var errorBanner = document.getElementById('errorBanner');
   var errorText   = document.getElementById('errorText');
 
-  /* ─── Se já está logado → redireciona ──────────────────────────── */
+  /* Se já está logado → redireciona */
   sb.auth.getSession().then(function (result) {
     if (result.data && result.data.session) {
       var dest = result.data.session.user.email === ADMIN_EMAIL ? REDIRECT_ADMIN : REDIRECT_AFTER_LOGIN;
@@ -648,23 +379,28 @@
     }
   });
 
-  /* ─── Helpers de UI ─────────────────────────────────────────────── */
   function setLoading(on) {
     btnSubmit.disabled = on;
     if (on) btnSubmit.classList.add('loading');
     else     btnSubmit.classList.remove('loading');
   }
 
-  function showError(msg) {
+  function showError(msg, success) {
     errorText.textContent = msg;
     errorBanner.style.display = 'flex';
+    if (success) {
+      errorBanner.style.background = 'rgba(34,197,94,0.06)';
+      errorBanner.style.borderColor = 'rgba(34,197,94,0.18)';
+      errorBanner.style.color = '#16a34a';
+    } else {
+      errorBanner.style.background = '';
+      errorBanner.style.borderColor = '';
+      errorBanner.style.color = '';
+    }
   }
 
-  function hideError() {
-    errorBanner.style.display = 'none';
-  }
+  function hideError() { errorBanner.style.display = 'none'; }
 
-  /* ─── Password toggle ────────────────────────────────────────────── */
   pwToggle.addEventListener('click', function () {
     var hide = passEl.type === 'password';
     passEl.type = hide ? 'text' : 'password';
@@ -673,11 +409,9 @@
     pwToggle.setAttribute('aria-label', hide ? 'Ocultar senha' : 'Mostrar senha');
   });
 
-  /* ─── Limpa erro ao digitar ──────────────────────────────────────── */
   emailEl.addEventListener('input', hideError);
   passEl.addEventListener('input', hideError);
 
-  /* ─── Submit → Supabase signInWithPassword ───────────────────────── */
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     hideError();
@@ -705,7 +439,6 @@
             showError(msg);
           }
         } else {
-          /* login ok → redireciona (admin vai para /admin, aluno para /dashboard) */
           var dest = email.trim().toLowerCase() === ADMIN_EMAIL ? REDIRECT_ADMIN : REDIRECT_AFTER_LOGIN;
           window.location.href = dest;
         }
@@ -716,7 +449,6 @@
       });
   });
 
-  /* ─── Esqueci senha → Supabase resetPasswordForEmail ────────────── */
   document.getElementById('forgotLink').addEventListener('click', function (e) {
     e.preventDefault();
     var email = emailEl.value.trim();
@@ -734,10 +466,7 @@
       redirectTo: window.location.origin + '/nova-senha'
     }).then(function () {
       setLoading(false);
-      showError('✓ Link de recuperação enviado para ' + email);
-      errorBanner.style.background = 'rgba(34,197,94,0.08)';
-      errorBanner.style.borderColor = 'rgba(34,197,94,0.2)';
-      errorBanner.style.color = '#4ade80';
+      showError('Link de recuperação enviado para ' + email, true);
     }).catch(function () {
       setLoading(false);
       showError('Não foi possível enviar o link. Tente novamente.');
