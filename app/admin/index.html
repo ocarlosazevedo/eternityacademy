@@ -839,16 +839,7 @@ function pageStudents() {
               ${avatar(st.full_name || st.email || '?', 38)}
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px">${st.full_name || '—'}</div>
-                <div style="font-size:11px;color:rgba(247,247,247,.35);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                  <span>${st.email || '—'}</span>
-                  ${st.support_phone ? `<span style="display:inline-flex;align-items:center;gap:4px;color:rgba(34,197,94,.7)">${ic('phone',10,'color:rgba(34,197,94,.7)')} ${st.support_phone}</span>` : ''}
-                </div>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0" onclick="event.stopPropagation()">
-                <span class="tag tag-purple">${st.plan || 'FAST'}</span>
-                <button data-action="edit-support" data-id="${st.id}" data-name="${(st.full_name||st.email||'').replace(/"/g,'&quot;')}" data-phone="${st.support_phone||''}" class="btn-ghost" title="Editar suporte" style="width:auto;padding:5px 10px;font-size:10px;gap:5px">
-                  ${ic('phone',12)} Suporte
-                </button>
+                <div style="font-size:11px;color:rgba(247,247,247,.35)">${st.email || '—'}</div>
               </div>
             </div>
           `).join('')}
@@ -1270,8 +1261,13 @@ async function openStudentDetail(studentId) {
               <input id="se-name" value="${(st.full_name||'').replace(/"/g,'&quot;')}" oninput="S._seNameTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="Nome completo">
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP</label>
+              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP DO ALUNO</label>
               <input id="se-phone" value="${(st.phone||'').replace(/"/g,'&quot;')}" oninput="S._sePhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="(00) 00000-0000">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP DE SUPORTE</label>
+              <input id="se-support-phone" value="${(st.support_phone||'').replace(/"/g,'&quot;')}" oninput="S._seSupportPhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="5511999999999">
+              <div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:3px">Formato internacional: código do país + DDD + número</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
               <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">PLANO</label>
@@ -1318,21 +1314,23 @@ async function openStudentDetail(studentId) {
 }
 
 async function saveStudentEdit(studentId) {
-  const nameEl  = document.getElementById('se-name');
-  const phoneEl = document.getElementById('se-phone');
-  const planEl  = document.getElementById('se-plan');
-  const errEl   = document.getElementById('se-err');
-  const warnEl  = document.getElementById('se-plan-warn');
-  const confirmEl = document.getElementById('se-plan-confirm');
+  const nameEl         = document.getElementById('se-name');
+  const phoneEl        = document.getElementById('se-phone');
+  const supportPhoneEl = document.getElementById('se-support-phone');
+  const planEl         = document.getElementById('se-plan');
+  const errEl          = document.getElementById('se-err');
+  const warnEl         = document.getElementById('se-plan-warn');
+  const confirmEl      = document.getElementById('se-plan-confirm');
 
   if (!nameEl || !planEl) return;
 
   const st = S.students.list.find(s => s.id === studentId);
   if (!st) return;
 
-  const newName  = (S._seNameTmp  !== undefined ? S._seNameTmp  : nameEl.value).trim();
-  const newPhone = (S._sePhoneTmp !== undefined ? S._sePhoneTmp : phoneEl.value).trim();
-  const newPlan  = planEl.value;
+  const newName         = (S._seNameTmp         !== undefined ? S._seNameTmp         : nameEl.value).trim();
+  const newPhone        = (S._sePhoneTmp        !== undefined ? S._sePhoneTmp        : phoneEl.value).trim();
+  const newSupportPhone = (S._seSupportPhoneTmp !== undefined ? S._seSupportPhoneTmp : supportPhoneEl ? supportPhoneEl.value : '').trim();
+  const newPlan         = planEl.value;
   const planChanged = newPlan !== (st.plan || 'FAST');
 
   if (planChanged && warnEl.style.display !== 'none' && !confirmEl.checked) {
@@ -1345,7 +1343,7 @@ async function saveStudentEdit(studentId) {
   const saveBtn = document.querySelector('#edit-profile-body button');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
 
-  const { error } = await SB.from('student_profiles').update({ full_name: newName, phone: newPhone, plan: newPlan }).eq('id', studentId);
+  const { error } = await SB.from('student_profiles').update({ full_name: newName, phone: newPhone, plan: newPlan, support_phone: newSupportPhone || null }).eq('id', studentId);
   if (error) {
     errEl.textContent = error.message || 'Erro ao salvar.';
     errEl.style.display = 'block';
@@ -1363,9 +1361,11 @@ async function saveStudentEdit(studentId) {
     S.students.list[idx].full_name = newName;
     S.students.list[idx].phone = newPhone;
     S.students.list[idx].plan = newPlan;
+    S.students.list[idx].support_phone = newSupportPhone || null;
   }
   S._seNameTmp = undefined;
   S._sePhoneTmp = undefined;
+  S._seSupportPhoneTmp = undefined;
 
   openStudentDetail(studentId);
 }
