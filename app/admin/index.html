@@ -1268,6 +1268,10 @@ async function openStudentDetail(studentId) {
             <input id="se-email" value="${(st.email||'').replace(/"/g,'&quot;')}" oninput="S._seEmailTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="email@exemplo.com">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP <span style="font-weight:400;opacity:.5">(opcional)</span></label>
+            <input id="se-phone" value="${(st.phone||'').replace(/"/g,'&quot;')}" oninput="S._sePhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="(00) 00000-0000">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">PLANO</label>
             <select id="se-plan" onchange="(function(){const v=this.value;const w=document.getElementById('se-plan-warn');w.style.display=v!=='${st.plan||'FAST'}'?'flex':'none';document.getElementById('se-plan-confirm').checked=false;}).call(this)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;appearance:none">
               <option value="FAST" ${(st.plan||'FAST')==='FAST'?'selected':''}>FAST</option>
@@ -1327,6 +1331,7 @@ async function saveStudentEdit(studentId) {
 
   const newName         = (S._seNameTmp         !== undefined ? S._seNameTmp         : nameEl ? nameEl.value : '').trim();
   const newEmail        = (S._seEmailTmp        !== undefined ? S._seEmailTmp        : emailEl ? emailEl.value : '').trim();
+  const newPhone        = (S._sePhoneTmp        !== undefined ? S._sePhoneTmp        : phoneEl ? phoneEl.value : '').trim();
   const newSupportPhone = (S._seSupportPhoneTmp !== undefined ? S._seSupportPhoneTmp : supportPhoneEl ? supportPhoneEl.value : '').trim();
   const newPlan         = planEl.value;
   const planChanged  = newPlan !== (st.plan || 'FAST');
