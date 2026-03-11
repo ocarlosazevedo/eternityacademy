@@ -49,13 +49,15 @@ serve(async (req) => {
 
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
 
-    await admin.from('google_tokens').upsert({
+    const { error: upsertErr } = await admin.from('google_tokens').upsert({
       user_id:       user.id,
       google_email:  profile.email,
       access_token:  tokens.access_token,
       refresh_token: tokens.refresh_token || null,
       expires_at:    expiresAt,
     }, { onConflict: 'user_id' });
+
+    if (upsertErr) throw new Error(`Erro ao salvar token: ${upsertErr.message}`);
 
     return new Response(JSON.stringify({ ok: true, email: profile.email }), { headers: CORS });
   } catch (e) {
