@@ -313,7 +313,7 @@ const S = {
   user: null,
   gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
   dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null },
-  suporte: { phone: null },
+  links: { list: [] },
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
   cfg:  { pw:'', pwConf:'', saved:'' },
@@ -366,9 +366,9 @@ const NAV = [
   {id:'progress',  ic:'bar-chart-3',      label:'Progresso'},
   {id:'awards',    ic:'trophy',           label:'Premiações'},
   {id:'content',   ic:'video',            label:'Conteúdos'},
-  {id:'suporte',   ic:'headphones',       label:'Suporte'},
+  {id:'links',     ic:'link',             label:'Links Importantes'},
 ];
-const CRUMBS = {dashboard:'Dashboard',calendar:'Agendar Call',progress:'Progresso',awards:'Premiações',content:'Conteúdos Gravados',suporte:'Suporte',config:'Minha Conta'};
+const CRUMBS = {dashboard:'Dashboard',calendar:'Agendar Call',progress:'Progresso',awards:'Premiações',content:'Conteúdos Gravados',links:'Links Importantes',config:'Minha Conta'};
 
 function renderSidebar() {
   const name = userName();
@@ -439,7 +439,7 @@ function render(scrollReset=true) {
     case 'progress':  pc.innerHTML=pageProgress();break;
     case 'awards':    pc.innerHTML=pageAwards();  break;
     case 'content':   pc.innerHTML=pageContent(); break;
-    case 'suporte':   pc.innerHTML=pageSupport(); break;
+    case 'links':     pc.innerHTML=pageLinks();   break;
     case 'config':    pc.innerHTML=pageConfig();  break;
   }
   lucide.createIcons();
@@ -945,30 +945,35 @@ function pageContent() {
 /* ═══════════════════════════════════════════════════════════════════════
    PAGE: SUPORTE
 ═══════════════════════════════════════════════════════════════════════ */
-function pageSupport() {
-  const phone = S.suporte.phone;
-  const clean = phone ? phone.replace(/\D/g,'') : '';
+function pageLinks() {
+  const links = S.links.list;
+  const cards = links.length
+    ? links.map(l => `
+      <a href="${l.url}" target="_blank" rel="noopener" style="text-decoration:none">
+        <div class="card" style="padding:20px 22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:background .15s,border-color .15s" onmouseenter="this.style.background='rgba(112,34,187,0.08)';this.style.borderColor='rgba(112,34,187,0.3)'" onmouseleave="this.style.background='';this.style.borderColor=''">
+          <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${ic('external-link',18)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:14px;color:var(--white);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</div>
+            <div style="font-size:12px;color:rgba(247,247,247,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.url}</div>
+          </div>
+          <div style="color:rgba(247,247,247,0.25);flex-shrink:0">${ic('chevron-right',16)}</div>
+        </div>
+      </a>`).join('')
+    : `<div style="text-align:center;padding:60px 20px;color:rgba(247,247,247,0.35)">
+        <div style="margin-bottom:16px">${ic('link',32)}</div>
+        <p style="font-size:14px">Nenhum link cadastrado ainda.<br>Aguarde seu mentor adicionar os links.</p>
+      </div>`;
   return `
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 36px">
-    <div style="max-width:420px;width:100%;text-align:center;animation:fadeUp .32s ease">
-      <div style="width:80px;height:80px;border-radius:22px;margin:0 auto 24px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center">
-        ${ic('headphones',34)}
-      </div>
-      <div class="lbl" style="margin-bottom:10px">SUPORTE</div>
-      <h1 class="ph1" style="margin-bottom:12px">Fale com seu Mentor</h1>
-      ${phone
-        ? `<p style="color:rgba(247,247,247,.45);font-size:14px;line-height:1.8;margin-bottom:32px">
-            Entre em contato pelo WhatsApp para tirar dúvidas, alinhar tarefas ou qualquer outro suporte.
-           </p>
-           <a href="https://wa.me/${clean}" target="_blank" rel="noopener" style="text-decoration:none;display:block">
-             <button class="btn-p" style="width:100%;padding:16px;border-radius:14px;font-size:14px;font-weight:900;letter-spacing:.5px">
-               ${ic('message-circle',16)} ABRIR WHATSAPP
-             </button>
-           </a>`
-        : `<p style="color:rgba(247,247,247,.45);font-size:14px;line-height:1.8">
-            Seu contato de suporte ainda não foi configurado.<br>Aguarde seu mentor cadastrar as informações.
-           </p>`
-      }
+  <div style="animation:fadeUp .3s ease">
+    <div style="margin-bottom:28px">
+      <div class="lbl">RECURSOS</div>
+      <h1 class="ph1">Links Importantes</h1>
+      <p class="sub">Acesse os recursos disponibilizados pela equipe Eternity.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${cards}
     </div>
   </div>`;
 }
@@ -1374,17 +1379,17 @@ async function loadFeedbackStatus() {
   } catch(e) { /* silencioso */ }
 }
 
-/* ─── Support phone ────────────────────────────────────────────────── */
-async function loadSupportPhone() {
+/* ─── Important links + plan ───────────────────────────────────────── */
+async function loadLinks() {
   try {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
-    const { data } = await SB.from('student_profiles')
-      .select('support_phone, plan')
-      .eq('id', session.user.id)
-      .maybeSingle();
-    S.suporte.phone = data?.support_phone || null;
-    S.dash.plan     = data?.plan          || null;
+    const [profileRes, linksRes] = await Promise.all([
+      SB.from('student_profiles').select('plan').eq('id', session.user.id).maybeSingle(),
+      SB.from('important_links').select('id,name,url,order').order('order').order('created_at'),
+    ]);
+    S.dash.plan  = profileRes.data?.plan || null;
+    S.links.list = linksRes.data || [];
   } catch(e) { /* silencioso */ }
 }
 
@@ -1526,7 +1531,7 @@ SB.auth.getSession().then(async function({data:{session}}) {
     S.page = 'config';
   }
   // Plano precisa ser carregado antes das calls
-  await loadSupportPhone();
+  await loadLinks();
   // Carregar dados em paralelo
   await Promise.all([
     checkGCalConnected(),
