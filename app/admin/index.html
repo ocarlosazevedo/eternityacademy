@@ -435,12 +435,18 @@ async function loadAvailability() {
 
 async function loadBookings() {
   if (S.bookings.list.length) return;
-  const { data } = await SB.from('bookings')
-    .select('*, student_profiles(full_name, email)')
-    .eq('mentor_email', MENTOR_EMAIL)
-    .eq('status','confirmed')
-    .order('scheduled_at', {ascending: S.bookings.filter === 'upcoming'});
-  S.bookings.list = data || [];
+  const [bookRes, profRes] = await Promise.all([
+    SB.from('bookings').select('*')
+      .eq('mentor_email', MENTOR_EMAIL)
+      .eq('status','confirmed')
+      .order('scheduled_at', {ascending: S.bookings.filter === 'upcoming'}),
+    SB.from('student_profiles').select('id, full_name, email'),
+  ]);
+  const profs = {};
+  for (const p of (profRes.data || [])) profs[p.id] = p;
+  S.bookings.list = (bookRes.data || []).map(b => ({
+    ...b, student_profiles: profs[b.student_id] || null,
+  }));
 }
 
 async function loadStudents() {
@@ -450,10 +456,19 @@ async function loadStudents() {
 }
 
 async function loadTasks() {
-  const q = SB.from('tasks').select('*, student_profiles(full_name,email)').order('created_at',{ascending:false});
-  if (S.tasks.filterStudentId) q.eq('student_id', S.tasks.filterStudentId);
-  const { data } = await q;
-  S.tasks.list = data || [];
+  const [taskRes, profRes] = await Promise.all([
+    (() => {
+      const q = SB.from('tasks').select('*').order('created_at',{ascending:false});
+      if (S.tasks.filterStudentId) q.eq('student_id', S.tasks.filterStudentId);
+      return q;
+    })(),
+    SB.from('student_profiles').select('id, full_name, email'),
+  ]);
+  const profs = {};
+  for (const p of (profRes.data || [])) profs[p.id] = p;
+  S.tasks.list = (taskRes.data || []).map(t => ({
+    ...t, student_profiles: profs[t.student_id] || null,
+  }));
 }
 
 async function loadFeedbacks() {
