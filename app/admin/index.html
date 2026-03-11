@@ -1421,14 +1421,15 @@ SB.auth.onAuthStateChange(function(event) {
 async function loadGCalStatus() {
   try {
     const { data: { session } } = await SB.auth.getSession();
-    const res  = await fetch(`${SUPABASE_FN}/google-calendar`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${session.access_token}` },
-      body: JSON.stringify({ action: 'status' }),
-    });
-    const json = await res.json();
-    S.gcal.connected = !!json.connected;
-    S.gcal.email     = json.email || null;
+    if (!session) return;
+    const { data: row, error } = await SB
+      .from('google_tokens')
+      .select('google_email')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    if (error) console.error('GCal status error:', error);
+    S.gcal.connected = !!row;
+    S.gcal.email     = row?.google_email || null;
     const txt = document.getElementById('gcal-status-text');
     const btn = document.getElementById('gcal-connect-btn');
     if (txt) txt.textContent = S.gcal.connected ? `Conectado: ${S.gcal.email}` : 'Não conectado';
