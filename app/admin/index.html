@@ -774,9 +774,12 @@ function pageTasks() {
         <div class="lbl">TAREFAS</div>
         <h1 class="ph1">Gestão de Tarefas</h1>
       </div>
-      <button data-action="open-modal" data-modal="new-task" class="btn-amber">
-        ${ic('plus',14)} Nova Tarefa
-      </button>
+      <div style="display:flex;gap:8px">
+        <button data-action="refresh-tasks" class="btn-ghost" title="Atualizar">${ic('refresh-cw',14)}</button>
+        <button data-action="open-modal" data-modal="new-task" class="btn-amber">
+          ${ic('plus',14)} Nova Tarefa
+        </button>
+      </div>
     </div>
 
     <!-- Filter -->
@@ -1317,6 +1320,10 @@ document.addEventListener('click', function(e) {
       break;
     case 'save-task':
       saveTask();
+      break;
+    case 'refresh-tasks':
+      S.tasks.list = [];
+      loadAndRender('tasks');
       break;
     case 'delete-task':
       deleteTask(id);
