@@ -276,7 +276,7 @@ const S = {
   // Modals
   cfg: { pw:'', pwConf:'', saved:'' },
   modal: null,
-  newStudent:   { name:'', email:'', pw:'', plan:'MDG INSIDER', saving:false, err:'' },
+  newStudent:   { name:'', email:'', pw:'', plan:'FAST', saving:false, err:'' },
   newTask:      { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' },
   editSupport:  { studentId:'', studentName:'', phone:'', saving:false, err:'' },
   collabForm:   { id:'', name:'', email:'', pw:'', role:'', notes:'', saving:false, err:'' },
@@ -1020,7 +1020,7 @@ function pageFeedbacks() {
 function openModal(type, data={}) {
   S.modal = type;
   // reset state limpo
-  if (type === 'new-student') S.newStudent = { name:'', email:'', pw:'', plan:'MDG INSIDER', saving:false, err:'' };
+  if (type === 'new-student') S.newStudent = { name:'', email:'', pw:'', plan:'FAST', saving:false, err:'' };
   if (type === 'new-task')    S.newTask    = { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' };
   if (type === 'new-collab')  S.collabForm = { id:'', name:'', email:'', pw:'', role:'', notes:'', saving:false, err:'' };
   if (type === 'edit-collab') S.collabForm = { ...data, pw:'', saving:false, err:'' };
@@ -1218,9 +1218,9 @@ function modalNewStudent() {
         <div>
           ${fieldLabel('PLANO')}
           <select class="inp" data-input="st-plan">
-            <option value="MDG INSIDER" ${plan==='MDG INSIDER'?'selected':''}>MDG INSIDER</option>
-            <option value="MDG STARTER" ${plan==='MDG STARTER'?'selected':''}>MDG STARTER</option>
-            <option value="MDG VIP"     ${plan==='MDG VIP'?'selected':''}>MDG VIP</option>
+            <option value="FAST"     ${plan==='FAST'    ?'selected':''}>FAST — Aceleração Intensiva · 30 Dias</option>
+            <option value="GROWTH"   ${plan==='GROWTH'  ?'selected':''}>GROWTH — Imersão Estratégica · 3 Meses</option>
+            <option value="ETERNITY" ${plan==='ETERNITY'?'selected':''}>ETERNITY — Acompanhamento 360° · 12 Meses</option>
           </select>
         </div>
       </div>
@@ -1396,7 +1396,7 @@ async function saveStudent() {
     });
     const json = await res.json();
     if (json.error) throw new Error(json.error);
-    S.newStudent = { name:'', email:'', pw:'', plan:'MDG INSIDER', saving:false, err:'' };
+    S.newStudent = { name:'', email:'', pw:'', plan:'FAST', saving:false, err:'' };
     S.students.list = []; // force reload
     closeModal();
     await loadAndRender('students');

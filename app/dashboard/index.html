@@ -236,6 +236,59 @@ const BLOCK  = ['2026-03-12','2026-03-25'];
 
 const CALLS = [];
 const HW    = [];
+
+/* ─── PLANOS ────────────────────────────────────────────────────────── */
+const PLAN_CALLS = {
+  'FAST': [
+    {num:1,  title:'Alinhamento Inicial'},
+    {num:2,  title:'Loja Padrão Eternity + Ativação da Shopify Payments'},
+    {num:3,  title:'Mineração de Oferta e Desenvolvimento da Oferta'},
+    {num:4,  title:'Elaboração de Criativos em Imagem'},
+    {num:5,  title:'Elaboração de Criativos em Vídeo'},
+    {num:6,  title:'Facebook Ads Teórico'},
+    {num:7,  title:'Facebook Ads Prático'},
+    {num:8,  title:'Diagnóstico Direto com Carlos Azevedo', bonus:true},
+  ],
+  'GROWTH': [
+    {num:1,  title:'Alinhamento Inicial'},
+    {num:2,  title:'Padrão Eternity + Ativação da Shopify Payments'},
+    {num:3,  title:'Mineração de Oferta e Desenvolvimento da Oferta'},
+    {num:4,  title:'Elaboração de Criativos em Imagem'},
+    {num:5,  title:'Elaboração de Criativos em Vídeo'},
+    {num:6,  title:'Facebook Ads Teórico'},
+    {num:7,  title:'Facebook Ads Prático'},
+    {num:8,  title:'Google Ads Teórico'},
+    {num:9,  title:'Google Ads Prático'},
+    {num:10, title:'Contábil e Jurídico'},
+    {num:11, title:'Gestão Empresarial'},
+    {num:12, title:'E-Mail Marketing + Social Media · Aumento LTV, Criação de Marca e Margem de Lucro'},
+    {num:13, title:'Diagnóstico Direto com Carlos Azevedo', bonus:true},
+    {num:14, title:'Call de Follow Up com Carlos Azevedo', bonus:true},
+  ],
+  'ETERNITY': [
+    {num:1,  title:'Alinhamento Inicial'},
+    {num:2,  title:'Padrão Eternity + Ativação da Shopify Payments'},
+    {num:3,  title:'Mineração de Oferta e Desenvolvimento da Oferta'},
+    {num:4,  title:'Elaboração de Criativos em Imagem'},
+    {num:5,  title:'Elaboração de Criativos em Vídeo'},
+    {num:6,  title:'Facebook Ads Teórico'},
+    {num:7,  title:'Facebook Ads Prático'},
+    {num:8,  title:'Google Ads Teórico'},
+    {num:9,  title:'Google Ads Prático'},
+    {num:10, title:'Contábil e Jurídico'},
+    {num:11, title:'Gestão Empresarial'},
+    {num:12, title:'E-Mail Marketing + Social Media · Aumento LTV, Criação de Marca e Margem de Lucro'},
+    {num:13, title:'Diagnóstico com Carlos Azevedo', bonus:true},
+    {num:14, title:'On Going com Carlos Azevedo', bonus:true},
+    {num:15, title:'Treinamento de Equipe por Carlos Azevedo', bonus:true},
+    {num:16, title:'On Going Final com Carlos Azevedo', bonus:true},
+  ],
+};
+const PLAN_INFO = {
+  'FAST':     { label:'FAST',     sub:'Aceleração Intensiva · 30 Dias',      calls:7,  grad:'linear-gradient(135deg,#1c1c1c,#3a3a3a)' },
+  'GROWTH':   { label:'GROWTH',   sub:'Imersão Estratégica · 3 Meses',       calls:12, grad:'linear-gradient(135deg,#7c2d12,#ea580c)' },
+  'ETERNITY': { label:'ETERNITY', sub:'Acompanhamento 360° · 12 Meses',      calls:16, grad:'linear-gradient(135deg,#2F054C,#7022BB)' },
+};
 const AWARDS = [
   {id:1,label:'Kit Eternity Bronze',      sub:'Marco $10K',       ms:'$10.000',    color:'#CD7F32',borderColor:'rgba(205,127,50,0.28)', progress:0, cur:'$0',kit:['Caixa exclusiva Eternity','Certificado numerado','Brinde surpresa Bronze'],         icon:'medal'},
   {id:2,label:'Troféu 100K + Kit Gold',   sub:'Marco $100K',      ms:'$100.000',   color:'#E8C840',borderColor:'rgba(232,200,64,0.25)',  progress:0, cur:'$0',kit:['Troféu físico gravado 100K','Caixa premium Gold','Livro exclusivo Eternity','Acesso VIP'],  icon:'trophy'},
@@ -248,7 +301,7 @@ const S = {
   page: 'dashboard',
   user: null,
   gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
-  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null },
+  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null },
   suporte: { phone: null },
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
@@ -655,15 +708,35 @@ function pageCal() {
    PAGE: PROGRESS
 ═══════════════════════════════════════════════════════════════════════ */
 function pageProgress() {
+  const regular = CALLS.filter(c=>!c.bonus);
+  const bonus   = CALLS.filter(c=>c.bonus);
   const done=CALLS.filter(c=>c.done).length, total=CALLS.length;
-  const pct=total>0?Math.round((done/total)*100):0;
+  const pct=regular.length>0?Math.round((regular.filter(c=>c.done).length/regular.length)*100):0;
   const allTasks = S.dash.tasks || HW;
+  const pInfo = PLAN_INFO[S.dash.plan];
+
+  const callRow = (c,i) => `
+    <div style="background:#111;border:1px solid ${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.2)':'rgba(255,255,255,.08)'};border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;opacity:${c.done?.55:1};animation:fadeUp .3s ease ${i*.04}s both">
+      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;background:${c.done?'rgba(34,197,94,.12)':c.sched?'linear-gradient(135deg,#2F054C,#7022BB)':'rgba(255,255,255,.04)'};border:2px solid ${c.done?'#22c55e':c.sched?'#7022BB':'rgba(255,255,255,.1)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${c.done?'#22c55e':c.sched?'#F7F7F7':'rgba(247,247,247,.2)'}">
+        ${c.done?`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:c.id}
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px;color:${c.done?'rgba(247,247,247,.3)':'#F7F7F7'};text-decoration:${c.done?'line-through':'none'};margin-bottom:3px">${c.title}</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <span style="font-size:10px;color:rgba(247,247,247,.28)">com ${c.mentor}</span>
+          ${c.done&&c.date?`<span style="font-size:10px;color:rgba(34,197,94,.6);display:flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>${c.date}</span>`:''}
+          ${c.sched&&c.schedDate?`<span style="font-size:10px;color:#7022BB;font-weight:600;display:flex;align-items:center;gap:3px">${ic('calendar-days',9)} ${c.schedDate} · ${c.schedTime}</span>`:''}
+        </div>
+      </div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:8px;background:${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.15)':'rgba(255,255,255,.04)'};color:${c.done?'#22c55e':c.sched?'#7022BB':'rgba(247,247,247,.2)'};border:1px solid ${c.done?'rgba(34,197,94,.2)':c.sched?'rgba(112,34,187,.25)':'rgba(255,255,255,.06)'}">${c.done?'CONCLUÍDA':c.sched?'AGENDADA':'PENDENTE'}</div>
+    </div>`;
+
   return `
   <div style="padding:32px 36px">
     <div class="fu" style="margin-bottom:28px">
       <div class="lbl">PROGRESSO</div>
       <h1 class="ph1">Suas Calls</h1>
-      <p class="sub">${total>0 ? `${done} de ${total} calls concluídas · ${pct}% da mentoria` : 'Sua mentoria começa com o primeiro agendamento'}</p>
+      <p class="sub">${pInfo ? `Plano ${pInfo.label} · ${pInfo.sub}` : regular.length>0 ? `${regular.filter(c=>c.done).length} de ${regular.length} calls concluídas` : 'Sua mentoria começa com o primeiro agendamento'}</p>
     </div>
 
     <!-- Progress bar -->
@@ -685,29 +758,31 @@ function pageProgress() {
 
     <!-- Call list -->
     <div style="display:flex;flex-direction:column;gap:8px">
-      ${CALLS.length === 0
+      ${regular.length === 0 && bonus.length === 0
         ? `<div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:28px;text-align:center;color:rgba(247,247,247,.2);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:10px">
             ${ic('calendar-days',24)}
             <span>Nenhuma call registrada ainda.<br>Agende sua primeira call para começar.</span>
             <button data-action="nav" data-page="calendar" class="btn-p" style="margin-top:4px;font-size:11px">Agendar Call</button>
           </div>`
-        : CALLS.map((c,i)=>`
-          <div style="background:#111;border:1px solid ${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.2)':'rgba(255,255,255,.08)'};border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;opacity:${c.done?.55:1};animation:fadeUp .3s ease ${i*.04}s both">
-            <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;background:${c.done?'rgba(34,197,94,.12)':c.sched?'linear-gradient(135deg,#2F054C,#7022BB)':'rgba(255,255,255,.04)'};border:2px solid ${c.done?'#22c55e':c.sched?'#7022BB':'rgba(255,255,255,.1)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${c.done?'#22c55e':c.sched?'#F7F7F7':'rgba(247,247,247,.2)'}">
-              ${c.done?`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:c.id}
-            </div>
-            <div style="flex:1">
-              <div style="font-weight:700;font-size:13px;color:${c.done?'rgba(247,247,247,.3)':'#F7F7F7'};text-decoration:${c.done?'line-through':'none'};margin-bottom:3px">${c.title}</div>
-              <div style="display:flex;gap:12px;align-items:center">
-                <span style="font-size:10px;color:rgba(247,247,247,.28)">com ${c.mentor}</span>
-                ${c.done&&c.date?`<span style="font-size:10px;color:rgba(34,197,94,.6);display:flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>${c.date}</span>`:''}
-                ${c.sched&&c.schedDate?`<span style="font-size:10px;color:#7022BB;font-weight:600;display:flex;align-items:center;gap:3px">${ic('calendar-days',9)} ${c.schedDate} · ${c.schedTime}</span>`:''}
-              </div>
-            </div>
-            <div style="font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:8px;background:${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.15)':'rgba(255,255,255,.04)'};color:${c.done?'#22c55e':c.sched?'#7022BB':'rgba(247,247,247,.2)'};border:1px solid ${c.done?'rgba(34,197,94,.2)':c.sched?'rgba(112,34,187,.25)':'rgba(255,255,255,.06)'}">${c.done?'CONCLUÍDA':c.sched?'AGENDADA':'PENDENTE'}</div>
-          </div>
-        `).join('')}
+        : regular.map((c,i) => callRow(c,i)).join('')}
     </div>
+
+    ${bonus.length > 0 ? `
+    <!-- Bônus -->
+    <div style="margin-top:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(245,158,11,.3),transparent)"></div>
+        <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#f59e0b;display:flex;align-items:center;gap:6px">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="#f59e0b"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+          BÔNUS
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="#f59e0b"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </div>
+        <div style="height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(245,158,11,.3))"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${bonus.map((c,i) => callRow(c, regular.length+i)).join('')}
+      </div>
+    </div>` : ''}
 
     <!-- Tarefas -->
     <div style="margin-top:32px">
@@ -862,18 +937,19 @@ function pageConfig() {
     <div style="max-width:560px">
 
       <!-- Plan -->
-      <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.35);margin-bottom:6px">PLANO ATUAL</div>
-          <div style="font-weight:900;font-size:22px;color:#F7F7F7;letter-spacing:-.5px">MDG · INSIDER</div>
-          <div style="font-size:12px;color:rgba(247,247,247,.4);margin-top:4px">R$ 7.997 · 3 meses · 12 calls incluídas</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;color:rgba(247,247,247,.25);margin-bottom:4px">Vence em</div>
-          <div style="font-weight:800;font-size:14px;color:#F7F7F7">25/05/2026</div>
-          <div style="margin-top:8px;font-size:9px;font-weight:700;padding:4px 10px;border-radius:8px;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2);display:inline-block">ATIVO</div>
-        </div>
-      </div>
+      ${(() => {
+        const pInfo = PLAN_INFO[S.dash.plan];
+        if (!pInfo) return '';
+        return `<div style="background:${pInfo.grad};border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:20px 24px;margin-bottom:16px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.5);margin-bottom:8px">PLANO ATUAL</div>
+          <div style="font-weight:900;font-size:26px;color:#F7F7F7;letter-spacing:-1px;line-height:1">${pInfo.label}</div>
+          <div style="font-size:11px;color:rgba(247,247,247,.6);margin-top:6px">${pInfo.sub}</div>
+          <div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+            <div style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:8px;background:rgba(34,197,94,.2);color:#22c55e;border:1px solid rgba(34,197,94,.3)">ATIVO</div>
+            <div style="font-size:10px;color:rgba(247,247,247,.4)">${pInfo.calls} calls incluídas</div>
+          </div>
+        </div>`;
+      })()}
 
 
       <!-- E-mail -->
@@ -1159,28 +1235,45 @@ async function loadCalls() {
       .eq('student_id', S.user.id)
       .neq('status', 'cancelled')
       .order('scheduled_at');
-    if (!data) return;
     CALLS.length = 0;
-    const now = new Date();
-    data.forEach((b, i) => {
-      const dt = new Date(b.scheduled_at);
-      const isPast = dt < now;
-      const pad2 = n => String(n).padStart(2,'0');
-      const dateStr = `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`;
-      const timeStr = `${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
-      CALLS.push({
-        id:          b.call_number || (i + 1),
-        title:       b.call_title  || 'Call de Mentoria',
-        mentor:      'Eternity Academy',
-        done:        isPast && b.status === 'confirmed',
-        sched:       !isPast,
-        date:        isPast  ? dateStr : null,
-        schedDate:   !isPast ? dateStr : null,
-        schedTime:   !isPast ? timeStr : null,
-        bookingId:   b.id,
-        scheduledAt: b.scheduled_at,
+    const now  = new Date();
+    const pad2 = n => String(n).padStart(2,'0');
+    const fmtD = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`; };
+    const fmtT = dt => { const d=new Date(dt); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+
+    const bookings = data || [];
+    // Map booking by call_number
+    const byNum = {};
+    bookings.forEach((b, i) => { const n = b.call_number || (i+1); if (!byNum[n]) byNum[n] = b; });
+
+    const template = PLAN_CALLS[S.dash.plan];
+    if (template) {
+      template.forEach(t => {
+        const b = byNum[t.num];
+        if (b) {
+          const isPast = new Date(b.scheduled_at) < now;
+          CALLS.push({ id:t.num, title:b.call_title||t.title, mentor:'Eternity Academy',
+            done:isPast&&b.status==='confirmed', sched:!isPast,
+            date:isPast?fmtD(b.scheduled_at):null, schedDate:!isPast?fmtD(b.scheduled_at):null,
+            schedTime:!isPast?fmtT(b.scheduled_at):null,
+            bookingId:b.id, scheduledAt:b.scheduled_at, bonus:t.bonus||false });
+        } else {
+          CALLS.push({ id:t.num, title:t.title, mentor:'Eternity Academy',
+            done:false, sched:false, date:null, schedDate:null, schedTime:null,
+            bookingId:null, scheduledAt:null, bonus:t.bonus||false });
+        }
       });
-    });
+    } else {
+      // Sem plano definido: mostra apenas bookings reais
+      bookings.forEach((b, i) => {
+        const isPast = new Date(b.scheduled_at) < now;
+        CALLS.push({ id:b.call_number||(i+1), title:b.call_title||'Call de Mentoria', mentor:'Eternity Academy',
+          done:isPast&&b.status==='confirmed', sched:!isPast,
+          date:isPast?fmtD(b.scheduled_at):null, schedDate:!isPast?fmtD(b.scheduled_at):null,
+          schedTime:!isPast?fmtT(b.scheduled_at):null,
+          bookingId:b.id, scheduledAt:b.scheduled_at, bonus:false });
+      });
+    }
   } catch(e) { console.warn('loadCalls:', e); }
 }
 
@@ -1224,10 +1317,11 @@ async function loadSupportPhone() {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
     const { data } = await SB.from('student_profiles')
-      .select('support_phone')
+      .select('support_phone, plan')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
     S.suporte.phone = data?.support_phone || null;
+    S.dash.plan     = data?.plan          || null;
   } catch(e) { /* silencioso */ }
 }
 
@@ -1359,11 +1453,12 @@ SB.auth.getSession().then(async function({data:{session}}) {
     history.replaceState(null,'','/dashboard');
     S.page = 'config';
   }
+  // Plano precisa ser carregado antes das calls
+  await loadSupportPhone();
   // Carregar dados em paralelo
   await Promise.all([
     checkGCalConnected(),
     loadDashTasks(),
-    loadSupportPhone(),
     upsertProfile(session.user),
     loadCalls(),
   ]);
