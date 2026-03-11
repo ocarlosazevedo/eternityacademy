@@ -445,7 +445,7 @@ function pageDash() {
   const total = CALLS.length;
   const pct   = total > 0 ? Math.round((done/total)*100) : 0;
   const lastCall = CALLS.filter(c=>c.done).slice(-1)[0];
-  const pending3 = CALLS.filter(c=>!c.done&&!c.sched).slice(0,3);
+  const pending3 = CALLS.filter(c=>!c.done&&!c.sched&&!c.locked).slice(0,3);
   const daysIn = S.user?.created_at ? Math.max(1, Math.floor((Date.now()-new Date(S.user.created_at).getTime())/(86400000))) : null;
   // current date string
   const now = new Date();
@@ -652,6 +652,32 @@ async function loadAvailability() {
 
 function pageCal() {
   const {yr,mo,sel,slot,availability}=S.cal;
+
+  // Lock check: next call to book is locked if previous isn't done
+  const nextPending = CALLS.find(c => !c.done && !c.sched);
+  const calLocked = nextPending && nextPending.locked;
+
+  if (calLocked) {
+    return `
+    <div style="padding:32px 36px;max-width:560px">
+      <div class="lbl">CALENDÁRIO DE CALLS</div>
+      <h1 class="ph1" style="margin-bottom:24px">Agendar Call</h1>
+      <div style="background:#111;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px">
+        <div style="width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="rgba(247,247,247,.2)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div style="font-weight:900;font-size:18px;color:rgba(247,247,247,.4)">Próxima call bloqueada</div>
+        <div style="font-size:13px;color:rgba(247,247,247,.25);line-height:1.7;max-width:320px">
+          Você precisa concluir a call anterior antes de agendar a próxima.<br>As calls são liberadas em sequência para garantir o melhor aproveitamento da mentoria.
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 20px;margin-top:4px">
+          <div style="font-size:10px;color:rgba(247,247,247,.25);letter-spacing:1px;margin-bottom:4px">PRÓXIMA A DESBLOQUEAR</div>
+          <div style="font-size:14px;font-weight:700;color:rgba(247,247,247,.35)">Call ${nextPending.id} · ${nextPending.title}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
   const days=getDays(yr,mo), first=getFirst(yr,mo);
   const cells=[...Array(first).fill(null),...Array.from({length:days},(_,i)=>i+1)];
   while(cells.length%7!==0) cells.push(null);
@@ -720,21 +746,33 @@ function pageProgress() {
   const allTasks = S.dash.tasks || HW;
   const pInfo = PLAN_INFO[S.dash.plan];
 
-  const callRow = (c,i) => `
-    <div style="background:#111;border:1px solid ${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.2)':'rgba(255,255,255,.08)'};border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;opacity:${c.done?.55:1};animation:fadeUp .3s ease ${i*.04}s both">
-      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;background:${c.done?'rgba(34,197,94,.12)':c.sched?'linear-gradient(135deg,#2F054C,#7022BB)':'rgba(255,255,255,.04)'};border:2px solid ${c.done?'#22c55e':c.sched?'#7022BB':'rgba(255,255,255,.1)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${c.done?'#22c55e':c.sched?'#F7F7F7':'rgba(247,247,247,.2)'}">
-        ${c.done?`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:c.id}
+  const callRow = (c,i) => {
+    const locked = c.locked && !c.done && !c.sched;
+    return `
+    <div style="background:#111;border:1px solid ${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.2)':locked?'rgba(255,255,255,.04)':'rgba(255,255,255,.08)'};border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:16px;opacity:${c.done?.55:locked?.45:1};animation:fadeUp .3s ease ${i*.04}s both">
+      <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;background:${c.done?'rgba(34,197,94,.12)':c.sched?'linear-gradient(135deg,#2F054C,#7022BB)':'rgba(255,255,255,.04)'};border:2px solid ${c.done?'#22c55e':c.sched?'#7022BB':'rgba(255,255,255,.07)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${c.done?'#22c55e':c.sched?'#F7F7F7':'rgba(247,247,247,.15)'}">
+        ${c.done
+          ? `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`
+          : locked
+            ? `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,.2)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+            : c.id}
       </div>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:13px;color:${c.done?'rgba(247,247,247,.3)':'#F7F7F7'};text-decoration:${c.done?'line-through':'none'};margin-bottom:3px">${c.title}</div>
+        <div style="font-weight:700;font-size:13px;color:${c.done?'rgba(247,247,247,.3)':locked?'rgba(247,247,247,.2)':'#F7F7F7'};text-decoration:${c.done?'line-through':'none'};margin-bottom:3px">${c.title}</div>
         <div style="display:flex;gap:12px;align-items:center">
-          <span style="font-size:10px;color:rgba(247,247,247,.28)">com ${c.mentor}</span>
-          ${c.done&&c.date?`<span style="font-size:10px;color:rgba(34,197,94,.6);display:flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>${c.date}</span>`:''}
-          ${c.sched&&c.schedDate?`<span style="font-size:10px;color:#7022BB;font-weight:600;display:flex;align-items:center;gap:3px">${ic('calendar-days',9)} ${c.schedDate} · ${c.schedTime}</span>`:''}
+          ${locked
+            ? `<span style="font-size:10px;color:rgba(247,247,247,.18)">Complete a call anterior para desbloquear</span>`
+            : `<span style="font-size:10px;color:rgba(247,247,247,.28)">com ${c.mentor}</span>
+               ${c.done&&c.date?`<span style="font-size:10px;color:rgba(34,197,94,.6);display:flex;align-items:center;gap:3px"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>${c.date}</span>`:''}
+               ${c.sched&&c.schedDate?`<span style="font-size:10px;color:#7022BB;font-weight:600;display:flex;align-items:center;gap:3px">${ic('calendar-days',9)} ${c.schedDate} · ${c.schedTime}</span>`:''}`}
         </div>
       </div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:8px;background:${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.15)':'rgba(255,255,255,.04)'};color:${c.done?'#22c55e':c.sched?'#7022BB':'rgba(247,247,247,.2)'};border:1px solid ${c.done?'rgba(34,197,94,.2)':c.sched?'rgba(112,34,187,.25)':'rgba(255,255,255,.06)'}">${c.done?'CONCLUÍDA':c.sched?'AGENDADA':'PENDENTE'}</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:8px;background:${c.done?'rgba(34,197,94,.1)':c.sched?'rgba(112,34,187,.15)':locked?'rgba(255,255,255,.03)':'rgba(255,255,255,.04)'};color:${c.done?'#22c55e':c.sched?'#7022BB':locked?'rgba(247,247,247,.12)':'rgba(247,247,247,.2)'};border:1px solid ${c.done?'rgba(34,197,94,.2)':c.sched?'rgba(112,34,187,.25)':'rgba(255,255,255,.05)'};display:flex;align-items:center;gap:5px">
+        ${locked?`<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`:''}
+        ${c.done?'CONCLUÍDA':c.sched?'AGENDADA':locked?'BLOQUEADA':'PENDENTE'}
+      </div>
     </div>`;
+  };
 
   return `
   <div style="padding:32px 36px">
@@ -1281,6 +1319,14 @@ async function loadCalls() {
       });
     }
   } catch(e) { console.warn('loadCalls:', e); }
+  computeLocks();
+}
+
+function computeLocks() {
+  const regular = CALLS.filter(c => !c.bonus);
+  const bonus   = CALLS.filter(c => c.bonus);
+  regular.forEach((c, i) => { c.locked = i > 0 && !regular[i-1].done; });
+  bonus.forEach(c => { c.locked = regular.length > 0 && !regular[regular.length-1].done; });
 }
 
 /* ─── Tasks → Supabase ─────────────────────────────────────────────── */
