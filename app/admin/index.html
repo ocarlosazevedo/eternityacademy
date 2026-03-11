@@ -447,7 +447,6 @@ async function loadAvailability() {
 }
 
 async function loadBookings() {
-  if (S.bookings.list.length) return;
   const [bookRes, profRes] = await Promise.all([
     SB.from('bookings').select('*')
       .eq('mentor_email', MENTOR_EMAIL)
@@ -458,7 +457,9 @@ async function loadBookings() {
   const profs = {};
   for (const p of (profRes.data || [])) profs[p.id] = p;
   S.bookings.list = (bookRes.data || []).map(b => ({
-    ...b, student_profiles: profs[b.student_id] || null,
+    ...b,
+    _sName:  b.student_name  || profs[b.student_id]?.full_name  || profs[b.student_id]?.email || '—',
+    _sEmail: b.student_email || profs[b.student_id]?.email || '—',
   }));
 }
 
@@ -757,8 +758,8 @@ function pageBookings() {
     : list.filter(b => b.scheduled_at <= now).sort((a,b) => a.scheduled_at < b.scheduled_at ? 1 : -1);
   const filtered = q
     ? timeFiltered.filter(b => {
-        const name  = (b.student_profiles?.full_name || '').toLowerCase();
-        const email = (b.student_profiles?.email || '').toLowerCase();
+        const name  = (b._sName  || '').toLowerCase();
+        const email = (b._sEmail || '').toLowerCase();
         const title = (b.call_title || '').toLowerCase();
         return name.includes(q) || email.includes(q) || title.includes(q);
       })
@@ -786,13 +787,13 @@ function pageBookings() {
       ${filtered.length === 0
         ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum agendamento '+(filter==='upcoming'?'futuro':'passado')}</div>`
         : filtered.map(b=>{
-            const sName = b.student_profiles?.full_name || b.student_profiles?.email || 'Aluno';
+            const sName = b._sName || 'Aluno';
             const isPast = b.scheduled_at <= now;
             return `<div class="trow">
               ${avatar(sName, 38)}
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.call_title || 'Call de Mentoria'}</div>
-                <div style="font-size:11px;color:rgba(247,247,247,.35)">${sName} · ${fmtDate(b.scheduled_at)}</div>
+                <div style="font-size:11px;color:rgba(247,247,247,.35)">${sName}${b._sEmail && b._sEmail !== sName ? ` · <span style="color:rgba(247,247,247,.2)">${b._sEmail}</span>` : ''} · ${fmtDate(b.scheduled_at)}</div>
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                 ${b.meet_link ? `<a href="${b.meet_link}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#3b82f6;text-decoration:none">${ic('video',12,'color:#3b82f6')} Meet</a>` : ''}

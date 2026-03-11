@@ -1426,14 +1426,21 @@ async function createBooking() {
     const [hh, mm] = slot.split(':');
     const startAt  = `${dateStr}T${hh}:${mm}:00-03:00`;
 
+    // Busca nome do aluno do perfil
+    const { data: prof } = await SB.from('student_profiles').select('full_name').eq('id', session.user.id).maybeSingle();
+    const studentName  = prof?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Aluno';
+    const studentEmail = session.user.email;
+
     // Insere booking diretamente no Supabase (RLS permite aluno inserir o próprio)
     const { data: inserted, error: insErr } = await SB.from('bookings').insert({
-      student_id:   session.user.id,
-      mentor_email: MENTOR_EMAIL,
-      call_number:  callNumber,
-      call_title:   callTitle,
-      scheduled_at: startAt,
-      status:       'confirmed',
+      student_id:    session.user.id,
+      student_name:  studentName,
+      student_email: studentEmail,
+      mentor_email:  MENTOR_EMAIL,
+      call_number:   callNumber,
+      call_title:    callTitle,
+      scheduled_at:  startAt,
+      status:        'confirmed',
     }).select('id').single();
 
     if (insErr) { console.warn('Booking insert error:', insErr.message); return; }
