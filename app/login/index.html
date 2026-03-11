@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#050508" />
+  <meta name="theme-color" content="#F4F5F7" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Entrar · Eternity Academy</title>
   <link rel="icon" type="image/png" href="/medias/eternityfavicon.png" />
@@ -17,20 +17,23 @@
 
     /* ─── TOKENS ─────────────────────────────────────────────────────── */
     :root {
-      --black:       #050508;
-      --white:       #F7F7F7;
-      --deep-purple: #2F054C;
-      --purple:      #7022BB;
-      --border:      rgba(112,34,187,0.22);
-      --dim:         rgba(247,247,247,0.12);
-      --font:        'Red Hat Display', 'Arial Black', sans-serif;
+      --black:   #111827;
+      --white:   #FFFFFF;
+      --dp:      #5B18A0;
+      --purple:  #7022BB;
+      --surface: #F4F5F7;
+      --card:    #FFFFFF;
+      --border:  rgba(0,0,0,0.08);
+      --faint:   rgba(0,0,0,0.04);
+      --muted:   rgba(17,24,39,0.45);
+      --font:    'Red Hat Display', sans-serif;
     }
 
     /* ─── BASE ───────────────────────────────────────────────────────── */
     html, body {
       height: 100%;
-      background: var(--black);
-      color: var(--white);
+      background: #F4F5F7;
+      color: #111827;
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -52,10 +55,11 @@
       display: flex;
       flex-direction: column;
       padding: 48px 56px;
-      background: var(--black);
+      background: #FFFFFF;
       position: relative;
       z-index: 2;
       justify-content: space-between;
+      box-shadow: 2px 0 24px rgba(0,0,0,0.06);
     }
 
     /* ─── LOGO ───────────────────────────────────────────────────────── */
@@ -63,7 +67,6 @@
       display: block;
       height: 48px;
       width: auto;
-      mix-blend-mode: screen;
     }
 
     /* ─── FORM BODY ──────────────────────────────────────────────────── */
@@ -83,7 +86,7 @@
     .heading h1 {
       font-size: 38px;
       font-weight: 900;
-      color: var(--white);
+      color: #111827;
       line-height: 1.1;
       letter-spacing: -0.5px;
     }
@@ -96,7 +99,7 @@
     }
 
     .heading p {
-      color: rgba(247,247,247,0.30);
+      color: #6B7280;
       font-size: 13.5px;
       margin-top: 10px;
       font-weight: 400;
@@ -112,7 +115,7 @@
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 1.2px;
-      color: rgba(247,247,247,0.38);
+      color: #6B7280;
       text-transform: uppercase;
       margin-bottom: 8px;
     }
@@ -123,11 +126,11 @@
 
     .ea-input {
       width: 100%;
-      background: rgba(17,14,26,0.85);
-      border: 1.5px solid var(--border);
+      background: #FFFFFF;
+      border: 1.5px solid #D1D5DB;
       border-radius: 14px;
       padding: 15px 18px;
-      color: var(--white);
+      color: #111827;
       font-size: 14.5px;
       font-family: var(--font);
       font-weight: 500;
@@ -137,12 +140,12 @@
     }
 
     .ea-input::placeholder {
-      color: rgba(247,247,247,0.22);
+      color: #9CA3AF;
     }
 
     .ea-input:focus {
       border-color: var(--purple);
-      background: rgba(17,14,26,1);
+      background: #FFFFFF;
       box-shadow: 0 0 0 3px rgba(112,34,187,0.14), 0 0 18px rgba(112,34,187,0.10);
     }
 
@@ -157,7 +160,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: rgba(247,247,247,0.28);
+      color: #9CA3AF;
       font-size: 16px;
       line-height: 1;
       transition: color 0.2s;
@@ -186,7 +189,7 @@
     }
 
     .ea-link {
-      color: rgba(247,247,247,0.38);
+      color: #6B7280;
       font-size: 12.5px;
       font-weight: 500;
       text-decoration: none;
@@ -210,7 +213,7 @@
       cursor: pointer;
       background: linear-gradient(135deg, #7022BB 0%, #A040E0 50%, #7022BB 100%);
       background-size: 200% 200%;
-      color: var(--white);
+      color: #FFFFFF;
       transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
       box-shadow: 0 4px 24px rgba(112,34,187,0.38);
       position: relative;
@@ -234,8 +237,8 @@
     .spinner {
       width: 18px;
       height: 18px;
-      border: 2.5px solid rgba(247,247,247,0.25);
-      border-top-color: var(--white);
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #FFFFFF;
       border-radius: 50%;
       animation: spin 0.75s linear infinite;
       display: none;
@@ -257,12 +260,12 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--border);
+      background: rgba(0,0,0,0.08);
     }
 
     .divider span {
       font-size: 11px;
-      color: var(--dim);
+      color: #9CA3AF;
       font-weight: 600;
       letter-spacing: 1px;
     }
@@ -273,12 +276,12 @@
     }
 
     .signup-row p {
-      color: rgba(247,247,247,0.28);
+      color: #6B7280;
       font-size: 13px;
     }
 
     .ea-link-main {
-      color: rgba(247,247,247,0.55);
+      color: #4B5563;
       font-size: 13px;
       font-weight: 500;
       text-decoration: none;
@@ -289,14 +292,14 @@
     }
 
     .ea-link-main:hover {
-      color: var(--white);
+      color: var(--purple);
       border-bottom-color: var(--purple);
     }
 
     /* ─── PANEL FOOTER ───────────────────────────────────────────────── */
     .panel-footer {
       font-size: 10px;
-      color: rgba(247,247,247,0.10);
+      color: #9CA3AF;
       letter-spacing: 1px;
       text-align: center;
       padding-top: 16px;
@@ -446,6 +449,7 @@
 
       .logo {
         height: 40px;
+        mix-blend-mode: normal;
       }
 
       /* heading → centered */

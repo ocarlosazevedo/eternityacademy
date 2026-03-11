@@ -12,40 +12,46 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --black: #050508; --white: #F7F7F7; --dp: #2F054C; --purple: #7022BB;
-      --surface: #090909; --card: #111111; --border: rgba(255,255,255,0.08);
-      --faint: rgba(255,255,255,0.05); --muted: rgba(247,247,247,0.32);
-      --font: 'Red Hat Display', sans-serif;
+      --black:   #111827;
+      --white:   #FFFFFF;
+      --dp:      #5B18A0;
+      --purple:  #7022BB;
+      --surface: #F4F5F7;
+      --card:    #FFFFFF;
+      --border:  rgba(0,0,0,0.08);
+      --faint:   rgba(0,0,0,0.04);
+      --muted:   rgba(17,24,39,0.45);
+      --font:    'Red Hat Display', sans-serif;
     }
-    html, body { height: 100%; background: var(--black); color: var(--white); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
+    html, body { height: 100%; background: #F4F5F7; color: #111827; font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
     .app { display: flex; height: 100vh; overflow: hidden; }
 
     /* Sidebar */
-    .sidebar { width: 216px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-    .sb-logo { padding: 20px 22px; border-bottom: 1px solid var(--border); }
-    .sb-user { padding: 18px 22px; border-bottom: 1px solid var(--border); }
-    .sb-name { font-weight: 700; font-size: 14px; color: var(--white); }
+    .sidebar { width: 216px; background: #FFFFFF; border-right: 1px solid rgba(0,0,0,.08); display: flex; flex-direction: column; flex-shrink: 0; }
+    .sb-logo { padding: 20px 22px; border-bottom: 1px solid rgba(0,0,0,.08); }
+    .sb-user { padding: 18px 22px; border-bottom: 1px solid rgba(0,0,0,.08); }
+    .sb-name { font-weight: 700; font-size: 14px; color: #111827; }
     .sb-plan { font-size: 10px; color: #f59e0b; font-weight: 700; letter-spacing: 0.5px; margin-top: 3px; }
     .sb-nav  { flex: 1; padding: 14px 10px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
-    .sb-foot { padding: 14px 22px; border-top: 1px solid var(--border); color: rgba(247,247,247,0.12); font-size: 9px; letter-spacing: 1px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: rgba(247,247,247,0.28); font-size: 13px; border-left: 3px solid transparent; transition: all 0.18s; user-select: none; }
-    .nav-item:hover { color: rgba(247,247,247,0.55); background: rgba(255,255,255,0.03); }
-    .nav-item.active { background: rgba(245,158,11,0.12); color: var(--white); font-weight: 700; border-left-color: #f59e0b; }
+    .sb-foot { padding: 14px 22px; border-top: 1px solid rgba(0,0,0,.08); color: #9CA3AF; font-size: 9px; letter-spacing: 1px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: #6B7280; font-size: 13px; border-left: 3px solid transparent; transition: all 0.18s; user-select: none; }
+    .nav-item:hover { color: #111827; background: rgba(0,0,0,.04); }
+    .nav-item.active { background: rgba(245,158,11,0.10); color: #111827; font-weight: 700; border-left-color: #f59e0b; }
     .nav-item svg { flex-shrink: 0; }
 
     /* Main */
     .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-    .topbar { height: 58px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; flex-shrink: 0; font-size: 12px; color: rgba(247,247,247,0.22); gap: 4px; }
-    .topbar strong { color: var(--white); font-weight: 600; }
+    .topbar { height: 58px; background: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,.08); display: flex; align-items: center; padding: 0 28px; flex-shrink: 0; font-size: 12px; color: #9CA3AF; gap: 4px; }
+    .topbar strong { color: #111827; font-weight: 600; }
     .page-wrap { flex: 1; overflow-y: auto; padding: 32px 36px; }
 
     /* Cards */
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+    .card { background: #FFFFFF; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
 
     /* Typography */
-    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; color: rgba(247,247,247,0.35); margin-bottom: 10px; }
-    .ph1 { font-weight: 900; font-size: 28px; letter-spacing: -1px; color: var(--white); line-height: 1; margin-bottom: 6px; }
-    .sub { color: rgba(247,247,247,0.35); font-size: 13px; }
+    .lbl { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; color: #9CA3AF; margin-bottom: 10px; }
+    .ph1 { font-weight: 900; font-size: 28px; letter-spacing: -1px; color: #111827; line-height: 1; margin-bottom: 6px; }
+    .sub { color: #6B7280; font-size: 13px; }
 
     /* Buttons */
     .btn-p { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: linear-gradient(135deg,var(--dp),var(--purple)); color: var(--white); border: 1px solid var(--purple); cursor: pointer; font-family: var(--font); box-shadow: 0 4px 14px rgba(112,34,187,0.3); transition: transform .15s, box-shadow .15s; white-space: nowrap; }
@@ -54,44 +60,44 @@
     .btn-amber { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: linear-gradient(135deg,#92400e,#f59e0b); color: var(--white); border: 1px solid #f59e0b; cursor: pointer; font-family: var(--font); box-shadow: 0 4px 14px rgba(245,158,11,0.25); transition: transform .15s; white-space: nowrap; }
     .btn-amber:hover:not([disabled]) { transform: translateY(-1px); }
     .btn-amber[disabled] { opacity: 0.38; cursor: not-allowed; }
-    .btn-ghost { display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 9px; background: var(--faint); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-family: var(--font); font-size: 11px; font-weight: 600; gap: 6px; transition: all .15s; }
-    .btn-ghost:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+    .btn-ghost { display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 9px; background: rgba(0,0,0,.04); border: 1px solid rgba(0,0,0,.08); color: #6B7280; cursor: pointer; font-family: var(--font); font-size: 11px; font-weight: 600; gap: 6px; transition: all .15s; }
+    .btn-ghost:hover { background: rgba(0,0,0,.08); color: #111827; }
     .btn-danger { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; background: transparent; color: rgba(248,113,113,0.5); border: 1px solid rgba(248,113,113,0.2); cursor: pointer; font-family: var(--font); transition: all .15s; }
     .btn-danger:hover { background: rgba(248,113,113,0.1); color: #f87171; border-color: rgba(248,113,113,0.4); }
 
     /* Inputs */
-    .inp { width: 100%; background: var(--faint); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--white); font-size: 13px; font-family: var(--font); font-weight: 500; outline: none; transition: border-color .2s; }
-    .inp::placeholder { color: rgba(247,247,247,0.16); }
+    .inp { width: 100%; background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 10px; padding: 11px 14px; color: #111827; font-size: 13px; font-family: var(--font); font-weight: 500; outline: none; transition: border-color .2s; }
+    .inp::placeholder { color: #9CA3AF; }
     .inp:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(112,34,187,0.12); }
     select.inp { appearance: none; -webkit-appearance: none; cursor: pointer; }
     textarea.inp { resize: none; line-height: 1.6; }
 
     /* Stat cards */
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; }
-    .stat-val { font-weight: 900; font-size: 32px; letter-spacing: -1px; color: var(--white); line-height: 1; }
-    .stat-lbl { font-size: 11px; color: rgba(247,247,247,0.35); margin-top: 4px; }
+    .stat-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,.08); border-radius: 16px; padding: 20px 22px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .stat-val { font-weight: 900; font-size: 32px; letter-spacing: -1px; color: #111827; line-height: 1; }
+    .stat-lbl { font-size: 11px; color: #6B7280; margin-top: 4px; }
 
     /* Slot grid */
     .slot-grid { display: grid; gap: 5px; }
-    .slot-cell { border-radius: 10px; border: 1px solid var(--border); background: var(--faint); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; min-height: 44px; font-size: 10px; font-weight: 700; color: rgba(247,247,247,0.2); user-select: none; }
-    .slot-cell:hover:not(.slot-header) { background: rgba(112,34,187,0.1); border-color: rgba(112,34,187,0.3); }
-    .slot-cell.on { background: rgba(112,34,187,0.2); border-color: var(--purple); color: var(--white); }
-    .slot-cell.slot-header { background: transparent; border: none; font-size: 9px; font-weight: 700; letter-spacing: 2px; color: rgba(247,247,247,0.25); cursor: default; min-height: 28px; }
-    .slot-cell.slot-time { background: transparent; border: none; justify-content: flex-end; padding-right: 8px; font-size: 12px; color: rgba(247,247,247,0.4); font-weight: 600; cursor: default; }
+    .slot-cell { border-radius: 10px; border: 1px solid rgba(0,0,0,.08); background: rgba(0,0,0,.04); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; min-height: 44px; font-size: 10px; font-weight: 700; color: #9CA3AF; user-select: none; }
+    .slot-cell:hover:not(.slot-header) { background: rgba(112,34,187,0.08); border-color: rgba(112,34,187,0.3); }
+    .slot-cell.on { background: rgba(112,34,187,0.12); border-color: var(--purple); color: #7022BB; }
+    .slot-cell.slot-header { background: transparent; border: none; font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #9CA3AF; cursor: default; min-height: 28px; }
+    .slot-cell.slot-time { background: transparent; border: none; justify-content: flex-end; padding-right: 8px; font-size: 12px; color: #6B7280; font-weight: 600; cursor: default; }
 
     /* Calendar */
     .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-    .cal-cell { min-height: 52px; border-radius: 10px; padding: 8px; background: var(--card); border: 1px solid var(--border); cursor: pointer; transition: all .15s; }
-    .cal-cell:hover:not(.empty):not(.past) { border-color: rgba(255,255,255,0.2); }
+    .cal-cell { min-height: 52px; border-radius: 10px; padding: 8px; background: #FFFFFF; border: 1px solid rgba(0,0,0,.08); cursor: pointer; transition: all .15s; }
+    .cal-cell:hover:not(.empty):not(.past) { border-color: rgba(0,0,0,0.2); }
     .cal-cell.empty { opacity: 0; pointer-events: none; }
     .cal-cell.past { opacity: 0.35; cursor: default; }
-    .cal-cell.blocked { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.25); }
-    .cal-day { font-size: 12px; font-weight: 500; color: rgba(247,247,247,0.4); }
-    .cal-cell.blocked .cal-day { color: #f87171; font-weight: 700; }
+    .cal-cell.blocked { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.22); }
+    .cal-day { font-size: 12px; font-weight: 500; color: #6B7280; }
+    .cal-cell.blocked .cal-day { color: #DC2626; font-weight: 700; }
 
     /* Table rows */
-    .trow { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; transition: background .15s; }
-    .trow:hover { background: rgba(255,255,255,0.03); }
+    .trow { background: #FFFFFF; border: 1px solid rgba(0,0,0,.08); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; transition: background .15s; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .trow:hover { background: rgba(0,0,0,.02); }
 
     /* Tags */
     .tag { display: inline-flex; align-items: center; border-radius: 6px; padding: 3px 8px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; }
@@ -106,15 +112,15 @@
 
     /* Stars */
     .star-filled { color: #f59e0b; }
-    .star-empty  { color: rgba(247,247,247,0.15); }
+    .star-empty  { color: #D1D5DB; }
 
     /* Modal */
-    .overlay { position: fixed; inset: 0; background: rgba(5,5,8,0.94); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(10px); animation: fadeUp .18s ease; }
-    .modal { background: var(--card); border-radius: 24px; padding: 36px; width: 480px; max-width: calc(100vw - 32px); border: 1px solid var(--border); box-shadow: 0 32px 80px rgba(0,0,0,0.85); animation: scaleIn .22s ease; max-height: 90vh; overflow-y: auto; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(10px); animation: fadeUp .18s ease; }
+    .modal { background: #FFFFFF; border-radius: 24px; padding: 36px; width: 480px; max-width: calc(100vw - 32px); border: 1px solid rgba(0,0,0,.08); box-shadow: 0 32px 80px rgba(0,0,0,0.18); animation: scaleIn .22s ease; max-height: 90vh; overflow-y: auto; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
     input, textarea, select { font-family: var(--font); }
 
     /* Animations */
@@ -130,20 +136,20 @@
     .mob-top { display:none; }
 
     /* Drawer */
-    .drw-overlay { display:none; position:fixed; inset:0; background:rgba(5,5,8,0.7); z-index:199; }
+    .drw-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:199; }
     .drw-overlay.open { display:block; animation:fadeIn .2s ease; }
-    .drw { position:fixed; top:0; left:0; bottom:0; z-index:200; width:78%; max-width:300px; background:#0e0e0e; border-right:1px solid var(--border); display:flex; flex-direction:column; transform:translateX(-100%); transition:transform .28s cubic-bezier(.4,0,.2,1); will-change:transform; }
+    .drw { position:fixed; top:0; left:0; bottom:0; z-index:200; width:78%; max-width:300px; background:#FFFFFF; border-right:1px solid rgba(0,0,0,.08); display:flex; flex-direction:column; transform:translateX(-100%); transition:transform .28s cubic-bezier(.4,0,.2,1); will-change:transform; }
     .drw.open { transform:translateX(0); }
     .drw-item { display:flex; align-items:center; gap:14px; padding:13px 14px; border-radius:12px; cursor:pointer; border-left:3px solid transparent; transition:all .15s; }
-    .drw-item.active { background:rgba(245,158,11,0.12); border-left-color:#f59e0b; }
-    .drw-icon { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:rgba(255,255,255,0.04); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
-    .drw-item.active .drw-icon { background:rgba(245,158,11,0.15); border-color:#f59e0b; }
+    .drw-item.active { background:rgba(245,158,11,0.10); border-left-color:#f59e0b; }
+    .drw-icon { width:34px; height:34px; border-radius:9px; flex-shrink:0; background:rgba(0,0,0,.04); border:1px solid rgba(0,0,0,.08); display:flex; align-items:center; justify-content:center; }
+    .drw-item.active .drw-icon { background:rgba(245,158,11,0.12); border-color:#f59e0b; }
 
     @media (max-width: 768px) {
       html, body { overflow:hidden; }
       .sidebar { display:none; }
       .topbar  { display:none; }
-      .mob-top { display:flex; align-items:center; justify-content:center; position:sticky; top:0; z-index:100; background:rgba(9,9,9,0.97); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:14px 20px; flex-shrink:0; }
+      .mob-top { display:flex; align-items:center; justify-content:center; position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.97); backdrop-filter:blur(20px); border-bottom:1px solid rgba(0,0,0,.08); padding:14px 20px; flex-shrink:0; }
       .page-wrap { padding:16px 16px 40px; }
       .modal { border-radius:20px 20px 0 0 !important; width:100% !important; max-width:100% !important; position:fixed !important; bottom:0 !important; left:0 !important; right:0 !important; max-height:85vh; overflow-y:auto; padding:24px 20px 40px !important; }
       .avail-wrap { padding:0 !important; }
@@ -155,7 +161,7 @@
 </head>
 <body>
 
-<div id="loading" style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999">
+<div id="loading" style="position:fixed;inset:0;background:#F4F5F7;display:flex;align-items:center;justify-content:center;z-index:999">
   <div style="width:24px;height:24px;border:2.5px solid rgba(245,158,11,0.2);border-top-color:#f59e0b;border-radius:50%;animation:spin .7s linear infinite"></div>
 </div>
 
@@ -177,15 +183,15 @@
   <div class="main">
     <!-- Mobile topbar -->
     <div class="mob-top">
-      <button data-action="open-drawer" style="position:absolute;left:20px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;flex-shrink:0">
+      <button data-action="open-drawer" style="position:absolute;left:20px;background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:9px;width:36px;height:36px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0;flex-shrink:0">
         <span style="display:block;width:16px;height:1.5px;background:var(--white);border-radius:2px"></span>
-        <span style="display:block;width:12px;height:1.5px;background:rgba(247,247,247,0.5);border-radius:2px;margin-left:-4px"></span>
+        <span style="display:block;width:12px;height:1.5px;background:rgba(17,24,39,0.4);border-radius:2px;margin-left:-4px"></span>
         <span style="display:block;width:16px;height:1.5px;background:var(--white);border-radius:2px"></span>
       </button>
-      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" style="height:30px;width:auto;mix-blend-mode:screen;display:block"/>
+      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" style="height:30px;width:auto;display:block"/>
     </div>
     <header class="topbar">
-      Admin <span style="color:rgba(247,247,247,0.1)">›</span> <strong id="bc">Visão Geral</strong>
+      Admin <span style="color:rgba(0,0,0,0.2)">›</span> <strong id="bc">Visão Geral</strong>
     </header>
     <div id="pc" class="page-wrap"></div>
   </div>
@@ -195,11 +201,11 @@
 <div class="drw-overlay" id="drw-overlay" data-action="close-drawer"></div>
 <div class="drw" id="drw">
   <div style="padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
-    <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" style="height:28px;width:auto;mix-blend-mode:screen;display:block"/>
+    <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" style="height:28px;width:auto;display:block"/>
     <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:5px;padding:2px 7px;font-size:8px;font-weight:800;letter-spacing:2px;color:#f59e0b">ADMIN</div>
   </div>
   <nav id="drw-nav" style="flex:1;padding:12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto"></nav>
-  <div style="padding:16px 20px;border-top:1px solid var(--border);font-size:9px;color:rgba(247,247,247,0.12);letter-spacing:1px">ETERNITY HOLDING CO. © 2026</div>
+  <div style="padding:16px 20px;border-top:1px solid var(--border);font-size:9px;color:#9CA3AF;letter-spacing:1px">ETERNITY HOLDING CO. © 2026</div>
 </div>
 
 <div id="mr"></div>
@@ -289,15 +295,15 @@ function ic(name, size=15, extra='') {
   return `<i data-lucide="${name}" style="width:${size}px;height:${size}px;flex-shrink:0;display:inline-flex;${extra}"></i>`;
 }
 function fieldLabel(text) {
-  return `<label style="color:rgba(247,247,247,0.28);font-size:9px;font-weight:700;letter-spacing:2px;display:block;margin-bottom:7px">${text}</label>`;
+  return `<label style="color:#9CA3AF;font-size:9px;font-weight:700;letter-spacing:2px;display:block;margin-bottom:7px">${text}</label>`;
 }
 function spinner(size=16) {
   return `<div style="width:${size}px;height:${size}px;border:2px solid rgba(112,34,187,.25);border-top-color:#7022BB;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0"></div>`;
 }
 function starsHtml(rating) {
-  if (!rating) return '<span style="color:rgba(247,247,247,.2);font-size:11px">—</span>';
+  if (!rating) return '<span style="color:#D1D5DB;font-size:11px">—</span>';
   return [1,2,3,4,5].map(s=>
-    `<svg viewBox="0 0 24 24" width="13" height="13" fill="${s<=rating?'#f59e0b':'none'}" stroke="${s<=rating?'#f59e0b':'rgba(247,247,247,0.15)'}" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+    `<svg viewBox="0 0 24 24" width="13" height="13" fill="${s<=rating?'#f59e0b':'none'}" stroke="${s<=rating?'#f59e0b':'rgba(0,0,0,0.18)'}" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
   ).join('');
 }
 function fmtDate(iso) {
@@ -320,7 +326,7 @@ function roleTag(role) {
   return `<span class="tag ${cls}">${lbl}</span>`;
 }
 function avatar(name, size=34) {
-  return `<div style="width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(size*.36)}px;color:#F7F7F7">${initials(name)}</div>`;
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(size*.36)}px;color:#111827">${initials(name)}</div>`;
 }
 
 /* ─── NAV ─────────────────────────────────────────────────────────────────── */
@@ -334,7 +340,7 @@ function renderSidebar() {
   document.getElementById('sb-plan').textContent = roleLabel.toUpperCase();
   const nav = visibleNav();
   document.getElementById('sb-nav').innerHTML = nav.map(n=>`
-    ${n.id === 'account' ? '<div style="height:1px;background:rgba(255,255,255,0.06);margin:8px 4px"></div>' : ''}
+    ${n.id === 'account' ? '<div style="height:1px;background:rgba(0,0,0,0.06);margin:8px 4px"></div>' : ''}
     <div class="nav-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
       ${ic(n.ic,15)} <span>${n.label}</span>
     </div>
@@ -342,10 +348,10 @@ function renderSidebar() {
   // Mobile drawer nav
   const drwNav = document.getElementById('drw-nav');
   if (drwNav) drwNav.innerHTML = nav.map(n=>`
-    ${n.id === 'account' ? '<div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 4px"></div>' : ''}
+    ${n.id === 'account' ? '<div style="height:1px;background:rgba(0,0,0,0.06);margin:6px 4px"></div>' : ''}
     <div class="drw-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
-      <div class="drw-icon">${ic(n.ic,15,'color:'+(S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.35)'))}</div>
-      <div style="font-weight:${S.page===n.id?700:500};font-size:13px;color:${S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.6)'}">${n.label}</div>
+      <div class="drw-icon">${ic(n.ic,15,'color:'+(S.page===n.id?'#f59e0b':'#6B7280'))}</div>
+      <div style="font-weight:${S.page===n.id?700:500};font-size:13px;color:${S.page===n.id?'#111827':'#6B7280'}">${n.label}</div>
     </div>
   `).join('');
 }
@@ -377,7 +383,7 @@ function render(scrollReset=true) {
 
 async function loadAndRender(page) {
   const pc = document.getElementById('pc');
-  pc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;gap:12px;color:rgba(247,247,247,.3);font-size:13px">${spinner(18)} Carregando...</div>`;
+  pc.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:300px;gap:12px;color:#9CA3AF;font-size:13px">${spinner(18)} Carregando...</div>`;
   await loadPageData(page);
   pc.innerHTML = renderPage(page);
   lucide.createIcons();
@@ -515,13 +521,13 @@ function pageAccount() {
     <div style="max-width:560px;display:flex;flex-direction:column;gap:16px">
 
       <!-- Profile card -->
-      <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px 24px;display:flex;align-items:center;gap:16px">
-        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#F7F7F7;flex-shrink:0;letter-spacing:-1px">
+      <div style="background:#F4F5F7;border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:20px 24px;display:flex;align-items:center;gap:16px">
+        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#FFFFFF;flex-shrink:0;letter-spacing:-1px">
           ${(userName[0]||'A').toUpperCase()}
         </div>
         <div style="flex:1;min-width:0">
-          <div style="font-weight:900;font-size:17px;color:#F7F7F7;line-height:1.2">${userName}</div>
-          <div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${userEmail}</div>
+          <div style="font-weight:900;font-size:17px;color:#111827;line-height:1.2">${userName}</div>
+          <div style="font-size:11px;color:#6B7280;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${userEmail}</div>
           <div style="margin-top:7px;display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 9px;font-size:9px;font-weight:800;letter-spacing:1.5px;color:${roleColor};background:${roleColor}18;border:1px solid ${roleColor}30">
             ${roleLabel.toUpperCase()}
           </div>
@@ -530,18 +536,18 @@ function pageAccount() {
 
       <!-- E-mail -->
       <div class="card" style="padding:22px 24px;border-radius:18px">
-        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">E-mail</div>
-        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">E-MAIL</div>
+        <div style="font-weight:800;font-size:14px;color:#111827;margin-bottom:20px">E-mail</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:8px">E-MAIL</div>
         <input id="cfg-email" type="email" class="inp" value="${userEmail}" placeholder="seu@email.com" style="margin-bottom:16px"/>
         ${saveBtnHtml('email', 'Salvar alterações')}
       </div>
 
       <!-- Senha -->
       <div class="card" style="padding:22px 24px;border-radius:18px">
-        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">Senha</div>
-        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">NOVA SENHA</div>
+        <div style="font-weight:800;font-size:14px;color:#111827;margin-bottom:20px">Senha</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:8px">NOVA SENHA</div>
         <input id="cfg-pw" data-input="admin-cfg-pw" type="password" class="inp" placeholder="Mínimo 8 caracteres" value="${pw}" style="margin-bottom:14px"/>
-        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">CONFIRMAR SENHA</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#9CA3AF;margin-bottom:8px">CONFIRMAR SENHA</div>
         <input id="cfg-pwc" data-input="admin-cfg-pwc" type="password" class="inp" placeholder="Repita a senha" value="${pwConf}" style="margin-bottom:${pw&&pwConf&&pw!==pwConf?8:16}px"/>
         ${pw&&pwConf&&pw!==pwConf ? `<div style="font-size:11px;color:#f87171;margin-bottom:14px;display:flex;align-items:center;gap:5px">${ic('alert-circle',12)} As senhas não coincidem.</div>` : ''}
         ${saveBtnHtml('senha', 'Salvar alterações')}
@@ -550,15 +556,15 @@ function pageAccount() {
       <!-- Google Agenda (super_admin only) -->
       ${S.currentRole === 'super_admin' ? `
       <div class="card" style="padding:20px 24px;border-radius:18px">
-        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:18px">Google Agenda</div>
+        <div style="font-weight:800;font-size:14px;color:#111827;margin-bottom:18px">Google Agenda</div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:12px">
             <div style="width:36px;height:36px;border-radius:10px;background:rgba(234,67,53,0.12);border:1px solid rgba(234,67,53,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#ea4335" stroke-width="1.8"/><line x1="16" y1="2" x2="16" y2="6" stroke="#ea4335" stroke-width="1.8" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="#ea4335" stroke-width="1.8" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="#ea4335" stroke-width="1.8"/></svg>
             </div>
             <div>
-              <div style="font-weight:700;font-size:13px;color:#F7F7F7">Google Agenda</div>
-              <div id="gcal-status-text" style="font-size:11px;color:rgba(247,247,247,.35);margin-top:2px">Verificando...</div>
+              <div style="font-weight:700;font-size:13px;color:#111827">Google Agenda</div>
+              <div id="gcal-status-text" style="font-size:11px;color:#9CA3AF;margin-top:2px">Verificando...</div>
             </div>
           </div>
           <div id="gcal-connect-btn"></div>
@@ -566,7 +572,7 @@ function pageAccount() {
       </div>` : ''}
 
       <!-- Sign out -->
-      <button data-action="signout" style="width:100%;padding:13px;border-radius:12px;background:transparent;color:rgba(247,247,247,.3);font-family:inherit;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.3)'" onmouseleave="this.style.color='rgba(247,247,247,.3)';this.style.borderColor='rgba(255,255,255,.08)'">
+      <button data-action="signout" style="width:100%;padding:13px;border-radius:12px;background:transparent;color:#9CA3AF;font-family:inherit;font-size:12px;font-weight:600;border:1px solid rgba(0,0,0,.08);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.3)'" onmouseleave="this.style.color='#9CA3AF';this.style.borderColor='rgba(0,0,0,.08)'">
         ${ic('log-out',14)} Sair da conta
       </button>
     </div>
@@ -612,12 +618,12 @@ function pageOverview() {
         ? `<div class="trow">
             <div style="width:40px;height:40px;border-radius:10px;background:rgba(112,34,187,0.15);border:1px solid rgba(112,34,187,0.25);display:flex;align-items:center;justify-content:center">${ic('calendar-days',18,'color:#7022BB')}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-weight:700;font-size:13px;color:#F7F7F7">${nextBooking.call_title || 'Call de Mentoria'}</div>
-              <div style="font-size:11px;color:rgba(247,247,247,.35);margin-top:2px">${fmtDate(nextBooking.scheduled_at)}</div>
+              <div style="font-weight:700;font-size:13px;color:#111827">${nextBooking.call_title || 'Call de Mentoria'}</div>
+              <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${fmtDate(nextBooking.scheduled_at)}</div>
             </div>
             <span class="tag tag-green">CONFIRMADO</span>
           </div>`
-        : `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} Nenhum agendamento futuro</div>`}
+        : `<div class="trow" style="justify-content:center;color:#9CA3AF;font-size:13px;gap:8px">${ic('calendar-x',16)} Nenhum agendamento futuro</div>`}
     </div>
 
     <!-- Quick actions -->
@@ -664,7 +670,7 @@ function pageAvailability() {
 
     <!-- Slot grid -->
     <div class="card avail-card fu1" style="padding:24px;margin-bottom:28px;overflow-x:auto">
-      <div style="font-weight:800;font-size:13px;color:#F7F7F7;margin-bottom:16px;display:flex;align-items:center;gap:8px">
+      <div style="font-weight:800;font-size:13px;color:#111827;margin-bottom:16px;display:flex;align-items:center;gap:8px">
         ${ic('grid',15,'color:#7022BB')} Horários Semanais Recorrentes
       </div>
       <div style="min-width:480px">
@@ -688,7 +694,7 @@ function pageAvailability() {
           </div>
         `).join('')}
       </div>
-      <div style="margin-top:16px;display:flex;gap:16px;font-size:11px;color:rgba(247,247,247,.3)">
+      <div style="margin-top:16px;display:flex;gap:16px;font-size:11px;color:#9CA3AF">
         <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:4px;background:rgba(112,34,187,0.2);border:1px solid var(--purple)"></div>Ativo</div>
         <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:4px;background:var(--faint);border:1px solid var(--border)"></div>Inativo</div>
       </div>
@@ -698,20 +704,20 @@ function pageAvailability() {
     <div class="card avail-card fu2" style="padding:24px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
         <div>
-          <div style="font-weight:800;font-size:13px;color:#F7F7F7;margin-bottom:4px;display:flex;align-items:center;gap:8px">
+          <div style="font-weight:800;font-size:13px;color:#111827;margin-bottom:4px;display:flex;align-items:center;gap:8px">
             ${ic('calendar-x',15,'color:#f87171')} Datas Bloqueadas
           </div>
-          <div style="font-size:11px;color:rgba(247,247,247,.3)">Clique em um dia para bloquear/desbloquear</div>
+          <div style="font-size:11px;color:#9CA3AF">Clique em um dia para bloquear/desbloquear</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <button data-action="prev-cal-mo" class="btn-ghost" style="padding:6px 10px">${ic('chevron-left',14)}</button>
-          <div style="font-weight:700;font-size:13px;color:#F7F7F7;min-width:140px;text-align:center">${MONTHS[mo]} ${yr}</div>
+          <div style="font-weight:700;font-size:13px;color:#111827;min-width:140px;text-align:center">${MONTHS[mo]} ${yr}</div>
           <button data-action="next-cal-mo" class="btn-ghost" style="padding:6px 10px">${ic('chevron-right',14)}</button>
         </div>
       </div>
       <!-- Weekday headers -->
       <div class="cal-grid" style="margin-bottom:4px">
-        ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.2);padding:4px 0">${d}</div>`).join('')}
+        ${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#D1D5DB;padding:4px 0">${d}</div>`).join('')}
       </div>
       <!-- Days -->
       <div class="cal-grid">
@@ -731,7 +737,7 @@ function pageAvailability() {
       </div>
       ${blocked.length > 0 ? `
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
-          <div style="font-size:10px;color:rgba(247,247,247,.3);font-weight:700;margin-bottom:8px">DIAS BLOQUEADOS NESTE MÊS</div>
+          <div style="font-size:10px;color:#9CA3AF;font-weight:700;margin-bottom:8px">DIAS BLOQUEADOS NESTE MÊS</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${blocked.map(b=>`
               <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:4px 10px;font-size:11px;color:#f87171;font-weight:600">
@@ -779,21 +785,21 @@ function pageBookings() {
     </div>
 
     <div style="position:relative;margin-bottom:16px">
-      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input data-input="search-bookings" class="inp" placeholder="Buscar por aluno ou call..." value="${search||''}" style="padding-left:36px">
     </div>
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
       ${filtered.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum agendamento '+(filter==='upcoming'?'futuro':'passado')}</div>`
+        ? `<div class="trow" style="justify-content:center;color:#9CA3AF;font-size:13px;gap:8px">${ic('calendar-x',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum agendamento '+(filter==='upcoming'?'futuro':'passado')}</div>`
         : filtered.map(b=>{
             const sName = b._sName || 'Aluno';
             const isPast = b.scheduled_at <= now;
             return `<div class="trow">
               ${avatar(sName, 38)}
               <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.call_title || 'Call de Mentoria'}</div>
-                <div style="font-size:11px;color:rgba(247,247,247,.35)">${sName}${b._sEmail && b._sEmail !== sName ? ` · <span style="color:rgba(247,247,247,.2)">${b._sEmail}</span>` : ''} · ${fmtDate(b.scheduled_at)}</div>
+                <div style="font-weight:700;font-size:13px;color:#111827;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.call_title || 'Call de Mentoria'}</div>
+                <div style="font-size:11px;color:#9CA3AF">${sName}${b._sEmail && b._sEmail !== sName ? ` · <span style="color:#D1D5DB">${b._sEmail}</span>` : ''} · ${fmtDate(b.scheduled_at)}</div>
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                 ${b.meet_link ? `<a href="${b.meet_link}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#3b82f6;text-decoration:none">${ic('video',12,'color:#3b82f6')} Meet</a>` : ''}
@@ -828,19 +834,19 @@ function pageStudents() {
     </div>
 
     <div style="position:relative;margin-bottom:16px">
-      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input data-input="search-students" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
     </div>
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
       ${filtered.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum aluno cadastrado ainda'}</div>`
+        ? `<div class="trow" style="justify-content:center;color:#9CA3AF;font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum aluno cadastrado ainda'}</div>`
         : filtered.map(st=>`
-            <div class="trow" data-action="view-student" data-id="${st.id}" style="cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''">
+            <div class="trow" data-action="view-student" data-id="${st.id}" style="cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(0,0,0,0.02)'" onmouseleave="this.style.background=''">
               ${avatar(st.full_name || st.email || '?', 38)}
               <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px">${st.full_name || '—'}</div>
-                <div style="font-size:11px;color:rgba(247,247,247,.35)">${st.email || '—'}</div>
+                <div style="font-weight:700;font-size:13px;color:#111827;margin-bottom:2px">${st.full_name || '—'}</div>
+                <div style="font-size:11px;color:#9CA3AF">${st.email || '—'}</div>
               </div>
             </div>
           `).join('')}
@@ -881,7 +887,7 @@ function pageTasks() {
     <!-- Task list -->
     <div class="fu2" style="display:flex;flex-direction:column;gap:8px">
       ${list.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('check-square',16)} Nenhuma tarefa encontrada</div>`
+        ? `<div class="trow" style="justify-content:center;color:#9CA3AF;font-size:13px;gap:8px">${ic('check-square',16)} Nenhuma tarefa encontrada</div>`
         : list.map(t=>{
             const sName = t.student_profiles?.full_name || t.student_profiles?.email || 'Aluno';
             return `<div class="trow" style="opacity:${t.done?.5:1}">
@@ -889,8 +895,8 @@ function pageTasks() {
                 ${t.done?`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:''}
               </div>
               <div style="flex:1;min-width:0">
-                <div style="font-weight:600;font-size:13px;color:#F7F7F7;text-decoration:${t.done?'line-through':'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px">${t.title}</div>
-                <div style="font-size:10px;color:rgba(247,247,247,.3);display:flex;align-items:center;gap:8px">
+                <div style="font-weight:600;font-size:13px;color:#111827;text-decoration:${t.done?'line-through':'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px">${t.title}</div>
+                <div style="font-size:10px;color:#9CA3AF;display:flex;align-items:center;gap:8px">
                   ${avatar(sName,20)} ${sName}
                   ${t.call_number ? `· Call ${t.call_number}` : ''}
                   ${t.mentor_note ? `· <span style="font-style:italic">${t.mentor_note}</span>` : ''}
@@ -935,7 +941,7 @@ function pageCollaborators() {
     </div>
 
     <div style="position:relative;margin-bottom:16px">
-      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input data-input="search-collabs" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
     </div>
 
@@ -945,19 +951,19 @@ function pageCollaborators() {
              <div style="width:48px;height:48px;border-radius:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center">
                ${ic('briefcase',22,'color:#f59e0b')}
              </div>
-             <div style="font-weight:700;font-size:15px;color:#F7F7F7">${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum colaborador cadastrado'}</div>
-             <div style="font-size:12px;color:rgba(247,247,247,.3);max-width:280px;line-height:1.6">${q ? '' : 'Adicione professores e funcionários para organizar a equipe da plataforma.'}</div>
+             <div style="font-weight:700;font-size:15px;color:#111827">${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum colaborador cadastrado'}</div>
+             <div style="font-size:12px;color:#9CA3AF;max-width:280px;line-height:1.6">${q ? '' : 'Adicione professores e funcionários para organizar a equipe da plataforma.'}</div>
            </div>`
         : filtered.map(c => `
             <div class="trow" style="gap:16px;flex-wrap:wrap">
               ${avatar(c.name, 40)}
               <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:14px;color:#F7F7F7;margin-bottom:3px">${c.name}</div>
+                <div style="font-weight:700;font-size:14px;color:#111827;margin-bottom:3px">${c.name}</div>
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                   ${roleTag(c.role)}
-                  ${c.email ? `<span style="font-size:11px;color:rgba(247,247,247,.35)">${c.email}</span>` : ''}
+                  ${c.email ? `<span style="font-size:11px;color:#9CA3AF">${c.email}</span>` : ''}
                 </div>
-                ${c.notes ? `<div style="font-size:11px;color:rgba(247,247,247,.3);margin-top:5px;line-height:1.5">${c.notes}</div>` : ''}
+                ${c.notes ? `<div style="font-size:11px;color:#9CA3AF;margin-top:5px;line-height:1.5">${c.notes}</div>` : ''}
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                 <button data-action="edit-collab" data-id="${c.id}" class="btn-ghost" style="font-size:11px;gap:5px">
@@ -988,20 +994,20 @@ function pageFeedbacks() {
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:12px">
       ${list.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('message-square',16)} Nenhum feedback recebido ainda</div>`
+        ? `<div class="trow" style="justify-content:center;color:#9CA3AF;font-size:13px;gap:8px">${ic('message-square',16)} Nenhum feedback recebido ainda</div>`
         : list.map(f=>`
             <div class="card" style="padding:20px 22px">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
                 <div style="display:flex;align-items:center;gap:10px">
                   ${avatar(f.student_name || 'Aluno', 34)}
                   <div>
-                    <div style="font-weight:700;font-size:13px;color:#F7F7F7">${f.student_name || 'Aluno'}</div>
-                    <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">${f.call_title || 'Call de Mentoria'} · ${fmtDateOnly(f.created_at)}</div>
+                    <div style="font-weight:700;font-size:13px;color:#111827">${f.student_name || 'Aluno'}</div>
+                    <div style="font-size:10px;color:#9CA3AF;margin-top:2px">${f.call_title || 'Call de Mentoria'} · ${fmtDateOnly(f.created_at)}</div>
                   </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:3px">${starsHtml(f.rating)}</div>
               </div>
-              ${f.body ? `<p style="font-size:13px;color:rgba(247,247,247,.65);line-height:1.7;border-top:1px solid var(--border);padding-top:12px">"${f.body}"</p>` : ''}
+              ${f.body ? `<p style="font-size:13px;color:#4B5563;line-height:1.7;border-top:1px solid var(--border);padding-top:12px">"${f.body}"</p>` : ''}
             </div>
           `).join('')}
     </div>
@@ -1043,16 +1049,16 @@ function modalEditPlan() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
           <div class="lbl">ALUNOS</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">Editar Plano</div>
-          <div style="font-size:12px;color:rgba(247,247,247,.35);margin-top:3px">${studentName}</div>
+          <div style="font-weight:900;font-size:19px;color:#111827">Editar Plano</div>
+          <div style="font-size:12px;color:#9CA3AF;margin-top:3px">${studentName}</div>
         </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+        <button data-action="close-modal" style="background:none;border:none;color:#9CA3AF;cursor:pointer">${ic('x',18)}</button>
       </div>
 
-      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3)">PLANO ATUAL</div>
-      <div style="padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:700;color:${PLAN_COLORS[currentPlan]||'#F7F7F7'};margin-bottom:20px">${PLAN_LABELS[currentPlan]||currentPlan}</div>
+      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:#9CA3AF">PLANO ATUAL</div>
+      <div style="padding:10px 14px;border-radius:10px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.08);font-size:13px;font-weight:700;color:${PLAN_COLORS[currentPlan]||'#111827'};margin-bottom:20px">${PLAN_LABELS[currentPlan]||currentPlan}</div>
 
-      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3)">NOVO PLANO</div>
+      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:#9CA3AF">NOVO PLANO</div>
       <select class="inp" data-input="new-plan-select" style="margin-bottom:${changing?'16px':'0'}">
         <option value="FAST"     ${newPlan==='FAST'    ?'selected':''}>FAST — Aceleração Intensiva · 30 Dias</option>
         <option value="GROWTH"   ${newPlan==='GROWTH'  ?'selected':''}>GROWTH — Imersão Estratégica · 3 Meses</option>
@@ -1080,7 +1086,7 @@ function modalEditPlan() {
       <button data-action="save-plan" class="btn-amber" style="width:100%;padding:13px;border-radius:12px;font-size:13px;justify-content:center;${(!confirmed||saving)?'opacity:.4;cursor:not-allowed':''}" ${(!confirmed||saving)?'disabled':''}>
         ${saving ? spinner(14)+' Salvando...' : ic('refresh-cw',14)+' Alterar Plano'}
       </button>` : `
-      <div style="margin-top:16px;font-size:12px;color:rgba(247,247,247,.25);text-align:center">Selecione um plano diferente para editar</div>`}
+      <div style="margin-top:16px;font-size:12px;color:#9CA3AF;text-align:center">Selecione um plano diferente para editar</div>`}
 
       ${err ? `<div style="margin-top:12px;font-size:11px;color:#f87171;text-align:center">${err}</div>` : ''}
     </div>
@@ -1152,7 +1158,7 @@ async function openStudentDetail(studentId) {
   const mr = document.getElementById('mr');
   mr.innerHTML = `
   <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px)">
-    <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
+    <div style="color:#6B7280;font-size:13px">Carregando...</div>
   </div>`;
 
   const [bookRes, taskRes, fbRes] = await Promise.all([
@@ -1170,7 +1176,7 @@ async function openStudentDetail(studentId) {
   const fmt = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
 
   const callRows = calls.length === 0
-    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhuma call registrada</div>`
+    ? `<div style="color:#9CA3AF;font-size:12px;padding:12px 0">Nenhuma call registrada</div>`
     : calls.map(b => {
         const isPast = new Date(b.scheduled_at) < now;
         const isDone = isPast && b.status === 'confirmed';
@@ -1178,29 +1184,29 @@ async function openStudentDetail(studentId) {
         const statusColor = isCancelled ? '#f87171' : isDone ? '#22c55e' : '#f59e0b';
         const statusLabel = isCancelled ? 'Cancelada' : isDone ? 'Concluída' : 'Agendada';
         return `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(0,0,0,0.02);border:1px solid rgba(0,0,0,0.06)">
           <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};flex-shrink:0"></div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:#F7F7F7">${b.call_title || 'Call de Mentoria'}${b.call_number ? ` <span style="color:rgba(247,247,247,.35);font-weight:500">· #${b.call_number}</span>` : ''}</div>
-            <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${fmt(b.scheduled_at)}</div>
+            <div style="font-size:12px;font-weight:700;color:#111827">${b.call_title || 'Call de Mentoria'}${b.call_number ? ` <span style="color:#9CA3AF;font-weight:500">· #${b.call_number}</span>` : ''}</div>
+            <div style="font-size:10px;color:#9CA3AF;margin-top:2px">${fmt(b.scheduled_at)}</div>
           </div>
           <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor}">${statusLabel}</span>
         </div>`;
       }).join('');
 
   const taskRows = tasks.length === 0
-    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhuma tarefa registrada</div>`
+    ? `<div style="color:#9CA3AF;font-size:12px;padding:12px 0">Nenhuma tarefa registrada</div>`
     : tasks.map(t => `
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid ${t.done?'rgba(34,197,94,.12)':'rgba(255,255,255,0.06)'}">
-          <div style="width:16px;height:16px;border-radius:5px;border:1.5px solid ${t.done?'#22c55e':'rgba(255,255,255,.2)'};background:${t.done?'rgba(34,197,94,.15)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(0,0,0,0.02);border:1px solid ${t.done?'rgba(34,197,94,.12)':'rgba(0,0,0,0.06)'}">
+          <div style="width:16px;height:16px;border-radius:5px;border:1.5px solid ${t.done?'#22c55e':'rgba(0,0,0,.15)'};background:${t.done?'rgba(34,197,94,.12)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
             ${t.done ? `<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>` : ''}
           </div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:${t.done?'rgba(247,247,247,.4)':'#F7F7F7'};text-decoration:${t.done?'line-through':'none'}">${t.title}</div>
-            ${t.call_number ? `<div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">Call #${t.call_number}</div>` : ''}
-            ${t.mentor_note ? `<div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:3px;font-style:italic">${t.mentor_note}</div>` : ''}
+            <div style="font-size:12px;font-weight:700;color:${t.done?'#9CA3AF':'#111827'};text-decoration:${t.done?'line-through':'none'}">${t.title}</div>
+            ${t.call_number ? `<div style="font-size:10px;color:#9CA3AF;margin-top:2px">Call #${t.call_number}</div>` : ''}
+            ${t.mentor_note ? `<div style="font-size:10px;color:#9CA3AF;margin-top:3px;font-style:italic">${t.mentor_note}</div>` : ''}
           </div>
-          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${t.done?'#22c55e':'rgba(247,247,247,.3)'};flex-shrink:0">${t.done?'FEITA':'PENDENTE'}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${t.done?'#22c55e':'#9CA3AF'};flex-shrink:0">${t.done?'FEITA':'PENDENTE'}</span>
         </div>`).join('');
 
   const doneCount = tasks.filter(t=>t.done).length;
@@ -1210,49 +1216,49 @@ async function openStudentDetail(studentId) {
   const fmtDay = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`; };
 
   const fbRows = feedbacks.length === 0
-    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhum feedback enviado</div>`
+    ? `<div style="color:#9CA3AF;font-size:12px;padding:12px 0">Nenhum feedback enviado</div>`
     : feedbacks.map(f => `
-        <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+        <div style="padding:12px 14px;border-radius:10px;background:rgba(0,0,0,0.02);border:1px solid rgba(0,0,0,0.06)">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${f.body?'8px':'0'}">
             <div>
-              <div style="font-size:11px;font-weight:700;color:#F7F7F7">${f.call_title || 'Call de Mentoria'}</div>
-              <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">${fmtDay(f.created_at)}</div>
+              <div style="font-size:11px;font-weight:700;color:#111827">${f.call_title || 'Call de Mentoria'}</div>
+              <div style="font-size:10px;color:#9CA3AF;margin-top:2px">${fmtDay(f.created_at)}</div>
             </div>
             <span style="font-size:13px;color:#f59e0b;letter-spacing:1px">${stars(f.rating)}</span>
           </div>
-          ${f.body ? `<p style="font-size:11px;color:rgba(247,247,247,.5);line-height:1.6;margin:0;padding-top:8px;border-top:1px solid rgba(255,255,255,.05)">"${f.body}"</p>` : ''}
+          ${f.body ? `<p style="font-size:11px;color:#6B7280;line-height:1.6;margin:0;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)">"${f.body}"</p>` : ''}
         </div>`).join('');
 
   mr.innerHTML = `
   <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px);padding:16px">
-    <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:560px;height:90vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="background:#FFFFFF;border:1px solid rgba(0,0,0,.1);border-radius:20px;width:100%;max-width:560px;height:90vh;display:flex;flex-direction:column;overflow:hidden">
 
       <!-- Header -->
-      <div style="padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:14px;flex-shrink:0">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:14px;flex-shrink:0">
         ${avatar(st.full_name || st.email || '?', 44)}
         <div style="flex:1;min-width:0">
-          <div style="font-weight:900;font-size:17px;color:#F7F7F7;line-height:1.2">${st.full_name || '—'}</div>
-          <div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:2px">${st.email || '—'}</div>
+          <div style="font-weight:900;font-size:17px;color:#111827;line-height:1.2">${st.full_name || '—'}</div>
+          <div style="font-size:11px;color:#6B7280;margin-top:2px">${st.email || '—'}</div>
           <span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#9333ea;background:rgba(147,51,234,.12);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px">${st.plan || 'FAST'}</span>
         </div>
         <div style="display:flex;gap:14px;text-align:center;flex-shrink:0">
-          <div><div style="font-weight:900;font-size:20px;color:#F7F7F7">${callsDone}</div><div style="font-size:8px;color:rgba(247,247,247,.3);letter-spacing:1px">CALLS</div></div>
-          <div style="width:1px;background:rgba(255,255,255,.07)"></div>
-          <div><div style="font-weight:900;font-size:20px;color:#F7F7F7">${doneCount}/${tasks.length}</div><div style="font-size:8px;color:rgba(247,247,247,.3);letter-spacing:1px">TAREFAS</div></div>
-          <div style="width:1px;background:rgba(255,255,255,.07)"></div>
-          <div><div style="font-weight:900;font-size:20px;color:#F7F7F7">${feedbacks.length}</div><div style="font-size:8px;color:rgba(247,247,247,.3);letter-spacing:1px">FEEDBACKS</div></div>
+          <div><div style="font-weight:900;font-size:20px;color:#111827">${callsDone}</div><div style="font-size:8px;color:#9CA3AF;letter-spacing:1px">CALLS</div></div>
+          <div style="width:1px;background:rgba(0,0,0,.08)"></div>
+          <div><div style="font-weight:900;font-size:20px;color:#111827">${doneCount}/${tasks.length}</div><div style="font-size:8px;color:#9CA3AF;letter-spacing:1px">TAREFAS</div></div>
+          <div style="width:1px;background:rgba(0,0,0,.08)"></div>
+          <div><div style="font-weight:900;font-size:20px;color:#111827">${feedbacks.length}</div><div style="font-size:8px;color:#9CA3AF;letter-spacing:1px">FEEDBACKS</div></div>
         </div>
-        <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px;flex-shrink:0">
+        <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:#9CA3AF;cursor:pointer;padding:4px;flex-shrink:0">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
       <!-- Tabs -->
-      <div style="display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;padding:0 24px">
-        <button id="tbtn-perfil"    onclick="switchTab('tab-perfil')"    style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid #9333ea;color:#F7F7F7;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">PERFIL</button>
-        <button id="tbtn-calls"     onclick="switchTab('tab-calls')"     style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">CALLS</button>
-        <button id="tbtn-tarefas"   onclick="switchTab('tab-tarefas')"   style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">TAREFAS</button>
-        <button id="tbtn-feedbacks"  onclick="switchTab('tab-feedbacks')"  style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">FEEDBACKS</button>
+      <div style="display:flex;border-bottom:1px solid rgba(0,0,0,.08);flex-shrink:0;padding:0 24px">
+        <button id="tbtn-perfil"    onclick="switchTab('tab-perfil')"    style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid #9333ea;color:#111827;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">PERFIL</button>
+        <button id="tbtn-calls"     onclick="switchTab('tab-calls')"     style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">CALLS</button>
+        <button id="tbtn-tarefas"   onclick="switchTab('tab-tarefas')"   style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">TAREFAS</button>
+        <button id="tbtn-feedbacks"  onclick="switchTab('tab-feedbacks')"  style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:#9CA3AF;font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">FEEDBACKS</button>
       </div>
 
       <!-- Tab contents -->
@@ -1261,20 +1267,20 @@ async function openStudentDetail(studentId) {
         <!-- TAB: PERFIL -->
         <div id="tab-perfil" style="display:flex;flex-direction:column;gap:14px;padding:20px 24px">
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">NOME COMPLETO</label>
-            <input id="se-name" value="${(st.full_name||'').replace(/"/g,'&quot;')}" oninput="S._seNameTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="Nome completo">
+            <label style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:1px">NOME COMPLETO</label>
+            <input id="se-name" value="${(st.full_name||'').replace(/"/g,'&quot;')}" oninput="S._seNameTmp=this.value" style="background:#FFFFFF;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:10px 13px;color:#111827;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="Nome completo">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">E-MAIL</label>
-            <input id="se-email" value="${(st.email||'').replace(/"/g,'&quot;')}" oninput="S._seEmailTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="email@exemplo.com">
+            <label style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:1px">E-MAIL</label>
+            <input id="se-email" value="${(st.email||'').replace(/"/g,'&quot;')}" oninput="S._seEmailTmp=this.value" style="background:#FFFFFF;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:10px 13px;color:#111827;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="email@exemplo.com">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP <span style="font-weight:400;opacity:.5">(opcional)</span></label>
-            <input id="se-phone" value="${(st.phone||'').replace(/"/g,'&quot;')}" oninput="S._sePhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="(00) 00000-0000">
+            <label style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:1px">WHATSAPP <span style="font-weight:400;opacity:.5">(opcional)</span></label>
+            <input id="se-phone" value="${(st.phone||'').replace(/"/g,'&quot;')}" oninput="S._sePhoneTmp=this.value" style="background:#FFFFFF;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:10px 13px;color:#111827;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="(00) 00000-0000">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">PLANO</label>
-            <select id="se-plan" onchange="(function(){const v=this.value;const w=document.getElementById('se-plan-warn');w.style.display=v!=='${st.plan||'FAST'}'?'flex':'none';document.getElementById('se-plan-confirm').checked=false;}).call(this)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;appearance:none">
+            <label style="font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:1px">PLANO</label>
+            <select id="se-plan" onchange="(function(){const v=this.value;const w=document.getElementById('se-plan-warn');w.style.display=v!=='${st.plan||'FAST'}'?'flex':'none';document.getElementById('se-plan-confirm').checked=false;}).call(this)" style="background:#FFFFFF;border:1px solid rgba(0,0,0,.1);border-radius:9px;padding:10px 13px;color:#111827;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;appearance:none">
               <option value="FAST" ${(st.plan||'FAST')==='FAST'?'selected':''}>FAST</option>
               <option value="GROWTH" ${(st.plan||'')==='GROWTH'?'selected':''}>GROWTH</option>
               <option value="ETERNITY" ${(st.plan||'')==='ETERNITY'?'selected':''}>ETERNITY</option>
@@ -1282,7 +1288,7 @@ async function openStudentDetail(studentId) {
           </div>
           <div id="se-plan-warn" style="display:none;flex-direction:column;gap:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:13px 14px">
             <div style="font-size:11px;color:#f59e0b;line-height:1.6">⚠️ Ao trocar o plano, <strong>todas as calls futuras serão canceladas</strong> e o aluno iniciará do zero no novo plano.</div>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(247,247,247,.6)">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#4B5563">
               <input type="checkbox" id="se-plan-confirm" style="accent-color:#f59e0b;width:14px;height:14px">
               Entendi, quero confirmar a mudança de plano
             </label>
@@ -1293,19 +1299,19 @@ async function openStudentDetail(studentId) {
 
         <!-- TAB: CALLS -->
         <div id="tab-calls" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:4px">${calls.length} call${calls.length!==1?'s':''} registrada${calls.length!==1?'s':''} · ${callsDone} concluída${callsDone!==1?'s':''}</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;margin-bottom:4px">${calls.length} call${calls.length!==1?'s':''} registrada${calls.length!==1?'s':''} · ${callsDone} concluída${callsDone!==1?'s':''}</div>
           ${callRows}
         </div>
 
         <!-- TAB: TAREFAS -->
         <div id="tab-tarefas" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:4px">${tasks.length} tarefa${tasks.length!==1?'s':''} · ${doneCount} concluída${doneCount!==1?'s':''}</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;margin-bottom:4px">${tasks.length} tarefa${tasks.length!==1?'s':''} · ${doneCount} concluída${doneCount!==1?'s':''}</div>
           ${taskRows}
         </div>
 
         <!-- TAB: FEEDBACKS -->
         <div id="tab-feedbacks" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:4px">${feedbacks.length} feedback${feedbacks.length!==1?'s':''} enviado${feedbacks.length!==1?'s':''}</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;margin-bottom:4px">${feedbacks.length} feedback${feedbacks.length!==1?'s':''} enviado${feedbacks.length!==1?'s':''}</div>
           ${fbRows}
         </div>
 
@@ -1393,7 +1399,7 @@ function switchTab(id) {
     if (!el) return;
     const active = b === 'tbtn-' + id.replace('tab-','');
     el.style.borderBottomColor = active ? '#9333ea' : 'transparent';
-    el.style.color = active ? '#F7F7F7' : 'rgba(247,247,247,.3)';
+    el.style.color = active ? '#111827' : '#9CA3AF';
   });
 }
 
@@ -1420,9 +1426,9 @@ function modalNewStudent() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
           <div class="lbl">ALUNOS</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">Novo Aluno</div>
+          <div style="font-weight:900;font-size:19px;color:#111827">Novo Aluno</div>
         </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+        <button data-action="close-modal" style="background:none;border:none;color:#9CA3AF;cursor:pointer">${ic('x',18)}</button>
       </div>
       ${err ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:16px;display:flex;align-items:center;gap:8px">${ic('alert-circle',13,'color:#f87171')} ${err}</div>` : ''}
       <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
@@ -1454,14 +1460,14 @@ function modalNewTask() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
           <div class="lbl">TAREFAS</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">Nova Tarefa</div>
+          <div style="font-weight:900;font-size:19px;color:#111827">Nova Tarefa</div>
         </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+        <button data-action="close-modal" style="background:none;border:none;color:#9CA3AF;cursor:pointer">${ic('x',18)}</button>
       </div>
       ${err ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:16px;display:flex;align-items:center;gap:8px">${ic('alert-circle',13,'color:#f87171')} ${err}</div>` : ''}
       ${stList.length === 0
         ? `<div style="text-align:center;padding:24px 0 8px">
-            <div style="color:rgba(247,247,247,.3);font-size:13px;margin-bottom:16px">${ic('users',18,'color:rgba(247,247,247,.2)')} Nenhum aluno cadastrado ainda.<br><span style="font-size:11px">Cadastre um aluno primeiro em <strong style="color:rgba(247,247,247,.5)">Alunos → Novo Aluno</strong>.</span></div>
+            <div style="color:#9CA3AF;font-size:13px;margin-bottom:16px">${ic('users',18,'color:#D1D5DB')} Nenhum aluno cadastrado ainda.<br><span style="font-size:11px">Cadastre um aluno primeiro em <strong style="color:#6B7280">Alunos → Novo Aluno</strong>.</span></div>
           </div>`
         : `<div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
             <div>
@@ -1492,15 +1498,15 @@ function modalEditSupport() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
           <div class="lbl">SUPORTE</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">${studentName || 'Aluno'}</div>
+          <div style="font-weight:900;font-size:19px;color:#111827">${studentName || 'Aluno'}</div>
         </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+        <button data-action="close-modal" style="background:none;border:none;color:#9CA3AF;cursor:pointer">${ic('x',18)}</button>
       </div>
       ${err ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:16px;display:flex;align-items:center;gap:8px">${ic('alert-circle',13,'color:#f87171')} ${err}</div>` : ''}
       <div style="margin-bottom:24px">
         ${fieldLabel('NÚMERO DE WHATSAPP')}
         <input type="tel" class="inp" data-input="sp-phone" placeholder="ex: 5511999999999" value="${phone}"/>
-        <div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:6px">Use o formato internacional: código do país + DDD + número (sem espaços ou traços).</div>
+        <div style="font-size:10px;color:#9CA3AF;margin-top:6px">Use o formato internacional: código do país + DDD + número (sem espaços ou traços).</div>
       </div>
       <button data-action="save-support" class="btn-amber" style="width:100%;padding:13px;border-radius:12px;font-size:13px;justify-content:center;${saving?'opacity:.4;cursor:not-allowed':''}" ${saving?'disabled':''}>
         ${saving ? spinner(14)+' Salvando...' : ic('phone',14)+' SALVAR CONTATO'}
@@ -1521,9 +1527,9 @@ function modalCollab() {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
         <div>
           <div class="lbl">COLABORADORES</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">${isEdit ? 'Editar Colaborador' : 'Novo Colaborador'}</div>
+          <div style="font-weight:900;font-size:19px;color:#111827">${isEdit ? 'Editar Colaborador' : 'Novo Colaborador'}</div>
         </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+        <button data-action="close-modal" style="background:none;border:none;color:#9CA3AF;cursor:pointer">${ic('x',18)}</button>
       </div>
       ${err ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:16px;display:flex;align-items:center;gap:8px">${ic('alert-circle',13,'color:#f87171')} ${err}</div>` : ''}
       <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px">
@@ -1543,13 +1549,13 @@ function modalCollab() {
         <div>
           ${fieldLabel('E-MAIL *')}
           <input type="email" class="inp" data-input="cb-email" placeholder="joao@email.com" value="${email}" ${isEdit?'disabled style="opacity:.5"':''}/>
-          ${isEdit ? `<div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:5px">E-mail não pode ser alterado após criação.</div>` : ''}
+          ${isEdit ? `<div style="font-size:10px;color:#9CA3AF;margin-top:5px">E-mail não pode ser alterado após criação.</div>` : ''}
         </div>
         ${!isEdit ? `
         <div>
           ${fieldLabel('SENHA INICIAL *')}
           <input type="password" class="inp" data-input="cb-pw" placeholder="Mínimo 6 caracteres" value="${pw}"/>
-          <div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:5px">O colaborador usará esta senha para entrar no painel.</div>
+          <div style="font-size:10px;color:#9CA3AF;margin-top:5px">O colaborador usará esta senha para entrar no painel.</div>
         </div>` : ''}
         <div>
           ${fieldLabel('OBSERVAÇÕES')}
