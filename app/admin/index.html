@@ -279,6 +279,7 @@ const S = {
   newStudent:   { name:'', email:'', pw:'', plan:'FAST', saving:false, err:'' },
   newTask:      { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' },
   editSupport:  { studentId:'', studentName:'', phone:'', saving:false, err:'' },
+  editPlan:     { studentId:'', studentName:'', currentPlan:'', newPlan:'', confirmed:false, saving:false, err:'' },
   collabForm:   { id:'', name:'', email:'', pw:'', role:'', notes:'', saving:false, err:'' },
 };
 
@@ -843,7 +844,9 @@ function pageStudents() {
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-shrink:0" onclick="event.stopPropagation()">
-                <span class="tag tag-purple">${st.plan || 'MDG INSIDER'}</span>
+                <button data-action="edit-plan" data-id="${st.id}" data-plan="${st.plan||'FAST'}" data-name="${(st.full_name||st.email||'').replace(/"/g,'&quot;')}" class="tag tag-purple" style="cursor:pointer;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:5px" title="Editar plano">
+                  ${st.plan || 'FAST'} ${ic('pencil',9,'color:rgba(255,255,255,.4)')}
+                </button>
                 <button data-action="edit-support" data-id="${st.id}" data-name="${(st.full_name||st.email||'').replace(/"/g,'&quot;')}" data-phone="${st.support_phone||''}" class="btn-ghost" title="Editar suporte" style="width:auto;padding:5px 10px;font-size:10px;gap:5px">
                   ${ic('phone',12)} Suporte
                 </button>
@@ -1032,6 +1035,102 @@ function openModal(type, data={}) {
   }
   renderModal();
 }
+/* ── Edit plan ──────────────────────────────────────────────────── */
+const PLAN_LABELS = {
+  'FAST':     'FAST — Aceleração Intensiva · 30 Dias',
+  'GROWTH':   'GROWTH — Imersão Estratégica · 3 Meses',
+  'ETERNITY': 'ETERNITY — Acompanhamento 360° · 12 Meses',
+};
+const PLAN_COLORS = { 'FAST':'#9ca3af', 'GROWTH':'#ea580c', 'ETERNITY':'#7022BB' };
+
+function modalEditPlan() {
+  const { studentName, currentPlan, newPlan, confirmed, saving, err } = S.editPlan;
+  const changing = newPlan !== currentPlan;
+  return `
+  <div class="overlay" data-action="close-modal">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div>
+          <div class="lbl">ALUNOS</div>
+          <div style="font-weight:900;font-size:19px;color:#F7F7F7">Editar Plano</div>
+          <div style="font-size:12px;color:rgba(247,247,247,.35);margin-top:3px">${studentName}</div>
+        </div>
+        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
+      </div>
+
+      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3)">PLANO ATUAL</div>
+      <div style="padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:700;color:${PLAN_COLORS[currentPlan]||'#F7F7F7'};margin-bottom:20px">${PLAN_LABELS[currentPlan]||currentPlan}</div>
+
+      <div style="margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3)">NOVO PLANO</div>
+      <select class="inp" data-input="new-plan-select" style="margin-bottom:${changing?'16px':'0'}">
+        <option value="FAST"     ${newPlan==='FAST'    ?'selected':''}>FAST — Aceleração Intensiva · 30 Dias</option>
+        <option value="GROWTH"   ${newPlan==='GROWTH'  ?'selected':''}>GROWTH — Imersão Estratégica · 3 Meses</option>
+        <option value="ETERNITY" ${newPlan==='ETERNITY'?'selected':''}>ETERNITY — Acompanhamento 360° · 12 Meses</option>
+      </select>
+
+      ${changing ? `
+      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:14px 16px;margin-bottom:20px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:4px">Atenção: esta ação reinicia o progresso</div>
+            <div style="font-size:11px;color:rgba(245,158,11,.7);line-height:1.6">Todas as calls futuras agendadas serão canceladas e o aluno começará do zero no novo plano <strong style="color:#f59e0b">${newPlan}</strong>. Calls já realizadas não são afetadas.</div>
+          </div>
+        </div>
+        ${!confirmed ? `
+        <button data-action="confirm-plan-change" style="width:100%;margin-top:12px;padding:9px;border-radius:9px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#f59e0b;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">
+          Entendi, quero confirmar a mudança
+        </button>` : `
+        <div style="margin-top:10px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#22c55e">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg> Confirmado
+        </div>`}
+      </div>
+
+      <button data-action="save-plan" class="btn-amber" style="width:100%;padding:13px;border-radius:12px;font-size:13px;justify-content:center;${(!confirmed||saving)?'opacity:.4;cursor:not-allowed':''}" ${(!confirmed||saving)?'disabled':''}>
+        ${saving ? spinner(14)+' Salvando...' : ic('refresh-cw',14)+' Alterar Plano'}
+      </button>` : `
+      <div style="margin-top:16px;font-size:12px;color:rgba(247,247,247,.25);text-align:center">Selecione um plano diferente para editar</div>`}
+
+      ${err ? `<div style="margin-top:12px;font-size:11px;color:#f87171;text-align:center">${err}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+async function savePlan() {
+  const { studentId, newPlan, saving } = S.editPlan;
+  if (saving) return;
+  S.editPlan.saving = true;
+  S.editPlan.err    = '';
+  renderModal();
+  try {
+    // 1. Update plan on student profile
+    const { error: planErr } = await SB.from('student_profiles')
+      .update({ plan: newPlan })
+      .eq('id', studentId);
+    if (planErr) throw new Error(planErr.message);
+
+    // 2. Cancel all future (not yet done) bookings
+    const now = new Date().toISOString();
+    await SB.from('bookings')
+      .update({ status: 'cancelled' })
+      .eq('student_id', studentId)
+      .gt('scheduled_at', now)
+      .neq('status', 'cancelled');
+
+    // 3. Update local list
+    const st = S.students.list.find(s => s.id === studentId);
+    if (st) st.plan = newPlan;
+
+    closeModal();
+    document.getElementById('pc').innerHTML = renderPage('students');
+    lucide.createIcons();
+  } catch(e) {
+    S.editPlan.err    = 'Erro: ' + e.message;
+    S.editPlan.saving = false;
+    renderModal();
+  }
+}
+
 /* ── Account save ───────────────────────────────────────────────── */
 async function adminSaveCfg(id) {
   if (id === 'senha') {
@@ -1195,6 +1294,7 @@ function renderModal() {
   if (S.modal === 'new-task')     mr.innerHTML = modalNewTask();
   if (S.modal === 'edit-support') mr.innerHTML = modalEditSupport();
   if (S.modal === 'new-collab' || S.modal === 'edit-collab') mr.innerHTML = modalCollab();
+  if (S.modal === 'edit-plan')    mr.innerHTML = modalEditPlan();
   lucide.createIcons();
 }
 
@@ -1591,6 +1691,22 @@ document.addEventListener('click', function(e) {
     case 'save-support':
       saveSupport();
       break;
+    case 'edit-plan':
+      S.editPlan = { studentId: id, studentName: t.dataset.name||'', currentPlan: t.dataset.plan||'FAST', newPlan: t.dataset.plan||'FAST', confirmed:false, saving:false, err:'' };
+      openModal('edit-plan');
+      break;
+    case 'plan-option':
+      S.editPlan.newPlan = v;
+      S.editPlan.confirmed = false;
+      renderModal();
+      break;
+    case 'confirm-plan-change':
+      S.editPlan.confirmed = true;
+      renderModal();
+      break;
+    case 'save-plan':
+      savePlan();
+      break;
     case 'edit-collab': {
       const c = S.collaborators.list.find(x => x.id === id);
       if (c) openModal('edit-collab', { id:c.id, name:c.name||'', email:c.email||'', role:c.role||'', notes:c.notes||'' });
@@ -1642,6 +1758,11 @@ document.addEventListener('input', function(e) {
       break;
     case 'admin-cfg-pw':  S.cfg.pw     = v; break;
     case 'admin-cfg-pwc': S.cfg.pwConf = v; break;
+    case 'new-plan-select':
+      S.editPlan.newPlan   = v;
+      S.editPlan.confirmed = false;
+      renderModal();
+      break;
     case 'st-name':    S.newStudent.name  = v; updateModalBtn(); break;
     case 'st-email':   S.newStudent.email = v; updateModalBtn(); break;
     case 'st-pw':      S.newStudent.pw    = v; updateModalBtn(); break;
