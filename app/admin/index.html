@@ -261,15 +261,15 @@ const S = {
   // Availability
   avail: { slots:[], blocked:[], yr: new Date().getFullYear(), mo: new Date().getMonth(), loading:false },
   // Bookings
-  bookings: { list:[], loading:false, filter:'upcoming' },
+  bookings: { list:[], loading:false, filter:'upcoming', search:'' },
   // Students
-  students: { list:[], loading:false },
+  students: { list:[], loading:false, search:'' },
   // Tasks
   tasks: { list:[], loading:false, filterStudentId:'' },
   // Feedbacks
   feedbacks: { list:[], loading:false },
   // Collaborators
-  collaborators: { list:[], loading:false },
+  collaborators: { list:[], loading:false, search:'' },
   // Modals
   modal: null,
   newStudent:   { name:'', email:'', pw:'', plan:'MDG INSIDER', saving:false, err:'' },
@@ -678,14 +678,23 @@ function pageAvailability() {
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageBookings() {
   const now = new Date().toISOString();
-  const { list, filter } = S.bookings;
-  const filtered = filter === 'upcoming'
+  const { list, filter, search } = S.bookings;
+  const q = (search || '').toLowerCase().trim();
+  const timeFiltered = filter === 'upcoming'
     ? list.filter(b => b.scheduled_at > now).sort((a,b) => a.scheduled_at > b.scheduled_at ? 1 : -1)
     : list.filter(b => b.scheduled_at <= now).sort((a,b) => a.scheduled_at < b.scheduled_at ? 1 : -1);
+  const filtered = q
+    ? timeFiltered.filter(b => {
+        const name  = (b.student_profiles?.full_name || '').toLowerCase();
+        const email = (b.student_profiles?.email || '').toLowerCase();
+        const title = (b.call_title || '').toLowerCase();
+        return name.includes(q) || email.includes(q) || title.includes(q);
+      })
+    : timeFiltered;
 
   return `
   <div style="padding:28px 32px;max-width:800px">
-    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px">
+    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:14px">
       <div>
         <div class="lbl">AGENDAMENTOS</div>
         <h1 class="ph1">Calls Agendadas</h1>
@@ -696,9 +705,14 @@ function pageBookings() {
       </div>
     </div>
 
+    <div style="position:relative;margin-bottom:16px">
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input data-input="search-bookings" class="inp" placeholder="Buscar por aluno ou call..." value="${search||''}" style="padding-left:36px">
+    </div>
+
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
       ${filtered.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} Nenhum agendamento ${filter==='upcoming'?'futuro':'passado'}</div>`
+        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum agendamento '+(filter==='upcoming'?'futuro':'passado')}</div>`
         : filtered.map(b=>{
             const sName = b.student_profiles?.full_name || b.student_profiles?.email || 'Aluno';
             const isPast = b.scheduled_at <= now;
@@ -722,10 +736,15 @@ function pageBookings() {
    PAGE: ALUNOS
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageStudents() {
-  const { list } = S.students;
+  const { list, search } = S.students;
+  const q = (search || '').toLowerCase().trim();
+  const filtered = q
+    ? list.filter(st => (st.full_name||'').toLowerCase().includes(q) || (st.email||'').toLowerCase().includes(q))
+    : list;
+
   return `
   <div style="padding:28px 32px;max-width:800px">
-    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px">
+    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:14px">
       <div>
         <div class="lbl">ALUNOS</div>
         <h1 class="ph1">${list.length} Aluno${list.length!==1?'s':''}</h1>
@@ -735,10 +754,15 @@ function pageStudents() {
       </button>
     </div>
 
+    <div style="position:relative;margin-bottom:16px">
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input data-input="search-students" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
+    </div>
+
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
-      ${list.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} Nenhum aluno cadastrado ainda</div>`
-        : list.map(st=>`
+      ${filtered.length === 0
+        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum aluno cadastrado ainda'}</div>`
+        : filtered.map(st=>`
             <div class="trow" data-action="view-student" data-id="${st.id}" style="cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''">
               ${avatar(st.full_name || st.email || '?', 38)}
               <div style="flex:1;min-width:0">
@@ -827,10 +851,15 @@ async function loadCollaborators() {
 }
 
 function pageCollaborators() {
-  const { list } = S.collaborators;
+  const { list, search } = S.collaborators;
+  const q = (search || '').toLowerCase().trim();
+  const filtered = q
+    ? list.filter(c => (c.name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q))
+    : list;
+
   return `
   <div style="padding:28px 32px;max-width:860px">
-    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap">
+    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap">
       <div>
         <div class="lbl">EQUIPE</div>
         <h1 class="ph1">${list.length} Colaborador${list.length!==1?'es':''}</h1>
@@ -841,16 +870,21 @@ function pageCollaborators() {
       </button>
     </div>
 
+    <div style="position:relative;margin-bottom:16px">
+      <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input data-input="search-collabs" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
+    </div>
+
     <div class="fu1" style="display:flex;flex-direction:column;gap:10px">
-      ${list.length === 0
+      ${filtered.length === 0
         ? `<div class="card" style="padding:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center">
              <div style="width:48px;height:48px;border-radius:14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;justify-content:center">
                ${ic('briefcase',22,'color:#f59e0b')}
              </div>
-             <div style="font-weight:700;font-size:15px;color:#F7F7F7">Nenhum colaborador cadastrado</div>
-             <div style="font-size:12px;color:rgba(247,247,247,.3);max-width:280px;line-height:1.6">Adicione professores e funcionários para organizar a equipe da plataforma.</div>
+             <div style="font-weight:700;font-size:15px;color:#F7F7F7">${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum colaborador cadastrado'}</div>
+             <div style="font-size:12px;color:rgba(247,247,247,.3);max-width:280px;line-height:1.6">${q ? '' : 'Adicione professores e funcionários para organizar a equipe da plataforma.'}</div>
            </div>`
-        : list.map(c => `
+        : filtered.map(c => `
             <div class="trow" style="gap:16px;flex-wrap:wrap">
               ${avatar(c.name, 40)}
               <div style="flex:1;min-width:0">
@@ -1466,6 +1500,25 @@ document.addEventListener('input', function(e) {
   if (!t) return;
   const v = t.value;
   switch (t.dataset.input) {
+    case 'search-students':
+      S.students.search = v;
+      document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
+      // Refocus input after re-render
+      { const inp = document.querySelector('[data-input="search-students"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      break;
+    case 'search-bookings':
+      S.bookings.search = v;
+      document.getElementById('pc').innerHTML = renderPage('bookings');
+      lucide.createIcons();
+      { const inp = document.querySelector('[data-input="search-bookings"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      break;
+    case 'search-collabs':
+      S.collaborators.search = v;
+      document.getElementById('pc').innerHTML = renderPage('collaborators');
+      lucide.createIcons();
+      { const inp = document.querySelector('[data-input="search-collabs"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      break;
     case 'st-name':    S.newStudent.name  = v; updateModalBtn(); break;
     case 'st-email':   S.newStudent.email = v; updateModalBtn(); break;
     case 'st-pw':      S.newStudent.pw    = v; updateModalBtn(); break;
