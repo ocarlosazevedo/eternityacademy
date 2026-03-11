@@ -1317,32 +1317,31 @@ async function openStudentDetail(studentId) {
         </div>
 
         <!-- TAB: LINKS -->
-        <div id="tab-links" style="display:none;flex-direction:column;gap:10px;padding:20px 24px">
-          <!-- Formulário de adição -->
-          <div style="display:flex;gap:8px;margin-bottom:4px">
-            <input id="sl-name" placeholder="Nome do link" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 12px;color:#F7F7F7;font-size:12px;font-family:inherit;outline:none"/>
-            <input id="sl-url"  placeholder="https://..." style="flex:1.6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 12px;color:#F7F7F7;font-size:12px;font-family:inherit;outline:none"/>
-            <button onclick="addStudentLink('${studentId}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:9px;padding:9px 14px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">+ Adicionar</button>
+        <div id="tab-links" style="display:none;flex-direction:column;gap:0;padding:16px 24px 20px">
+          <!-- Cabeçalho das colunas -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;padding:0 0 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:10px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.3)">NOME</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.3)">LINK (URL)</div>
+            <div></div>
           </div>
-          <!-- Lista de links -->
+          <!-- Linhas de links existentes -->
           <div id="sl-list" style="display:flex;flex-direction:column;gap:6px">
-            ${studentLinks.length
-              ? studentLinks.map(l => `
-                <div id="sl-${l.id}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-                  <div style="flex:1;min-width:0">
-                    <div style="font-size:12px;font-weight:700;color:#F7F7F7;margin-bottom:2px">${l.name}</div>
-                    <div style="font-size:10px;color:rgba(247,247,247,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.url}</div>
-                  </div>
-                  <a href="${l.url}" target="_blank" rel="noopener" style="color:rgba(247,247,247,.3);display:flex;align-items:center">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  </a>
-                  <button onclick="deleteStudentLink('${studentId}','${l.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;padding:2px;transition:color .15s" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(247,247,247,.2)'">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                  </button>
-                </div>`).join('')
-              : `<div id="sl-empty" style="color:rgba(247,247,247,.25);font-size:12px;padding:8px 0">Nenhum link cadastrado para este aluno.</div>`
-            }
+            ${studentLinks.map(l => `
+              <div id="sl-${l.id}" style="display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center">
+                <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</div>
+                <a href="${l.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${l.url}">${l.url}</a>
+                <button onclick="deleteStudentLink('${studentId}','${l.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:6px;transition:all .15s;width:28px;height:28px" onmouseenter="this.style.background='rgba(248,113,113,.1)';this.style.color='#f87171'" onmouseleave="this.style.background='none';this.style.color='rgba(247,247,247,.2)'">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                </button>
+              </div>`).join('')}
           </div>
+          <!-- Linha de adição (aparece se < 8 links) -->
+          <div id="sl-add-row" style="display:${studentLinks.length < 8 ? 'grid' : 'none'};grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center;margin-top:8px">
+            <input id="sl-name" placeholder="Nome do link" style="background:rgba(255,255,255,.05);border:1px solid rgba(112,34,187,.3);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:12px;font-family:inherit;outline:none;width:100%"/>
+            <input id="sl-url"  placeholder="https://..." style="background:rgba(255,255,255,.05);border:1px solid rgba(112,34,187,.3);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:12px;font-family:inherit;outline:none;width:100%"/>
+            <button onclick="addStudentLink('${studentId}')" style="width:28px;height:28px;background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:7px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0" title="Adicionar link">+</button>
+          </div>
+          <div id="sl-limit-msg" style="display:${studentLinks.length >= 8 ? 'block' : 'none'};font-size:11px;color:rgba(247,247,247,.3);margin-top:10px;text-align:center">Limite de 8 links atingido.</div>
         </div>
 
       </div>
@@ -1357,7 +1356,7 @@ async function addStudentLink(studentId) {
   if (!nameEl || !urlEl) return;
   const name = nameEl.value.trim();
   const url  = urlEl.value.trim();
-  if (!name || !url) return;
+  if (!name || !url) { nameEl.focus(); return; }
   nameEl.disabled = urlEl.disabled = true;
   const { data, error } = await SB.from('important_links')
     .insert({ student_id: studentId, name, url, order: 0 })
@@ -1366,33 +1365,35 @@ async function addStudentLink(studentId) {
   if (error || !data) return;
   nameEl.value = ''; urlEl.value = '';
   const list = document.getElementById('sl-list');
-  const empty = document.getElementById('sl-empty');
-  if (empty) empty.remove();
   const row = document.createElement('div');
   row.id = `sl-${data.id}`;
-  row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center';
   row.innerHTML = `
-    <div style="flex:1;min-width:0">
-      <div style="font-size:12px;font-weight:700;color:#F7F7F7;margin-bottom:2px">${data.name}</div>
-      <div style="font-size:10px;color:rgba(247,247,247,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${data.url}</div>
-    </div>
-    <a href="${data.url}" target="_blank" rel="noopener" style="color:rgba(247,247,247,.3);display:flex;align-items:center">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-    </a>
-    <button onclick="deleteStudentLink('${studentId}','${data.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;padding:2px;transition:color .15s" onmouseenter="this.style.color='#f87171'" onmouseleave="this.style.color='rgba(247,247,247,.2)'">
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${data.name}</div>
+    <a href="${data.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${data.url}">${data.url}</a>
+    <button onclick="deleteStudentLink('${studentId}','${data.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:6px;transition:all .15s;width:28px;height:28px" onmouseenter="this.style.background='rgba(248,113,113,.1)';this.style.color='#f87171'" onmouseleave="this.style.background='none';this.style.color='rgba(247,247,247,.2)'">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
     </button>`;
   list.appendChild(row);
+  // Oculta linha de adição se atingiu 8
+  const count = list.querySelectorAll('[id^="sl-"]').length;
+  if (count >= 8) {
+    const addRow = document.getElementById('sl-add-row');
+    const limitMsg = document.getElementById('sl-limit-msg');
+    if (addRow) addRow.style.display = 'none';
+    if (limitMsg) limitMsg.style.display = 'block';
+  }
 }
 
 async function deleteStudentLink(studentId, linkId) {
   await SB.from('important_links').delete().eq('id', linkId).eq('student_id', studentId);
   const el = document.getElementById(`sl-${linkId}`);
   if (el) el.remove();
-  const list = document.getElementById('sl-list');
-  if (list && !list.querySelector('[id^="sl-"]')) {
-    list.innerHTML = `<div id="sl-empty" style="color:rgba(247,247,247,.25);font-size:12px;padding:8px 0">Nenhum link cadastrado para este aluno.</div>`;
-  }
+  // Reexibe linha de adição se estava oculta
+  const addRow = document.getElementById('sl-add-row');
+  const limitMsg = document.getElementById('sl-limit-msg');
+  if (addRow) addRow.style.display = 'grid';
+  if (limitMsg) limitMsg.style.display = 'none';
 }
 
 async function saveStudentEdit(studentId) {
@@ -1463,11 +1464,11 @@ async function saveStudentEdit(studentId) {
 }
 
 function switchTab(id) {
-  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks'].forEach(t => {
+  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks','tab-links'].forEach(t => {
     const el = document.getElementById(t);
     if (el) el.style.display = t === id ? 'flex' : 'none';
   });
-  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks'].forEach(b => {
+  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks','tbtn-links'].forEach(b => {
     const el = document.getElementById(b);
     if (!el) return;
     const active = b === 'tbtn-' + id.replace('tab-','');
