@@ -1358,7 +1358,10 @@ async function saveStudentEdit(studentId) {
   }
 
   if (planChanged) {
-    await SB.from('bookings').update({ status: 'cancelled' }).eq('student_id', studentId).gt('scheduled_at', new Date().toISOString()).neq('status', 'confirmed');
+    // Cancel all future bookings (regardless of status)
+    await SB.from('bookings').update({ status: 'cancelled' }).eq('student_id', studentId).gt('scheduled_at', new Date().toISOString());
+    // Delete pending tasks (keep done tasks as history)
+    await SB.from('tasks').delete().eq('student_id', studentId).eq('done', false);
   }
 
   // Update local state
