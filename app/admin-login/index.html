@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <meta name="theme-color" content="#050508"/>
+  <meta name="theme-color" content="#F0EFF4"/>
   <meta name="robots" content="noindex,nofollow"/>
   <title>Admin · Eternity Academy</title>
   <link rel="icon" type="image/png" href="/medias/eternityfavicon.png"/>
@@ -15,340 +15,328 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black:  #050508;
-      --white:  #F7F7F7;
-      --amber:  #f59e0b;
-      --amber2: #92400e;
-      --border: rgba(245,158,11,0.22);
+      --navy:   #0F1629;
+      --purple: #7022BB;
+      --surface:#F0EFF4;
+      --white:  #FFFFFF;
+      --text:   #111827;
+      --muted:  #6B7280;
+      --border: #D1D5DB;
       --font:   'Red Hat Display', sans-serif;
     }
 
     html, body {
       height: 100%;
-      background: var(--black);
-      color: var(--white);
+      background: var(--surface);
+      color: var(--text);
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
+    }
+
+    .bg-deco {
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+    }
+    .bg-deco::before {
+      content: ''; position: absolute;
+      top: -120px; right: -120px; width: 480px; height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(112,34,187,0.09) 0%, transparent 70%);
+      filter: blur(60px);
+    }
+    .bg-deco::after {
+      content: ''; position: absolute;
+      bottom: -80px; left: -80px; width: 380px; height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15,22,41,0.06) 0%, transparent 70%);
+      filter: blur(50px);
     }
 
     .page {
-      display: flex;
-      height: 100vh;
-      width: 100vw;
-      align-items: center;
-      justify-content: center;
+      position: relative; z-index: 1;
+      min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 20px;
     }
 
-    /* ─── CARD ─── */
     .card {
-      width: 100%;
-      max-width: 420px;
-      padding: 48px 40px 40px;
-      background: #0d0d0f;
-      border: 1px solid rgba(245,158,11,0.15);
+      width: 100%; max-width: 480px;
+      background: var(--white);
       border-radius: 24px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 60px rgba(245,158,11,0.04);
-      animation: fadeUp .32s ease;
+      padding: 44px 44px 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.08);
+      animation: fadeUp 0.45s ease both;
     }
 
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
+    .logo-wrap {
+      display: flex; justify-content: center; align-items: center;
+      gap: 10px; margin-bottom: 28px;
+    }
+    .logo-wrap img { height: 36px; width: auto; display: block; }
+
+    .admin-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(112,34,187,0.08);
+      border: 1px solid rgba(112,34,187,0.2);
+      border-radius: 7px;
+      padding: 3px 9px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1.5px; color: var(--purple);
     }
 
-    /* ─── HEADER ─── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(245,158,11,0.1);
-      border: 1px solid rgba(245,158,11,0.25);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      color: var(--amber);
+    .heading { margin-bottom: 32px; }
+    .heading h1 {
+      font-size: 26px; font-weight: 900; color: var(--navy);
+      letter-spacing: -0.4px; line-height: 1.2; margin-bottom: 6px;
     }
+    .heading p { font-size: 13px; color: var(--muted); }
 
-    .title {
-      font-weight: 900;
-      font-size: 24px;
-      letter-spacing: -0.5px;
-      color: var(--white);
-      margin-bottom: 6px;
-    }
-    .subtitle {
-      font-size: 13px;
-      color: rgba(247,247,247,.35);
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
-
-    /* ─── FORM ─── */
     .field { margin-bottom: 16px; }
     .field-label {
-      display: block;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: rgba(247,247,247,.28);
-      margin-bottom: 7px;
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--text); margin-bottom: 7px;
     }
     .input-wrap { position: relative; }
     .ea-input {
-      width: 100%;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(245,158,11,.15);
-      border-radius: 12px;
-      padding: 14px 16px;
-      color: var(--white);
-      font-size: 14px;
-      font-family: var(--font);
-      font-weight: 500;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
+      width: 100%; background: var(--white);
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 14px 16px; color: var(--text);
+      font-size: 15px; font-family: var(--font); font-weight: 500;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none;
     }
-    .ea-input::placeholder { color: rgba(247,247,247,.18); }
+    .ea-input::placeholder { color: #9CA3AF; }
     .ea-input:focus {
-      border-color: var(--amber);
-      box-shadow: 0 0 0 3px rgba(245,158,11,.1);
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(15,22,41,0.08);
     }
-    .ea-input.pw { padding-right: 48px; }
+    .ea-input.pw { padding-right: 50px; }
 
     .pw-toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: rgba(247,247,247,.3);
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      transition: color .15s;
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: #9CA3AF;
+      display: flex; align-items: center; padding: 4px; transition: color .2s;
     }
-    .pw-toggle:hover { color: var(--white); }
+    .pw-toggle:hover { color: var(--navy); }
+    .pw-toggle svg {
+      width: 17px; height: 17px; fill: none; stroke: currentColor;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
 
-    /* ─── BUTTON ─── */
     .ea-btn {
-      width: 100%;
-      padding: 15px;
-      border-radius: 13px;
-      background: linear-gradient(135deg, #92400e, #f59e0b);
-      color: var(--white);
-      border: none;
-      font-family: var(--font);
-      font-weight: 900;
-      font-size: 13px;
-      letter-spacing: 2px;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(245,158,11,.25);
-      transition: transform .15s, box-shadow .15s, opacity .15s;
+      width: 100%; padding: 15px; border: none; border-radius: 12px;
+      font-family: var(--font); font-weight: 800; font-size: 15px;
+      letter-spacing: 0.5px; cursor: pointer;
+      background: var(--navy); color: #FFFFFF;
+      transition: background .18s, transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(15,22,41,0.2);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
       margin-top: 8px;
     }
     .ea-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 28px rgba(245,158,11,.35);
+      background: #1a2540; transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(15,22,41,0.28);
     }
     .ea-btn:active:not(:disabled) { transform: translateY(0); }
-    .ea-btn:disabled, .ea-btn.loading {
-      opacity: .55;
-      cursor: not-allowed;
-      transform: none;
-    }
+    .ea-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* ─── ERROR ─── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #FFFFFF;
+      border-radius: 50%; animation: spin .75s linear infinite; display: none;
+    }
+    .ea-btn.loading .btn-label { display: none; }
+    .ea-btn.loading .spinner   { display: block; }
+
     .error-banner {
-      display: none;
-      align-items: flex-start;
-      gap: 10px;
-      background: rgba(239,68,68,.08);
-      border: 1px solid rgba(239,68,68,.2);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 12px;
-      color: #f87171;
-      margin-bottom: 18px;
-      line-height: 1.5;
+      display: none; align-items: center; gap: 10px;
+      background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.18);
+      border-radius: 10px; padding: 11px 14px; margin-bottom: 16px;
+      font-size: 13px; color: #DC2626; font-weight: 500;
     }
-    .error-banner svg { flex-shrink: 0; margin-top: 1px; }
+    .error-banner svg { flex-shrink: 0; }
 
-    /* ─── BACK LINK ─── */
     .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 24px;
-      font-size: 11px;
-      color: rgba(247,247,247,.25);
-      text-decoration: none;
-      transition: color .15s;
+      display: block; text-align: center; margin-top: 24px;
+      font-size: 12px; color: var(--muted); text-decoration: none; transition: color .2s;
     }
-    .back-link:hover { color: rgba(247,247,247,.5); }
+    .back-link:hover { color: var(--text); }
 
-    @media (max-width: 480px) {
-      .card { padding: 36px 24px 32px; margin: 16px; border-radius: 20px; }
+    .card-footer {
+      text-align: center; margin-top: 28px;
+      font-size: 10px; color: #9CA3AF; letter-spacing: 0.8px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 540px) {
+      .card { padding: 36px 24px 32px; border-radius: 20px; }
+      .heading h1 { font-size: 22px; }
+      .ea-input { font-size: 16px; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="card">
+<div class="bg-deco" aria-hidden="true"></div>
 
-      <!-- Logo -->
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px">
-        <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" style="height:34px;width:auto;display:block"/>
-        <div class="badge">
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          ADMINISTRADOR
-        </div>
+<div class="page">
+  <div class="card">
+
+    <!-- Logo + badge -->
+    <div class="logo-wrap">
+      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy"/>
+      <div class="admin-badge">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        ADMINISTRADOR
       </div>
+    </div>
 
-      <div class="title">Acesso restrito</div>
-      <div class="subtitle">Área exclusiva para administradores da plataforma.</div>
+    <!-- Heading -->
+    <div class="heading">
+      <h1>Acesse sua conta Eternity</h1>
+      <p>Área restrita para administradores.</p>
+    </div>
+
+    <form id="loginForm" autocomplete="on" novalidate>
 
       <!-- Error -->
-      <div class="error-banner" id="errorBanner">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div class="error-banner" id="errorBanner" role="alert">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
         <span id="errorText"></span>
       </div>
 
-      <!-- Form -->
-      <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <label class="field-label" for="email">E-mail</label>
+        <input class="ea-input" type="email" id="email" name="email"
+          placeholder="admin@eternity.com" autocomplete="email" required/>
+      </div>
 
-        <div class="field">
-          <label class="field-label" for="email">E-MAIL</label>
-          <div class="input-wrap">
-            <input class="ea-input" type="email" id="email" name="email"
-              placeholder="admin@eternity.com" autocomplete="email" required/>
-          </div>
+      <div class="field">
+        <label class="field-label" for="password">Senha</label>
+        <div class="input-wrap">
+          <input class="ea-input pw" type="password" id="password" name="password"
+            placeholder="••••••••" autocomplete="current-password" required/>
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Mostrar senha">
+            <svg id="eyeOpen" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="eyeOff" viewBox="0 0 24 24" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
         </div>
+      </div>
 
-        <div class="field">
-          <label class="field-label" for="password">SENHA</label>
-          <div class="input-wrap">
-            <input class="ea-input pw" type="password" id="password" name="password"
-              placeholder="••••••••" autocomplete="current-password" required/>
-            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Mostrar senha">
-              <svg id="eyeOff" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              <svg id="eyeOpen" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
+      <button type="submit" class="ea-btn" id="btnSubmit">
+        <span class="btn-label">Entrar</span>
+        <div class="spinner" aria-hidden="true"></div>
+      </button>
+    </form>
 
-        <button type="submit" class="ea-btn" id="btnSubmit">ENTRAR</button>
-      </form>
+    <a href="/login" class="back-link">← Acesso para alunos</a>
 
-      <a href="/login" class="back-link">← Acesso para alunos</a>
-    </div>
+    <p class="card-footer">© 2026 ETERNITY HOLDING CO. — TODOS OS DIREITOS RESERVADOS</p>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script>
-    var SUPABASE_URL  = 'https://subsagwkktjjujdfpavf.supabase.co';
-    var SUPABASE_ANON = 'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy';
-    var ADMIN_EMAIL   = 'academy@eternityholding.com';
-    var REDIRECT_ADMIN = '/admin';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  var SUPABASE_URL  = 'https://subsagwkktjjujdfpavf.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy';
+  var ADMIN_EMAIL   = 'academy@eternityholding.com';
+  var REDIRECT_ADMIN = '/admin';
 
-    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    var form        = document.getElementById('loginForm');
-    var emailEl     = document.getElementById('email');
-    var passEl      = document.getElementById('password');
-    var pwToggle    = document.getElementById('pwToggle');
-    var eyeOpen     = document.getElementById('eyeOpen');
-    var eyeOff      = document.getElementById('eyeOff');
-    var btnSubmit   = document.getElementById('btnSubmit');
-    var errorBanner = document.getElementById('errorBanner');
-    var errorText   = document.getElementById('errorText');
+  var form        = document.getElementById('loginForm');
+  var emailEl     = document.getElementById('email');
+  var passEl      = document.getElementById('password');
+  var pwToggle    = document.getElementById('pwToggle');
+  var eyeOpen     = document.getElementById('eyeOpen');
+  var eyeOff      = document.getElementById('eyeOff');
+  var btnSubmit   = document.getElementById('btnSubmit');
+  var errorBanner = document.getElementById('errorBanner');
+  var errorText   = document.getElementById('errorText');
 
-    /* Se já está logado → verifica acesso e redireciona */
-    sb.auth.getSession().then(function(r) {
-      if (!r.data || !r.data.session) return;
-      var userEmail = r.data.session.user.email;
-      if (userEmail === ADMIN_EMAIL) { window.location.replace(REDIRECT_ADMIN); return; }
-      sb.from('collaborators').select('role').eq('email', userEmail).maybeSingle()
-        .then(function(res) { if (res.data) window.location.replace(REDIRECT_ADMIN); });
-    });
+  sb.auth.getSession().then(function(r) {
+    if (!r.data || !r.data.session) return;
+    var userEmail = r.data.session.user.email;
+    if (userEmail === ADMIN_EMAIL) { window.location.replace(REDIRECT_ADMIN); return; }
+    sb.from('collaborators').select('role').eq('email', userEmail).maybeSingle()
+      .then(function(res) { if (res.data) window.location.replace(REDIRECT_ADMIN); });
+  });
 
-    function setLoading(on) {
-      btnSubmit.disabled = on;
-      btnSubmit.textContent = on ? 'ENTRANDO...' : 'ENTRAR';
-      if (on) btnSubmit.classList.add('loading');
-      else    btnSubmit.classList.remove('loading');
+  function setLoading(on) {
+    btnSubmit.disabled = on;
+    if (on) btnSubmit.classList.add('loading');
+    else    btnSubmit.classList.remove('loading');
+  }
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorBanner.style.display = 'flex';
+  }
+
+  function hideError() { errorBanner.style.display = 'none'; }
+
+  pwToggle.addEventListener('click', function() {
+    var hide = passEl.type === 'password';
+    passEl.type = hide ? 'text' : 'password';
+    eyeOpen.style.display = hide ? 'none'  : 'block';
+    eyeOff.style.display  = hide ? 'block' : 'none';
+    pwToggle.setAttribute('aria-label', hide ? 'Ocultar senha' : 'Mostrar senha');
+  });
+
+  emailEl.addEventListener('input', hideError);
+  passEl.addEventListener('input', hideError);
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    hideError();
+
+    var email    = emailEl.value.trim().toLowerCase();
+    var password = passEl.value;
+
+    if (!email || !password) {
+      showError('Preencha e-mail e senha para continuar.');
+      return;
     }
 
-    function showError(msg) {
-      errorText.textContent = msg;
-      errorBanner.style.display = 'flex';
-      errorBanner.style.background = 'rgba(239,68,68,.08)';
-      errorBanner.style.borderColor = 'rgba(239,68,68,.2)';
-      errorBanner.style.color = '#f87171';
-    }
+    setLoading(true);
 
-    function hideError() { errorBanner.style.display = 'none'; }
-
-    pwToggle.addEventListener('click', function() {
-      var hide = passEl.type === 'password';
-      passEl.type = hide ? 'text' : 'password';
-      eyeOpen.style.display = hide ? 'block' : 'none';
-      eyeOff.style.display  = hide ? 'none'  : 'block';
-    });
-
-    emailEl.addEventListener('input', hideError);
-    passEl.addEventListener('input', hideError);
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      hideError();
-
-      var email    = emailEl.value.trim().toLowerCase();
-      var password = passEl.value;
-
-      if (!email || !password) {
-        showError('Preencha e-mail e senha para continuar.');
-        return;
-      }
-
-      setLoading(true);
-
-      sb.auth.signInWithPassword({ email: email, password: password })
-        .then(function(result) {
-          if (result.error) {
-            setLoading(false);
-            var msg = result.error.message;
-            if (msg === 'Invalid login credentials') {
-              showError('E-mail ou senha incorretos.');
-            } else {
-              showError(msg);
-            }
-            return;
-          }
-          /* Verifica se é super admin ou colaborador autorizado */
-          var userEmail = result.data.user.email;
-          if (userEmail === ADMIN_EMAIL) {
-            window.location.href = REDIRECT_ADMIN;
-            return;
-          }
-          sb.from('collaborators').select('role').eq('email', userEmail).maybeSingle()
-            .then(function(res) {
-              if (res.data) {
-                window.location.href = REDIRECT_ADMIN;
-              } else {
-                sb.auth.signOut();
-                setLoading(false);
-                showError('Seu e-mail não tem acesso ao painel administrativo.');
-              }
-            });
-        })
-        .catch(function() {
+    sb.auth.signInWithPassword({ email: email, password: password })
+      .then(function(result) {
+        if (result.error) {
           setLoading(false);
-          showError('Erro de conexão. Tente novamente.');
-        });
-    });
-  </script>
+          var msg = result.error.message;
+          showError(msg === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : msg);
+          return;
+        }
+        var userEmail = result.data.user.email;
+        if (userEmail === ADMIN_EMAIL) { window.location.href = REDIRECT_ADMIN; return; }
+        sb.from('collaborators').select('role').eq('email', userEmail).maybeSingle()
+          .then(function(res) {
+            if (res.data) {
+              window.location.href = REDIRECT_ADMIN;
+            } else {
+              sb.auth.signOut();
+              setLoading(false);
+              showError('Seu e-mail não tem acesso ao painel administrativo.');
+            }
+          });
+      })
+      .catch(function() {
+        setLoading(false);
+        showError('Erro de conexão. Tente novamente.');
+      });
+  });
+</script>
 </body>
 </html>
