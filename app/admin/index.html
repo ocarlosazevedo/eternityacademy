@@ -243,8 +243,8 @@ const CRUMBS = {
 // Quais páginas cada perfil pode acessar
 const NAV_ACCESS = {
   overview:      ['super_admin','admin'],
-  availability:  ['super_admin','admin','professor'],
-  bookings:      ['super_admin','admin','professor'],
+  availability:  ['super_admin'],
+  bookings:      ['super_admin'],
   students:      ['super_admin','admin'],
   expirations:   ['super_admin','admin'],
   collaborators: ['super_admin'],
@@ -1349,6 +1349,13 @@ async function openStudentDetail(studentId) {
         <button id="tbtn-feedbacks" onclick="switchTab('tab-feedbacks')" style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">FEEDBACKS</button>
         <button id="tbtn-links"     onclick="switchTab('tab-links')"     style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">LINKS</button>
       </div>
+      <!-- Botão rápido CALLS (destaque) -->
+      <div style="padding:10px 24px 0;flex-shrink:0">
+        <button onclick="switchTab('tab-calls')" style="width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,rgba(112,34,187,.15),rgba(147,51,234,.08));border:1px solid rgba(112,34,187,.3);color:#c084fc;font-size:11px;font-weight:800;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s" onmouseenter="this.style.background='linear-gradient(135deg,rgba(112,34,187,.25),rgba(147,51,234,.15))'" onmouseleave="this.style.background='linear-gradient(135deg,rgba(112,34,187,.15),rgba(147,51,234,.08))'">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Marcar nova call
+        </button>
+      </div>
 
       <!-- Tab contents -->
       <div style="overflow-y:auto;flex:1">
@@ -1391,9 +1398,37 @@ async function openStudentDetail(studentId) {
         </div>
 
         <!-- TAB: CALLS -->
-        <div id="tab-calls" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:4px">${calls.length} call${calls.length!==1?'s':''} registrada${calls.length!==1?'s':''} · ${callsDone} concluída${callsDone!==1?'s':''}</div>
-          ${callRows}
+        <div id="tab-calls" style="display:none;flex-direction:column;gap:0;padding:20px 24px">
+
+          <!-- Formulário: marcar nova call -->
+          <div style="background:rgba(112,34,187,.07);border:1px solid rgba(112,34,187,.22);border-radius:13px;padding:16px 18px;margin-bottom:16px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(200,160,255,.6);margin-bottom:12px">MARCAR NOVA CALL</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">DATA</div>
+                <input id="nc-date" type="date" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;color-scheme:dark"/>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">HORÁRIO</div>
+                <input id="nc-time" type="time" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;color-scheme:dark"/>
+              </div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">TÍTULO <span style="font-weight:400;opacity:.5">(opcional)</span></div>
+              <input id="nc-title" type="text" placeholder="Call de Mentoria" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box"/>
+            </div>
+            <div id="nc-err" style="display:none;font-size:11px;color:#f87171;margin-bottom:8px"></div>
+            <button id="nc-btn" onclick="addStudentCall('${studentId}')" style="width:100%;padding:10px;border-radius:9px;background:linear-gradient(135deg,#7022BB,#9333ea);border:none;color:#fff;font-size:12px;font-weight:800;letter-spacing:.4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Marcar Call
+            </button>
+          </div>
+
+          <!-- Histórico -->
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:8px">${calls.length} call${calls.length!==1?'s':''} registrada${calls.length!==1?'s':''} · ${callsDone} concluída${callsDone!==1?'s':''}</div>
+          <div id="nc-calls-list" style="display:flex;flex-direction:column;gap:6px">
+            ${callRows}
+          </div>
         </div>
 
         <!-- TAB: TAREFAS -->
@@ -1487,6 +1522,77 @@ async function deleteStudentLink(studentId, linkId) {
   const limitMsg = document.getElementById('sl-limit-msg');
   if (addRow) addRow.style.display = 'grid';
   if (limitMsg) limitMsg.style.display = 'none';
+}
+
+async function addStudentCall(studentId) {
+  const dateEl  = document.getElementById('nc-date');
+  const timeEl  = document.getElementById('nc-time');
+  const titleEl = document.getElementById('nc-title');
+  const errEl   = document.getElementById('nc-err');
+  const btn     = document.getElementById('nc-btn');
+
+  const dateVal  = dateEl?.value?.trim();
+  const timeVal  = timeEl?.value?.trim() || '09:00';
+  const titleVal = titleEl?.value?.trim() || 'Call de Mentoria';
+
+  if (!dateVal) {
+    errEl.textContent = 'Selecione a data da call.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  // Monta ISO com fuso -03:00
+  const scheduledAt = `${dateVal}T${timeVal}:00-03:00`;
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+  const { data, error } = await SB.from('bookings').insert({
+    student_id:   studentId,
+    mentor_email: MENTOR_EMAIL,
+    scheduled_at: scheduledAt,
+    call_title:   titleVal,
+    status:       'confirmed',
+  }).select().single();
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Marcar Call'; }
+
+  if (error || !data) {
+    errEl.textContent = error?.message || 'Erro ao marcar call.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Limpa formulário
+  if (dateEl)  dateEl.value  = '';
+  if (timeEl)  timeEl.value  = '';
+  if (titleEl) titleEl.value = '';
+
+  // Adiciona na lista sem reabrir modal
+  const now = new Date();
+  const d   = new Date(scheduledAt);
+  const pad2 = n => String(n).padStart(2,'0');
+  const fmtStr = `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  const isPast = d < now;
+  const statusColor = isPast ? '#22c55e' : '#f59e0b';
+  const statusLabel = isPast ? 'Concluída' : 'Agendada';
+
+  const list = document.getElementById('nc-calls-list');
+  if (list) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
+    row.innerHTML = `
+      <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:#F7F7F7">${titleVal}</div>
+        <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${fmtStr}</div>
+      </div>
+      <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor}">${statusLabel}</span>`;
+    list.prepend(row);
+  }
+
+  // Invalida cache de students para próxima abertura
+  S.stats.loaded = false;
 }
 
 async function saveStudentEdit(studentId) {
