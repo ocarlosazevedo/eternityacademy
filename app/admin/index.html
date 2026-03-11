@@ -1424,6 +1424,14 @@ SB.auth.getSession().then(async function({ data: { session } }) {
   render();
   // Verifica status do Google Agenda em background
   if (S.currentRole === 'super_admin') loadGCalStatus();
+
+  // Auto-refresh a cada 30s nas páginas tasks, bookings e feedbacks
+  setInterval(async () => {
+    if (!['tasks','bookings','feedbacks'].includes(S.page)) return;
+    await loadPageData(S.page);
+    document.getElementById('pc').innerHTML = renderPage(S.page);
+    lucide.createIcons();
+  }, 30000);
 });
 
 SB.auth.onAuthStateChange(function(event) {
