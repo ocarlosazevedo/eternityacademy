@@ -1329,7 +1329,7 @@ async function openStudentDetail(studentId) {
             ${studentLinks.map(l => `
               <div id="sl-${l.id}" style="display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center">
                 <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name}</div>
-                <a href="${l.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${l.url}">${l.url}</a>
+                <a href="${/^https?:\/\//i.test(l.url)?l.url:'https://'+l.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${l.url}">${l.url}</a>
                 <button onclick="deleteStudentLink('${studentId}','${l.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:6px;transition:all .15s;width:28px;height:28px" onmouseenter="this.style.background='rgba(248,113,113,.1)';this.style.color='#f87171'" onmouseleave="this.style.background='none';this.style.color='rgba(247,247,247,.2)'">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
                 </button>
@@ -1355,8 +1355,9 @@ async function addStudentLink(studentId) {
   const urlEl  = document.getElementById('sl-url');
   if (!nameEl || !urlEl) return;
   const name = nameEl.value.trim();
-  const url  = urlEl.value.trim();
-  if (!name || !url) { nameEl.focus(); return; }
+  const rawUrl = urlEl.value.trim();
+  const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : 'https://' + rawUrl;
+  if (!name || !rawUrl) { nameEl.focus(); return; }
   nameEl.disabled = urlEl.disabled = true;
   const { data, error } = await SB.from('important_links')
     .insert({ student_id: studentId, name, url, order: 0 })
@@ -1370,7 +1371,7 @@ async function addStudentLink(studentId) {
   row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 28px;gap:8px;align-items:center';
   row.innerHTML = `
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${data.name}</div>
-    <a href="${data.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${data.url}">${data.url}</a>
+    <a href="${/^https?:\/\//i.test(data.url)?data.url:'https://'+data.url}" target="_blank" rel="noopener" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 11px;font-size:11px;color:rgba(247,247,247,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block" title="${data.url}">${data.url}</a>
     <button onclick="deleteStudentLink('${studentId}','${data.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.2);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:6px;transition:all .15s;width:28px;height:28px" onmouseenter="this.style.background='rgba(248,113,113,.1)';this.style.color='#f87171'" onmouseleave="this.style.background='none';this.style.color='rgba(247,247,247,.2)'">
       <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
     </button>`;

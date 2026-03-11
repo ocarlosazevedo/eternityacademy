@@ -945,11 +945,12 @@ function pageContent() {
 /* ═══════════════════════════════════════════════════════════════════════
    PAGE: SUPORTE
 ═══════════════════════════════════════════════════════════════════════ */
+function safeUrl(u) { return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
 function pageLinks() {
   const links = S.links.list;
   const cards = links.length
     ? links.map(l => `
-      <a href="${l.url}" target="_blank" rel="noopener" style="text-decoration:none">
+      <a href="${safeUrl(l.url)}" target="_blank" rel="noopener" style="text-decoration:none">
         <div class="card" style="padding:20px 22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:background .15s,border-color .15s" onmouseenter="this.style.background='rgba(112,34,187,0.08)';this.style.borderColor='rgba(112,34,187,0.3)'" onmouseleave="this.style.background='';this.style.borderColor=''">
           <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;flex-shrink:0">
             ${ic('external-link',18)}
