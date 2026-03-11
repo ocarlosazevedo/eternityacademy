@@ -229,6 +229,7 @@ const ADMIN_NAV = [
   {id:'availability',   ic:'calendar-days',    label:'Disponibilidade'},
   {id:'bookings',       ic:'clock',            label:'Agendamentos'},
   {id:'students',       ic:'users',            label:'Alunos'},
+  {id:'expirations',    ic:'calendar-x',       label:'Expirações'},
   {id:'collaborators',  ic:'briefcase',        label:'Colaboradores'},
   {id:'tasks',          ic:'check-square',     label:'Tarefas'},
   {id:'feedbacks',      ic:'message-square',   label:'Feedbacks'},
@@ -236,7 +237,7 @@ const ADMIN_NAV = [
 ];
 const CRUMBS = {
   overview:'Visão Geral', availability:'Disponibilidade', bookings:'Agendamentos',
-  students:'Alunos', collaborators:'Colaboradores', tasks:'Tarefas', feedbacks:'Feedbacks',
+  students:'Alunos', expirations:'Expirações', collaborators:'Colaboradores', tasks:'Tarefas', feedbacks:'Feedbacks',
   account:'Minha Conta',
 };
 // Quais páginas cada perfil pode acessar
@@ -245,6 +246,7 @@ const NAV_ACCESS = {
   availability:  ['super_admin','admin','professor'],
   bookings:      ['super_admin','admin','professor'],
   students:      ['super_admin','admin'],
+  expirations:   ['super_admin','admin'],
   collaborators: ['super_admin'],
   tasks:         ['super_admin','admin','professor'],
   feedbacks:     ['super_admin','admin'],
@@ -271,6 +273,8 @@ const S = {
   tasks: { list:[], loading:false, filterStudentId:'' },
   // Feedbacks
   feedbacks: { list:[], loading:false },
+  // Expirations
+  expirations: { list:[], loading:false },
   // Collaborators
   collaborators: { list:[], loading:false, search:'' },
   // Modals
@@ -364,6 +368,7 @@ function render(scrollReset=true) {
     case 'availability':  loadAndRender('availability');  break;
     case 'bookings':      loadAndRender('bookings');      break;
     case 'students':      loadAndRender('students');      break;
+    case 'expirations':   loadAndRender('expirations');   break;
     case 'collaborators': loadAndRender('collaborators'); break;
     case 'tasks':         loadAndRender('tasks');         break;
     case 'feedbacks':     loadAndRender('feedbacks');     break;
@@ -390,6 +395,7 @@ async function loadPageData(page) {
       case 'availability': await loadAvailability(); break;
       case 'bookings':      await loadBookings();        break;
       case 'students':      await loadStudents();        break;
+      case 'expirations':   await loadExpirations();     break;
       case 'collaborators': await loadCollaborators();   break;
       case 'tasks':         await Promise.all([loadTasks(), loadStudents()]); break;
       case 'feedbacks':     await loadFeedbacks();       break;
@@ -403,6 +409,7 @@ function renderPage(page) {
     case 'availability':  return pageAvailability();
     case 'bookings':      return pageBookings();
     case 'students':      return pageStudents();
+    case 'expirations':   return pageExpirations();
     case 'collaborators': return pageCollaborators();
     case 'tasks':         return pageTasks();
     case 'feedbacks':     return pageFeedbacks();
@@ -492,6 +499,87 @@ async function loadFeedbacks() {
 }
 
 /* ─── Links Importantes ──────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PAGE: EXPIRAÇÕES
+═══════════════════════════════════════════════════════════════════════════════ */
+async function loadExpirations() {
+  const { data } = await SB.from('student_profiles')
+    .select('id, full_name, email, plan, plan_expires_at')
+    .not('plan_expires_at', 'is', null)
+    .order('plan_expires_at', { ascending: true });
+  S.expirations.list = data || [];
+}
+
+function pageExpirations() {
+  const now = new Date();
+  const list = S.expirations.list;
+
+  const rows = list.length === 0
+    ? `<div style="text-align:center;padding:60px 20px;color:rgba(247,247,247,.25);font-size:13px">Nenhum aluno com data de expiração cadastrada.</div>`
+    : list.map(st => {
+        const exp = new Date(st.plan_expires_at);
+        const diffDays = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+        const expired = diffDays < 0;
+        const soonDays = 7;
+        const soon = !expired && diffDays <= soonDays;
+
+        let statusColor, statusBg, statusBorder, statusLabel;
+        if (expired) {
+          statusColor = '#f87171'; statusBg = 'rgba(239,68,68,0.08)'; statusBorder = 'rgba(239,68,68,0.2)';
+          statusLabel = `Expirado há ${Math.abs(diffDays)}d`;
+        } else if (soon) {
+          statusColor = '#f59e0b'; statusBg = 'rgba(245,158,11,0.08)'; statusBorder = 'rgba(245,158,11,0.2)';
+          statusLabel = diffDays === 0 ? 'Expira hoje' : `Expira em ${diffDays}d`;
+        } else {
+          statusColor = '#22c55e'; statusBg = 'rgba(34,197,94,0.06)'; statusBorder = 'rgba(34,197,94,0.15)';
+          statusLabel = `Expira em ${diffDays}d`;
+        }
+
+        const d = exp;
+        const dateStr = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+
+        return `
+        <div class="trow" style="background:${statusBg};border-color:${statusBorder};cursor:pointer" onclick="S.page='students';S.students.list=[];render();setTimeout(()=>openStudentDetail('${st.id}'),400)">
+          ${avatar(st.full_name || st.email || '?', 36)}
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:13px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.full_name || '—'}</div>
+            <div style="font-size:11px;color:rgba(247,247,247,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.email || '—'}</div>
+          </div>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9333ea;background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px;flex-shrink:0">${st.plan || 'FAST'}</span>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:12px;font-weight:700;color:${statusColor}">${statusLabel}</div>
+            <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:1px">${dateStr}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+  const expiredCount = list.filter(s => new Date(s.plan_expires_at) < now).length;
+  const soonCount    = list.filter(s => { const d = Math.ceil((new Date(s.plan_expires_at)-now)/(1000*60*60*24)); return d>=0 && d<=7; }).length;
+
+  return `
+  <div style="padding:32px 36px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div class="lbl">CONTROLE</div>
+        <h1 class="ph1">Expirações</h1>
+        <p class="sub" style="margin-top:4px">Alunos ordenados pela data de expiração mais próxima</p>
+      </div>
+      <button class="btn-ghost" onclick="S.expirations.list=[];loadAndRender('expirations')" style="gap:6px">${ic('refresh-cw',13)} Atualizar</button>
+    </div>
+
+    ${(expiredCount > 0 || soonCount > 0) ? `
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      ${expiredCount > 0 ? `<div style="display:flex;align-items:center;gap:7px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:8px 14px;font-size:12px;color:#f87171;font-weight:700">${ic('alert-circle',13,'color:#f87171')} ${expiredCount} expirado${expiredCount!==1?'s':''}</div>` : ''}
+      ${soonCount > 0 ? `<div style="display:flex;align-items:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:8px 14px;font-size:12px;color:#f59e0b;font-weight:700">${ic('clock',13,'color:#f59e0b')} ${soonCount} expira${soonCount!==1?'m':''} em até 7 dias</div>` : ''}
+    </div>` : ''}
+
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${rows}
+    </div>
+  </div>`;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    PAGE: MINHA CONTA
 ═══════════════════════════════════════════════════════════════════════════════ */
@@ -1294,6 +1382,10 @@ async function openStudentDetail(studentId) {
               Entendi, quero confirmar a mudança de plano
             </label>
           </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">DATA DE EXPIRAÇÃO <span style="font-weight:400;opacity:.5">(opcional)</span></label>
+            <input id="se-expires" type="date" value="${st.plan_expires_at ? st.plan_expires_at.split('T')[0] : ''}" oninput="S._seExpiresTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;color-scheme:dark">
+          </div>
           <div id="se-err" style="font-size:11px;color:#f87171;display:none"></div>
           <button id="se-save-btn" onclick="saveStudentEdit('${studentId}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;width:100%">Salvar Alterações</button>
         </div>
@@ -1403,6 +1495,7 @@ async function saveStudentEdit(studentId) {
   const phoneEl        = document.getElementById('se-phone');
   const supportPhoneEl = document.getElementById('se-support-phone');
   const planEl         = document.getElementById('se-plan');
+  const expiresEl      = document.getElementById('se-expires');
   const errEl          = document.getElementById('se-err');
   const warnEl         = document.getElementById('se-plan-warn');
   const confirmEl      = document.getElementById('se-plan-confirm');
@@ -1416,6 +1509,7 @@ async function saveStudentEdit(studentId) {
   const newEmail        = (S._seEmailTmp        !== undefined ? S._seEmailTmp        : emailEl ? emailEl.value : '').trim();
   const newPhone        = (S._sePhoneTmp        !== undefined ? S._sePhoneTmp        : phoneEl ? phoneEl.value : '').trim();
   const newSupportPhone = (S._seSupportPhoneTmp !== undefined ? S._seSupportPhoneTmp : supportPhoneEl ? supportPhoneEl.value : '').trim();
+  const newExpires      = (S._seExpiresTmp      !== undefined ? S._seExpiresTmp      : expiresEl ? expiresEl.value : '').trim();
   const newPlan         = planEl.value;
   const planChanged  = newPlan !== (st.plan || 'FAST');
   const emailChanged = newEmail && newEmail !== st.email;
@@ -1432,6 +1526,7 @@ async function saveStudentEdit(studentId) {
 
   const updatePayload = { full_name: newName, plan: newPlan };
   if (newSupportPhone) updatePayload.support_phone = newSupportPhone;
+  updatePayload.plan_expires_at = newExpires || null;
   const { error } = await SB.from('student_profiles').update(updatePayload).eq('id', studentId);
   if (error) {
     errEl.textContent = error.message || 'Erro ao salvar.';
@@ -1455,11 +1550,13 @@ async function saveStudentEdit(studentId) {
     S.students.list[idx].phone = newPhone;
     S.students.list[idx].plan = newPlan;
     S.students.list[idx].support_phone = newSupportPhone || null;
+    S.students.list[idx].plan_expires_at = newExpires || null;
   }
   S._seNameTmp = undefined;
   S._seEmailTmp = undefined;
   S._sePhoneTmp = undefined;
   S._seSupportPhoneTmp = undefined;
+  S._seExpiresTmp = undefined;
 
   openStudentDetail(studentId);
 }
