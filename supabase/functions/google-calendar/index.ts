@@ -146,9 +146,11 @@ serve(async (req) => {
 
     /* ── STATUS: verifica se mentor tem Google Agenda conectado ───────────── */
     if (action === 'status') {
-      const mentorId = await getMentorUserId(admin);
+      const authHeader = req.headers.get('Authorization') ?? '';
+      const { data: { user } } = await admin.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) throw new Error('Sessão inválida.');
       const { data: row } = await admin
-        .from('google_tokens').select('google_email').eq('user_id', mentorId).maybeSingle();
+        .from('google_tokens').select('google_email').eq('user_id', user.id).maybeSingle();
       return new Response(JSON.stringify({ connected: !!row, email: row?.google_email }), { headers: CORS });
     }
 
