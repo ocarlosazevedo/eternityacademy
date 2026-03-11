@@ -1158,12 +1158,16 @@ async function openStudentDetail(studentId) {
   const [bookRes, taskRes, fbRes] = await Promise.all([
     SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
     SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
-    SB.from('feedbacks').select('id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
+    SB.from('feedbacks').select('id,student_id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
+    loadFeedbacks(), // garante que S.feedbacks.list está populado para fallback
   ]);
 
-  const calls     = bookRes.data || [];
-  const tasks     = taskRes.data || [];
-  const feedbacks = fbRes.data   || [];
+  const calls = bookRes.data || [];
+  const tasks = taskRes.data || [];
+  // Se query per-aluno falhou (RLS), filtra da lista global que carrega com select('*')
+  let feedbacks = (fbRes.data && fbRes.data.length > 0)
+    ? fbRes.data
+    : S.feedbacks.list.filter(f => f.student_id === studentId);
 
   const now = new Date();
   const pad2 = n => String(n).padStart(2,'0');
