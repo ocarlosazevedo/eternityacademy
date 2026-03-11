@@ -1358,8 +1358,8 @@ async function saveStudentEdit(studentId) {
   }
 
   if (planChanged) {
-    // Cancel all future bookings (regardless of status)
-    await SB.from('bookings').update({ status: 'cancelled' }).eq('student_id', studentId).gt('scheduled_at', new Date().toISOString());
+    // Delete all future bookings so they appear as PENDENTE on new plan
+    await SB.from('bookings').delete().eq('student_id', studentId).gt('scheduled_at', new Date().toISOString());
     // Delete pending tasks (keep done tasks as history)
     await SB.from('tasks').delete().eq('student_id', studentId).eq('done', false);
   }
