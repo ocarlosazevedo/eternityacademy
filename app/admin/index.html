@@ -1420,37 +1420,21 @@ async function loadGCalStatus() {
   try {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
-    const { data: row, error } = await SB
-      .from('google_tokens')
-      .select('google_email')
-      .eq('user_id', session.user.id)
-      .maybeSingle();
-    if (error) console.error('GCal status error:', error);
-    S.gcal.connected = !!row;
-    S.gcal.email     = row?.google_email || null;
+    const res  = await fetch(`${SUPABASE_FN}/google-calendar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ action: 'status' }),
+    });
+    const json = await res.json();
+    S.gcal.connected = !!json.connected;
+    S.gcal.email     = json.email || null;
     const txt = document.getElementById('gcal-status-text');
-    const btn = document.getElementById('gcal-connect-btn');
     if (txt) txt.textContent = S.gcal.connected ? `Conectado: ${S.gcal.email}` : 'Não conectado';
-    if (btn) {
-      btn.innerHTML = S.gcal.connected
-        ? `<i data-lucide="check" style="width:12px;height:12px"></i> Conectado`
-        : `<i data-lucide="link" style="width:12px;height:12px"></i> Conectar`;
-      btn.style.color = S.gcal.connected ? '#22c55e' : '';
-      lucide.createIcons({ nodes: [btn] });
-    }
   } catch(e) {
     console.error('GCal status error:', e);
     const txt = document.getElementById('gcal-status-text');
     if (txt) txt.textContent = 'Erro ao verificar';
   }
-}
-
-function connectGoogleCalendarAdmin() {
-  const clientId    = '53857295220-gj2i5co7b2d4kvcnh448bhsro9i16ko1.apps.googleusercontent.com';
-  const redirectUri = encodeURIComponent('https://eternityacademy.com.br/google-callback');
-  const scope       = encodeURIComponent('https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly');
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
-  window.location.href = url;
 }
 </script>
 </body>
