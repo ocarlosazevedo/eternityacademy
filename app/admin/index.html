@@ -1325,9 +1325,8 @@ async function saveStudentEdit(studentId) {
   const st = S.students.list.find(s => s.id === studentId);
   if (!st) return;
 
-  const newName         = (S._seNameTmp         !== undefined ? S._seNameTmp         : nameEl.value).trim();
+  const newName         = (S._seNameTmp         !== undefined ? S._seNameTmp         : nameEl ? nameEl.value : '').trim();
   const newEmail        = (S._seEmailTmp        !== undefined ? S._seEmailTmp        : emailEl ? emailEl.value : '').trim();
-  const newPhone        = (S._sePhoneTmp        !== undefined ? S._sePhoneTmp        : phoneEl.value).trim();
   const newSupportPhone = (S._seSupportPhoneTmp !== undefined ? S._seSupportPhoneTmp : supportPhoneEl ? supportPhoneEl.value : '').trim();
   const newPlan         = planEl.value;
   const planChanged  = newPlan !== (st.plan || 'FAST');
