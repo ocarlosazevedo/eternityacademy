@@ -1065,13 +1065,15 @@ async function openStudentDetail(studentId) {
     <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
   </div>`;
 
-  const [bookRes, taskRes] = await Promise.all([
+  const [bookRes, taskRes, fbRes] = await Promise.all([
     SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
     SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
+    SB.from('feedbacks').select('id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
   ]);
 
-  const calls = bookRes.data || [];
-  const tasks = taskRes.data || [];
+  const calls     = bookRes.data || [];
+  const tasks     = taskRes.data || [];
+  const feedbacks = fbRes.data   || [];
 
   const now = new Date();
   const pad2 = n => String(n).padStart(2,'0');
@@ -1114,6 +1116,23 @@ async function openStudentDetail(studentId) {
   const doneCount = tasks.filter(t=>t.done).length;
   const callsDone = calls.filter(b=>new Date(b.scheduled_at)<now&&b.status==='confirmed').length;
 
+  const stars = n => n ? '★'.repeat(n)+'☆'.repeat(5-n) : '—';
+  const fmtDay = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()}`; };
+
+  const fbRows = feedbacks.length === 0
+    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhum feedback enviado</div>`
+    : feedbacks.map(f => `
+        <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${f.body?'8px':'0'}">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#F7F7F7">${f.call_title || 'Call de Mentoria'}</div>
+              <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">${fmtDay(f.created_at)}</div>
+            </div>
+            <span style="font-size:13px;color:#f59e0b;letter-spacing:1px">${stars(f.rating)}</span>
+          </div>
+          ${f.body ? `<p style="font-size:11px;color:rgba(247,247,247,.5);line-height:1.6;margin:0;padding-top:8px;border-top:1px solid rgba(255,255,255,.05)">"${f.body}"</p>` : ''}
+        </div>`).join('');
+
   mr.innerHTML = `
   <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" data-action="close-student-detail" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px);padding:16px">
     <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
@@ -1130,6 +1149,8 @@ async function openStudentDetail(studentId) {
           <div><div style="font-weight:900;font-size:22px;color:#F7F7F7">${callsDone}</div><div style="font-size:9px;color:rgba(247,247,247,.35);letter-spacing:1px">CALLS</div></div>
           <div style="width:1px;background:rgba(255,255,255,.07)"></div>
           <div><div style="font-weight:900;font-size:22px;color:#F7F7F7">${doneCount}/${tasks.length}</div><div style="font-size:9px;color:rgba(247,247,247,.35);letter-spacing:1px">TAREFAS</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.07)"></div>
+          <div><div style="font-weight:900;font-size:22px;color:#F7F7F7">${feedbacks.length}</div><div style="font-size:9px;color:rgba(247,247,247,.35);letter-spacing:1px">FEEDBACKS</div></div>
         </div>
         <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px;flex-shrink:0">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1149,6 +1170,12 @@ async function openStudentDetail(studentId) {
         <div>
           <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.3);margin-bottom:10px">TAREFAS · ${tasks.length} total · ${doneCount} concluídas</div>
           <div style="display:flex;flex-direction:column;gap:6px">${taskRows}</div>
+        </div>
+
+        <!-- Feedbacks -->
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.3);margin-bottom:10px">FEEDBACKS · ${feedbacks.length} enviado${feedbacks.length!==1?'s':''}</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${fbRows}</div>
         </div>
 
       </div>
