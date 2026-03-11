@@ -368,6 +368,7 @@ async function loadAndRender(page) {
   await loadPageData(page);
   pc.innerHTML = renderPage(page);
   lucide.createIcons();
+  if (page === 'overview' && S.currentRole === 'super_admin') loadGCalStatus();
 }
 
 async function loadPageData(page) {
@@ -1438,7 +1439,11 @@ async function loadGCalStatus() {
       btn.style.color = S.gcal.connected ? '#22c55e' : '';
       lucide.createIcons({ nodes: [btn] });
     }
-  } catch(_) {}
+  } catch(e) {
+    console.error('GCal status error:', e);
+    const txt = document.getElementById('gcal-status-text');
+    if (txt) txt.textContent = 'Erro ao verificar';
+  }
 }
 
 function connectGoogleCalendarAdmin() {
