@@ -248,7 +248,7 @@ const S = {
   page: 'dashboard',
   user: null,
   gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
-  dash: { feedback:'', sent:false, rating:0, tasks:null },
+  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false },
   suporte: { phone: null },
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
@@ -380,7 +380,7 @@ function render(scrollReset=true) {
    PAGE: DASHBOARD
 ═══════════════════════════════════════════════════════════════════════ */
 function pageDash() {
-  const {feedback,sent,rating}=S.dash;
+  const {feedback,sent,rating,feedbackDone}=S.dash;
   const tasks = S.dash.tasks;
   const pendHw = tasks === null ? HW.filter(h=>!h.done) : tasks.filter(t=>!t.done);
   const done  = CALLS.filter(c=>c.done).length;
@@ -436,7 +436,7 @@ function pageDash() {
         </div>`}
 
     <!-- FEEDBACK DA ÚLTIMA CALL (topo) — só aparece após a primeira call -->
-    ${lastCall ? `
+    ${lastCall && !feedbackDone ? `
     <div class="fu2" style="margin-bottom:28px">
       <div class="lbl" style="margin-bottom:12px">FEEDBACK DA ÚLTIMA CALL</div>
       <div style="background:#111;border:1px solid ${sent?'rgba(112,34,187,.35)':'rgba(255,255,255,.08)'};border-radius:18px;overflow:hidden;transition:border-color .3s">
@@ -1001,6 +1001,7 @@ document.addEventListener('click', function(e) {
     case 'send-fb':
       if(!S.dash.feedback.trim()) return;
       S.dash.sent = true;
+      S.dash.feedbackDone = true;
       saveFeedback(); // fire-and-forget
       document.getElementById('pc').innerHTML = pageDash();
       lucide.createIcons();
@@ -1118,15 +1119,16 @@ async function loadCalls() {
       const dateStr = `${pad2(dt.getDate())}/${pad2(dt.getMonth()+1)}/${dt.getFullYear()}`;
       const timeStr = `${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
       CALLS.push({
-        id:        b.call_number || (i + 1),
-        title:     b.call_title  || 'Call de Mentoria',
-        mentor:    'Eternity Academy',
-        done:      isPast && b.status === 'confirmed',
-        sched:     !isPast,
-        date:      isPast  ? dateStr : null,
-        schedDate: !isPast ? dateStr : null,
-        schedTime: !isPast ? timeStr : null,
-        bookingId: b.id,
+        id:          b.call_number || (i + 1),
+        title:       b.call_title  || 'Call de Mentoria',
+        mentor:      'Eternity Academy',
+        done:        isPast && b.status === 'confirmed',
+        sched:       !isPast,
+        date:        isPast  ? dateStr : null,
+        schedDate:   !isPast ? dateStr : null,
+        schedTime:   !isPast ? timeStr : null,
+        bookingId:   b.id,
+        scheduledAt: b.scheduled_at,
       });
     });
   } catch(e) { console.warn('loadCalls:', e); }
@@ -1143,6 +1145,20 @@ async function loadDashTasks() {
       .order('created_at');
     S.dash.tasks = data || [];
   } catch(e) { S.dash.tasks = null; /* fallback to hardcoded HW */ }
+}
+
+/* ─── Feedback status ──────────────────────────────────────────────── */
+async function loadFeedbackStatus() {
+  try {
+    const lastCall = CALLS.filter(c => c.done).slice(-1)[0];
+    if (!lastCall) return;
+    const { data } = await SB.from('feedbacks')
+      .select('id')
+      .eq('student_id', S.user.id)
+      .gte('created_at', lastCall.scheduledAt)
+      .limit(1);
+    if (data && data.length > 0) S.dash.feedbackDone = true;
+  } catch(e) { /* silencioso */ }
 }
 
 /* ─── Support phone ────────────────────────────────────────────────── */
@@ -1294,6 +1310,7 @@ SB.auth.getSession().then(async function({data:{session}}) {
     upsertProfile(session.user),
     loadCalls(),
   ]);
+  await loadFeedbackStatus();
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='flex';
   render();
