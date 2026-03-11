@@ -739,7 +739,7 @@ function pageStudents() {
       ${list.length === 0
         ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} Nenhum aluno cadastrado ainda</div>`
         : list.map(st=>`
-            <div class="trow">
+            <div class="trow" data-action="view-student" data-id="${st.id}" style="cursor:pointer;transition:background .15s" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''">
               ${avatar(st.full_name || st.email || '?', 38)}
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px">${st.full_name || '—'}</div>
@@ -748,7 +748,7 @@ function pageStudents() {
                   ${st.support_phone ? `<span style="display:inline-flex;align-items:center;gap:4px;color:rgba(34,197,94,.7)">${ic('phone',10,'color:rgba(34,197,94,.7)')} ${st.support_phone}</span>` : ''}
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0" onclick="event.stopPropagation()">
                 <span class="tag tag-purple">${st.plan || 'MDG INSIDER'}</span>
                 <button data-action="edit-support" data-id="${st.id}" data-name="${(st.full_name||st.email||'').replace(/"/g,'&quot;')}" data-phone="${st.support_phone||''}" class="btn-ghost" title="Editar suporte" style="width:auto;padding:5px 10px;font-size:10px;gap:5px">
                   ${ic('phone',12)} Suporte
@@ -928,6 +928,110 @@ function openModal(type, data={}) {
   }
   renderModal();
 }
+/* ── Student detail ─────────────────────────────────────────────── */
+async function openStudentDetail(studentId) {
+  const st = S.students.list.find(s => s.id === studentId);
+  if (!st) return;
+
+  // Show loading overlay immediately
+  const mr = document.getElementById('mr');
+  mr.innerHTML = `
+  <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px)">
+    <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
+  </div>`;
+
+  const [bookRes, taskRes] = await Promise.all([
+    SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
+    SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
+  ]);
+
+  const calls = bookRes.data || [];
+  const tasks = taskRes.data || [];
+
+  const now = new Date();
+  const pad2 = n => String(n).padStart(2,'0');
+  const fmt = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+
+  const callRows = calls.length === 0
+    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhuma call registrada</div>`
+    : calls.map(b => {
+        const isPast = new Date(b.scheduled_at) < now;
+        const isDone = isPast && b.status === 'confirmed';
+        const isCancelled = b.status === 'cancelled';
+        const statusColor = isCancelled ? '#f87171' : isDone ? '#22c55e' : '#f59e0b';
+        const statusLabel = isCancelled ? 'Cancelada' : isDone ? 'Concluída' : 'Agendada';
+        return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+          <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};flex-shrink:0"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:#F7F7F7">${b.call_title || 'Call de Mentoria'}${b.call_number ? ` <span style="color:rgba(247,247,247,.35);font-weight:500">· #${b.call_number}</span>` : ''}</div>
+            <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${fmt(b.scheduled_at)}</div>
+          </div>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor}">${statusLabel}</span>
+        </div>`;
+      }).join('');
+
+  const taskRows = tasks.length === 0
+    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhuma tarefa registrada</div>`
+    : tasks.map(t => `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid ${t.done?'rgba(34,197,94,.12)':'rgba(255,255,255,0.06)'}">
+          <div style="width:16px;height:16px;border-radius:5px;border:1.5px solid ${t.done?'#22c55e':'rgba(255,255,255,.2)'};background:${t.done?'rgba(34,197,94,.15)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+            ${t.done ? `<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>` : ''}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:${t.done?'rgba(247,247,247,.4)':'#F7F7F7'};text-decoration:${t.done?'line-through':'none'}">${t.title}</div>
+            ${t.call_number ? `<div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">Call #${t.call_number}</div>` : ''}
+            ${t.mentor_note ? `<div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:3px;font-style:italic">${t.mentor_note}</div>` : ''}
+          </div>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${t.done?'#22c55e':'rgba(247,247,247,.3)'};flex-shrink:0">${t.done?'FEITA':'PENDENTE'}</span>
+        </div>`).join('');
+
+  const doneCount = tasks.filter(t=>t.done).length;
+  const callsDone = calls.filter(b=>new Date(b.scheduled_at)<now&&b.status==='confirmed').length;
+
+  mr.innerHTML = `
+  <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" data-action="close-student-detail" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px);padding:16px">
+    <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+
+      <!-- Header -->
+      <div style="padding:24px 24px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:14px;flex-shrink:0">
+        ${avatar(st.full_name || st.email || '?', 46)}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:900;font-size:18px;color:#F7F7F7;line-height:1.2">${st.full_name || '—'}</div>
+          <div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:3px">${st.email || '—'}</div>
+          <span style="display:inline-block;margin-top:5px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#7022BB;background:rgba(112,34,187,.12);border:1px solid rgba(112,34,187,.2);border-radius:5px;padding:2px 7px">${st.plan || 'MDG INSIDER'}</span>
+        </div>
+        <div style="display:flex;gap:16px;text-align:center;flex-shrink:0">
+          <div><div style="font-weight:900;font-size:22px;color:#F7F7F7">${callsDone}</div><div style="font-size:9px;color:rgba(247,247,247,.35);letter-spacing:1px">CALLS</div></div>
+          <div style="width:1px;background:rgba(255,255,255,.07)"></div>
+          <div><div style="font-weight:900;font-size:22px;color:#F7F7F7">${doneCount}/${tasks.length}</div><div style="font-size:9px;color:rgba(247,247,247,.35);letter-spacing:1px">TAREFAS</div></div>
+        </div>
+        <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px;flex-shrink:0">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Body scrollable -->
+      <div style="overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:20px">
+
+        <!-- Calls -->
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.3);margin-bottom:10px">CALLS · ${calls.length} total</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${callRows}</div>
+        </div>
+
+        <!-- Tasks -->
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.3);margin-bottom:10px">TAREFAS · ${tasks.length} total · ${doneCount} concluídas</div>
+          <div style="display:flex;flex-direction:column;gap:6px">${taskRows}</div>
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+  lucide.createIcons();
+}
+
 function closeModal() {
   S.modal = null;
   document.getElementById('mr').innerHTML = '';
@@ -1345,6 +1449,14 @@ document.addEventListener('click', function(e) {
       break;
     case 'delete-collab':
       deleteCollab(id);
+      break;
+    case 'view-student':
+      openStudentDetail(id);
+      break;
+    case 'close-student-detail':
+      if (e.target === t) {
+        document.getElementById('mr').innerHTML = '';
+      }
       break;
   }
 });
