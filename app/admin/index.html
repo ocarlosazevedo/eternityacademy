@@ -1154,17 +1154,15 @@ async function openStudentDetail(studentId) {
     <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
   </div>`;
 
-  const [bookRes, taskRes, fbRes, histRes] = await Promise.all([
-    SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).neq('status','archived').order('scheduled_at'),
+  const [bookRes, taskRes, fbRes] = await Promise.all([
+    SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
     SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
     SB.from('feedbacks').select('id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
-    SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).eq('status','archived').order('scheduled_at'),
   ]);
 
   const calls     = bookRes.data || [];
   const tasks     = taskRes.data || [];
   const feedbacks = fbRes.data   || [];
-  const history   = histRes.data || [];
 
   const now = new Date();
   const pad2 = n => String(n).padStart(2,'0');
@@ -1224,18 +1222,6 @@ async function openStudentDetail(studentId) {
           ${f.body ? `<p style="font-size:11px;color:rgba(247,247,247,.5);line-height:1.6;margin:0;padding-top:8px;border-top:1px solid rgba(255,255,255,.05)">"${f.body}"</p>` : ''}
         </div>`).join('');
 
-  const histRows = history.length === 0
-    ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhum histórico registrado</div>`
-    : history.map(b => `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);opacity:.7">
-          <div style="width:7px;height:7px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:rgba(247,247,247,.6)">${b.call_title || 'Call de Mentoria'}${b.call_number ? ` <span style="color:rgba(247,247,247,.25);font-weight:500">· #${b.call_number}</span>` : ''}</div>
-            <div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:2px">${fmt(b.scheduled_at)}</div>
-          </div>
-          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:#a78bfa">CONCLUÍDA</span>
-        </div>`).join('');
-
   mr.innerHTML = `
   <div onclick="if(event.target===this)document.getElementById('mr').innerHTML=''" style="position:fixed;inset:0;background:rgba(5,5,8,0.85);display:flex;align-items:center;justify-content:center;z-index:300;backdrop-filter:blur(8px);padding:16px">
     <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:560px;height:90vh;display:flex;flex-direction:column;overflow:hidden">
@@ -1266,7 +1252,6 @@ async function openStudentDetail(studentId) {
         <button id="tbtn-calls"     onclick="switchTab('tab-calls')"     style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">CALLS</button>
         <button id="tbtn-tarefas"   onclick="switchTab('tab-tarefas')"   style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">TAREFAS</button>
         <button id="tbtn-feedbacks"  onclick="switchTab('tab-feedbacks')"  style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">FEEDBACKS</button>
-        <button id="tbtn-historico" onclick="switchTab('tab-historico')" style="flex:1;padding:10px 6px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:11px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s${history.length>0?';color:#a78bfa':''}">HISTÓRICO${history.length>0?` <span style="font-size:9px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.25);border-radius:8px;padding:1px 5px;color:#a78bfa">${history.length}</span>`:''}</button>
       </div>
 
       <!-- Tab contents -->
@@ -1323,12 +1308,6 @@ async function openStudentDetail(studentId) {
           ${fbRows}
         </div>
 
-        <!-- TAB: HISTÓRICO -->
-        <div id="tab-historico" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(167,139,250,.4);margin-bottom:4px">${history.length} call${history.length!==1?'s':''} arquivada${history.length!==1?'s':''} de plano${history.length!==1?'s':''} anteriores</div>
-          ${history.length > 0 ? `<div style="font-size:10px;color:rgba(247,247,247,.2);background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.1);border-radius:8px;padding:8px 12px;margin-bottom:8px">Calls concluídas antes da mudança de plano</div>` : ''}
-          ${histRows}
-        </div>
 
       </div>
     </div>
@@ -1380,12 +1359,9 @@ async function saveStudentEdit(studentId) {
   }
 
   if (planChanged) {
-    const now = new Date().toISOString();
-    // Archive done bookings (past + confirmed) so they appear in history tab
-    await SB.from('bookings').update({ status: 'archived' }).eq('student_id', studentId).lt('scheduled_at', now).eq('status', 'confirmed');
-    // Delete future bookings
-    await SB.from('bookings').delete().eq('student_id', studentId).gt('scheduled_at', now);
-    // Delete all tasks (done + pending)
+    // Delete ALL bookings (done + future) — UPDATE is blocked by RLS, only DELETE works
+    await SB.from('bookings').delete().eq('student_id', studentId);
+    // Delete all tasks
     await SB.from('tasks').delete().eq('student_id', studentId);
   }
 
@@ -1407,11 +1383,11 @@ async function saveStudentEdit(studentId) {
 }
 
 function switchTab(id) {
-  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks','tab-historico'].forEach(t => {
+  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks'].forEach(t => {
     const el = document.getElementById(t);
     if (el) el.style.display = t === id ? 'flex' : 'none';
   });
-  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks','tbtn-historico'].forEach(b => {
+  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks'].forEach(b => {
     const el = document.getElementById(b);
     if (!el) return;
     const active = b === 'tbtn-' + id.replace('tab-','');

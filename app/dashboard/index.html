@@ -1277,7 +1277,6 @@ async function loadCalls() {
       .select('id, scheduled_at, call_title, call_number, status')
       .eq('student_id', S.user.id)
       .neq('status', 'cancelled')
-      .neq('status', 'archived')
       .order('scheduled_at');
     CALLS.length = 0;
     const now  = new Date();
