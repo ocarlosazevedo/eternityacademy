@@ -280,6 +280,7 @@ const S = {
   newTask:      { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' },
   editSupport:  { studentId:'', studentName:'', phone:'', saving:false, err:'' },
   editPlan:     { studentId:'', studentName:'', currentPlan:'', newPlan:'', confirmed:false, saving:false, err:'' },
+  studentEdit:  { open:false, studentId:'', name:'', phone:'', plan:'', planConfirmed:false, saving:false, err:'' },
   collabForm:   { id:'', name:'', email:'', pw:'', role:'', notes:'', saving:false, err:'' },
 };
 
@@ -1259,6 +1260,41 @@ async function openStudentDetail(studentId) {
       <!-- Body scrollable -->
       <div style="overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:20px">
 
+        <!-- Editar Perfil -->
+        <div id="edit-profile-card" style="border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden">
+          <button onclick="(function(){const b=document.getElementById('edit-profile-body');const open=b.style.display!=='none';b.style.display=open?'none':'flex';document.getElementById('edit-profile-chevron').style.transform=open?'rotate(0deg)':'rotate(180deg)';})()" style="width:100%;background:rgba(255,255,255,.03);border:none;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:#F7F7F7">
+            <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.5)">EDITAR PERFIL</span>
+            <svg id="edit-profile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,.3)" stroke-width="2.5" stroke-linecap="round" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="edit-profile-body" style="display:none;flex-direction:column;gap:12px;padding:16px;background:rgba(0,0,0,.2)">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">NOME COMPLETO</label>
+              <input id="se-name" value="${(st.full_name||'').replace(/"/g,'&quot;')}" oninput="S._seNameTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="Nome completo">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP</label>
+              <input id="se-phone" value="${(st.phone||'').replace(/"/g,'&quot;')}" oninput="S._sePhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="(00) 00000-0000">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">PLANO</label>
+              <select id="se-plan" onchange="(function(){const newPlan=this.value;const warn=document.getElementById('se-plan-warn');warn.style.display=newPlan!=='${st.plan||'FAST'}' ? 'flex' : 'none';document.getElementById('se-plan-confirm').checked=false;}).call(this)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;appearance:none">
+                <option value="FAST" ${(st.plan||'FAST')==='FAST'?'selected':''}>FAST</option>
+                <option value="GROWTH" ${(st.plan||'')==='GROWTH'?'selected':''}>GROWTH</option>
+                <option value="ETERNITY" ${(st.plan||'')==='ETERNITY'?'selected':''}>ETERNITY</option>
+              </select>
+            </div>
+            <div id="se-plan-warn" style="display:none;flex-direction:column;gap:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:13px 14px">
+              <div style="font-size:11px;color:#f59e0b;line-height:1.6">⚠️ Ao trocar o plano, <strong>todas as calls futuras serão canceladas</strong> e o aluno iniciará do zero no novo plano.</div>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:rgba(247,247,247,.6)">
+                <input type="checkbox" id="se-plan-confirm" style="accent-color:#f59e0b;width:14px;height:14px">
+                Entendi, quero confirmar a mudança de plano
+              </label>
+            </div>
+            <div id="se-err" style="font-size:11px;color:#f87171;display:none"></div>
+            <button onclick="saveStudentEdit('${studentId}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:10px;padding:11px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;width:100%">Salvar Alterações</button>
+          </div>
+        </div>
+
         <!-- Calls -->
         <div>
           <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;color:rgba(247,247,247,.3);margin-bottom:10px">CALLS · ${calls.length} total</div>
@@ -1281,6 +1317,59 @@ async function openStudentDetail(studentId) {
     </div>
   </div>`;
   lucide.createIcons();
+}
+
+async function saveStudentEdit(studentId) {
+  const nameEl  = document.getElementById('se-name');
+  const phoneEl = document.getElementById('se-phone');
+  const planEl  = document.getElementById('se-plan');
+  const errEl   = document.getElementById('se-err');
+  const warnEl  = document.getElementById('se-plan-warn');
+  const confirmEl = document.getElementById('se-plan-confirm');
+
+  if (!nameEl || !planEl) return;
+
+  const st = S.students.list.find(s => s.id === studentId);
+  if (!st) return;
+
+  const newName  = (S._seNameTmp  !== undefined ? S._seNameTmp  : nameEl.value).trim();
+  const newPhone = (S._sePhoneTmp !== undefined ? S._sePhoneTmp : phoneEl.value).trim();
+  const newPlan  = planEl.value;
+  const planChanged = newPlan !== (st.plan || 'FAST');
+
+  if (planChanged && warnEl.style.display !== 'none' && !confirmEl.checked) {
+    errEl.textContent = 'Confirme a mudança de plano antes de salvar.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const saveBtn = document.querySelector('#edit-profile-body button');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
+
+  const { error } = await SB.from('student_profiles').update({ full_name: newName, phone: newPhone, plan: newPlan }).eq('id', studentId);
+  if (error) {
+    errEl.textContent = error.message || 'Erro ao salvar.';
+    errEl.style.display = 'block';
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Salvar Alterações'; }
+    return;
+  }
+
+  if (planChanged) {
+    await SB.from('bookings').update({ status: 'cancelled' }).eq('student_id', studentId).gt('scheduled_at', new Date().toISOString()).neq('status', 'confirmed');
+  }
+
+  // Update local state
+  const idx = S.students.list.findIndex(s => s.id === studentId);
+  if (idx !== -1) {
+    S.students.list[idx].full_name = newName;
+    S.students.list[idx].phone = newPhone;
+    S.students.list[idx].plan = newPlan;
+  }
+  S._seNameTmp = undefined;
+  S._sePhoneTmp = undefined;
+
+  openStudentDetail(studentId);
 }
 
 function closeModal() {
