@@ -1268,11 +1268,6 @@ async function openStudentDetail(studentId) {
             <input id="se-email" value="${(st.email||'').replace(/"/g,'&quot;')}" oninput="S._seEmailTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="email@exemplo.com">
           </div>
           <div style="display:flex;flex-direction:column;gap:4px">
-            <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">WHATSAPP DE SUPORTE</label>
-            <input id="se-support-phone" value="${(st.support_phone||'').replace(/"/g,'&quot;')}" oninput="S._seSupportPhoneTmp=this.value" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box" placeholder="5511999999999">
-            <div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:2px">Formato internacional: código do país + DDD + número</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px">
             <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">PLANO</label>
             <select id="se-plan" onchange="(function(){const v=this.value;const w=document.getElementById('se-plan-warn');w.style.display=v!=='${st.plan||'FAST'}'?'flex':'none';document.getElementById('se-plan-confirm').checked=false;}).call(this)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;width:100%;box-sizing:border-box;appearance:none">
               <option value="FAST" ${(st.plan||'FAST')==='FAST'?'selected':''}>FAST</option>
@@ -1348,7 +1343,9 @@ async function saveStudentEdit(studentId) {
   const saveBtn = document.getElementById('se-save-btn');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
 
-  const { error } = await SB.from('student_profiles').update({ full_name: newName, plan: newPlan, support_phone: newSupportPhone || null }).eq('id', studentId);
+  const updatePayload = { full_name: newName, plan: newPlan };
+  if (newSupportPhone) updatePayload.support_phone = newSupportPhone;
+  const { error } = await SB.from('student_profiles').update(updatePayload).eq('id', studentId);
   if (error) {
     errEl.textContent = error.message || 'Erro ao salvar.';
     errEl.style.display = 'block';
