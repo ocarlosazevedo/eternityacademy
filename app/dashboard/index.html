@@ -984,7 +984,9 @@ document.addEventListener('click', function(e) {
         const task = S.dash.tasks.find(t => t.id === id);
         if (task) {
           task.done = !task.done;
-          SB.from('tasks').update({ done: task.done }).eq('id', id); // fire-and-forget
+          SB.from('tasks').update({ done: task.done }).eq('id', id).then(({error}) => {
+            if (error) console.error('toggle-hw error:', error);
+          });
         }
       } else {
         // Legacy local HW
