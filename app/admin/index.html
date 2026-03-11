@@ -232,10 +232,12 @@ const ADMIN_NAV = [
   {id:'collaborators',  ic:'briefcase',        label:'Colaboradores'},
   {id:'tasks',          ic:'check-square',     label:'Tarefas'},
   {id:'feedbacks',      ic:'message-square',   label:'Feedbacks'},
+  {id:'account',        ic:'user-circle',      label:'Minha Conta'},
 ];
 const CRUMBS = {
   overview:'Visão Geral', availability:'Disponibilidade', bookings:'Agendamentos',
   students:'Alunos', collaborators:'Colaboradores', tasks:'Tarefas', feedbacks:'Feedbacks',
+  account:'Minha Conta',
 };
 // Quais páginas cada perfil pode acessar
 const NAV_ACCESS = {
@@ -246,6 +248,7 @@ const NAV_ACCESS = {
   collaborators: ['super_admin'],
   tasks:         ['super_admin','admin','professor'],
   feedbacks:     ['super_admin','admin'],
+  account:       ['super_admin','admin','professor'],
 };
 const ROLE_LABEL = { super_admin:'Super Admin', admin:'Admin', professor:'Professor(a)' };
 const ROLE_FIRST = { super_admin:'overview', admin:'overview', professor:'availability' };
@@ -271,6 +274,7 @@ const S = {
   // Collaborators
   collaborators: { list:[], loading:false, search:'' },
   // Modals
+  cfg: { pw:'', pwConf:'', saved:'' },
   modal: null,
   newStudent:   { name:'', email:'', pw:'', plan:'MDG INSIDER', saving:false, err:'' },
   newTask:      { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' },
@@ -328,6 +332,7 @@ function renderSidebar() {
   document.getElementById('sb-plan').textContent = roleLabel.toUpperCase();
   const nav = visibleNav();
   document.getElementById('sb-nav').innerHTML = nav.map(n=>`
+    ${n.id === 'account' ? '<div style="height:1px;background:rgba(255,255,255,0.06);margin:8px 4px"></div>' : ''}
     <div class="nav-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
       ${ic(n.ic,15)} <span>${n.label}</span>
     </div>
@@ -335,6 +340,7 @@ function renderSidebar() {
   // Mobile drawer nav
   const drwNav = document.getElementById('drw-nav');
   if (drwNav) drwNav.innerHTML = nav.map(n=>`
+    ${n.id === 'account' ? '<div style="height:1px;background:rgba(255,255,255,0.06);margin:6px 4px"></div>' : ''}
     <div class="drw-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
       <div class="drw-icon">${ic(n.ic,15,'color:'+(S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.35)'))}</div>
       <div style="font-weight:${S.page===n.id?700:500};font-size:13px;color:${S.page===n.id?'#F7F7F7':'rgba(247,247,247,0.6)'}">${n.label}</div>
@@ -359,6 +365,7 @@ function render(scrollReset=true) {
     case 'collaborators': loadAndRender('collaborators'); break;
     case 'tasks':         loadAndRender('tasks');         break;
     case 'feedbacks':     loadAndRender('feedbacks');     break;
+    case 'account':       pc.innerHTML = pageAccount(); lucide.createIcons(); break;
   }
 }
 
@@ -394,6 +401,7 @@ function renderPage(page) {
     case 'collaborators': return pageCollaborators();
     case 'tasks':         return pageTasks();
     case 'feedbacks':     return pageFeedbacks();
+    case 'account':       return pageAccount();
     default: return '';
   }
 }
@@ -475,6 +483,70 @@ async function loadFeedbacks() {
   if (S.feedbacks.list.length) return;
   const { data } = await SB.from('feedbacks').select('*').order('created_at',{ascending:false});
   S.feedbacks.list = data || [];
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PAGE: MINHA CONTA
+═══════════════════════════════════════════════════════════════════════════════ */
+function pageAccount() {
+  const { pw, pwConf, saved } = S.cfg;
+  const userEmail = S.user?.email || '';
+  const userName  = S.user?.user_metadata?.name || userEmail.split('@')[0] || '';
+  const roleLabel = ROLE_LABEL[S.currentRole] || S.currentRole;
+  const roleColor = S.currentRole === 'super_admin' ? '#f59e0b' : S.currentRole === 'admin' ? '#7022BB' : '#22c55e';
+
+  const saveBtnHtml = (id, label) => `
+    <button data-action="admin-save-cfg" data-id="${id}" class="btn-p" style="padding:11px 24px;border-radius:10px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;gap:7px">
+      ${saved === id ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg> Salvo!` : label}
+    </button>`;
+
+  return `
+  <div style="padding:32px 36px">
+    <div style="margin-bottom:28px">
+      <div class="lbl">CONFIGURAÇÕES</div>
+      <h1 class="ph1">Minha Conta</h1>
+    </div>
+    <div style="max-width:560px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Profile card -->
+      <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:20px 24px;display:flex;align-items:center;gap:16px">
+        <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#2F054C,#7022BB);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#F7F7F7;flex-shrink:0;letter-spacing:-1px">
+          ${(userName[0]||'A').toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:900;font-size:17px;color:#F7F7F7;line-height:1.2">${userName}</div>
+          <div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${userEmail}</div>
+          <div style="margin-top:7px;display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 9px;font-size:9px;font-weight:800;letter-spacing:1.5px;color:${roleColor};background:${roleColor}18;border:1px solid ${roleColor}30">
+            ${roleLabel.toUpperCase()}
+          </div>
+        </div>
+      </div>
+
+      <!-- E-mail -->
+      <div class="card" style="padding:22px 24px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">E-mail</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">E-MAIL</div>
+        <input id="cfg-email" type="email" class="inp" value="${userEmail}" placeholder="seu@email.com" style="margin-bottom:16px"/>
+        ${saveBtnHtml('email', 'Salvar alterações')}
+      </div>
+
+      <!-- Senha -->
+      <div class="card" style="padding:22px 24px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">Senha</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">NOVA SENHA</div>
+        <input id="cfg-pw" data-input="admin-cfg-pw" type="password" class="inp" placeholder="Mínimo 8 caracteres" value="${pw}" style="margin-bottom:14px"/>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,.3);margin-bottom:8px">CONFIRMAR SENHA</div>
+        <input id="cfg-pwc" data-input="admin-cfg-pwc" type="password" class="inp" placeholder="Repita a senha" value="${pwConf}" style="margin-bottom:${pw&&pwConf&&pw!==pwConf?8:16}px"/>
+        ${pw&&pwConf&&pw!==pwConf ? `<div style="font-size:11px;color:#f87171;margin-bottom:14px;display:flex;align-items:center;gap:5px">${ic('alert-circle',12)} As senhas não coincidem.</div>` : ''}
+        ${saveBtnHtml('senha', 'Salvar alterações')}
+      </div>
+
+      <!-- Sign out -->
+      <button data-action="signout" style="width:100%;padding:13px;border-radius:12px;background:transparent;color:rgba(247,247,247,.3);font-family:inherit;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.3)'" onmouseleave="this.style.color='rgba(247,247,247,.3)';this.style.borderColor='rgba(255,255,255,.08)'">
+        ${ic('log-out',14)} Sair da conta
+      </button>
+    </div>
+  </div>`;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -962,6 +1034,27 @@ function openModal(type, data={}) {
   }
   renderModal();
 }
+/* ── Account save ───────────────────────────────────────────────── */
+async function adminSaveCfg(id) {
+  if (id === 'senha') {
+    const pw  = document.getElementById('cfg-pw')?.value  || '';
+    const pwc = document.getElementById('cfg-pwc')?.value || '';
+    if (!pw || pw !== pwc || pw.length < 6) return;
+    const { error } = await SB.auth.updateUser({ password: pw });
+    if (error) { alert('Erro: ' + error.message); return; }
+    S.cfg.pw = ''; S.cfg.pwConf = '';
+  } else if (id === 'email') {
+    const em = document.getElementById('cfg-email')?.value || '';
+    if (!em) return;
+    const { error } = await SB.auth.updateUser({ email: em });
+    if (error) { alert('Erro: ' + error.message); return; }
+  }
+  S.cfg.saved = id;
+  document.getElementById('pc').innerHTML = pageAccount();
+  lucide.createIcons();
+  setTimeout(() => { S.cfg.saved = ''; document.getElementById('pc').innerHTML = pageAccount(); lucide.createIcons(); }, 2200);
+}
+
 /* ── Student detail ─────────────────────────────────────────────── */
 async function openStudentDetail(studentId) {
   const st = S.students.list.find(s => s.id === studentId);
@@ -1484,6 +1577,9 @@ document.addEventListener('click', function(e) {
     case 'delete-collab':
       deleteCollab(id);
       break;
+    case 'admin-save-cfg':
+      adminSaveCfg(id);
+      break;
     case 'view-student':
       openStudentDetail(id);
       break;
@@ -1519,6 +1615,8 @@ document.addEventListener('input', function(e) {
       lucide.createIcons();
       { const inp = document.querySelector('[data-input="search-collabs"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
       break;
+    case 'admin-cfg-pw':  S.cfg.pw     = v; break;
+    case 'admin-cfg-pwc': S.cfg.pwConf = v; break;
     case 'st-name':    S.newStudent.name  = v; updateModalBtn(); break;
     case 'st-email':   S.newStudent.email = v; updateModalBtn(); break;
     case 'st-pw':      S.newStudent.pw    = v; updateModalBtn(); break;
