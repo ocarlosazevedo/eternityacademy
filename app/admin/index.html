@@ -266,7 +266,7 @@ const S = {
   // Bookings
   bookings: { list:[], loading:false, filter:'upcoming', search:'' },
   // Students
-  students: { list:[], loading:false, search:'', planFilter:'' },
+  students: { list:[], loading:false, search:'', planFilter:'', showAlumni:false },
   // Tasks
   tasks: { list:[], loading:false, filterStudentId:'' },
   // Feedbacks
@@ -540,16 +540,38 @@ function pageExpirations() {
         const dateStr = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
 
         return `
-        <div class="trow" style="background:${statusBg};border-color:${statusBorder};cursor:pointer" onclick="S.page='students';S.students.list=[];render();setTimeout(()=>openStudentDetail('${st.id}'),400)">
-          ${avatar(st.full_name || st.email || '?', 36)}
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:700;font-size:13px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.full_name || '—'}</div>
-            <div style="font-size:11px;color:rgba(247,247,247,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.email || '—'}</div>
+        <div style="border-radius:14px;overflow:hidden;border:1px solid ${statusBorder};margin-bottom:2px">
+          <div class="trow" style="background:${statusBg};border:none;cursor:pointer" onclick="document.getElementById('exp-panel-${st.id}').style.display=document.getElementById('exp-panel-${st.id}').style.display==='none'?'flex':'none'">
+            ${avatar(st.full_name || st.email || '?', 36)}
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:13px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.full_name || '—'}</div>
+              <div style="font-size:11px;color:rgba(247,247,247,.35);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${st.email || '—'}</div>
+            </div>
+            <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9333ea;background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px;flex-shrink:0">${st.plan || 'FAST'}</span>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:12px;font-weight:700;color:${statusColor}">${statusLabel}</div>
+              <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:1px">${dateStr}</div>
+            </div>
           </div>
-          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9333ea;background:rgba(147,51,234,.1);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px;flex-shrink:0">${st.plan || 'FAST'}</span>
-          <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:12px;font-weight:700;color:${statusColor}">${statusLabel}</div>
-            <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:1px">${dateStr}</div>
+          <div id="exp-panel-${st.id}" style="display:none;flex-direction:column;gap:10px;padding:14px 18px;background:rgba(0,0,0,.25);border-top:1px solid ${statusBorder}">
+            <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:2px">AÇÕES RÁPIDAS</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="exp-upgrade-${st.id}" style="flex:1;min-width:140px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;color:#F7F7F7;font-size:12px;font-family:inherit;outline:none;appearance:none">
+                <option value="" disabled selected>Upgrade de plano...</option>
+                ${['FAST','GROWTH','ETERNITY'].filter(p=>p!==(st.plan||'FAST')).map(p=>`<option value="${p}">${p}</option>`).join('')}
+              </select>
+              <button onclick="expUpgradePlan('${st.id}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:8px;padding:8px 16px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Upgrade</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="moveToAlumni('${st.id}')" style="flex:1;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 16px;color:#f59e0b;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s" onmouseenter="this.style.background='rgba(245,158,11,.12)'" onmouseleave="this.style.background='rgba(245,158,11,.06)'">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Mover para Antigos Alunos
+              </button>
+              <button onclick="S.page='students';S.students.list=[];render();setTimeout(()=>openStudentDetail('${st.id}'),400)" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 16px;color:rgba(247,247,247,.6);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;white-space:nowrap" onmouseenter="this.style.background='rgba(255,255,255,.08)'" onmouseleave="this.style.background='rgba(255,255,255,.05)'">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Ver Perfil
+              </button>
+            </div>
           </div>
         </div>`;
       }).join('');
@@ -924,24 +946,30 @@ function pageBookings() {
    PAGE: ALUNOS
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageStudents() {
-  const { list, search, planFilter } = S.students;
+  const { list, search, planFilter, showAlumni } = S.students;
   const q = (search || '').toLowerCase().trim();
+
+  const activeList  = list.filter(st => !st.is_alumni);
+  const alumniList  = list.filter(st => !!st.is_alumni);
+
+  // Se showAlumni, mostra só ex-alunos; senão filtra por plano nos ativos
+  const base = showAlumni ? alumniList : activeList;
   let filtered = q
-    ? list.filter(st => (st.full_name||'').toLowerCase().includes(q) || (st.email||'').toLowerCase().includes(q))
-    : list;
-  if (planFilter) filtered = filtered.filter(st => (st.plan||'FAST') === planFilter);
+    ? base.filter(st => (st.full_name||'').toLowerCase().includes(q) || (st.email||'').toLowerCase().includes(q))
+    : base;
+  if (!showAlumni && planFilter) filtered = filtered.filter(st => (st.plan||'FAST') === planFilter);
 
   const plans = ['FAST','GROWTH','ETERNITY'];
-  const planCount = p => list.filter(s=>(s.plan||'FAST')===p).length;
+  const planCount = p => activeList.filter(s=>(s.plan||'FAST')===p).length;
 
   return `
   <div style="padding:28px 32px;max-width:800px">
     <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:14px">
       <div>
         <div class="lbl">ALUNOS</div>
-        <h1 class="ph1">${list.length} Aluno${list.length!==1?'s':''}</h1>
+        <h1 class="ph1">${showAlumni ? alumniList.length + ' Antigo' + (alumniList.length!==1?'s':'') : activeList.length + ' Aluno' + (activeList.length!==1?'s':'')}</h1>
       </div>
-      ${['super_admin','admin'].includes(S.currentRole) ? `<button data-action="open-modal" data-modal="new-student" class="btn-amber">${ic('user-plus',14)} Novo Aluno</button>` : ''}
+      ${!showAlumni && ['super_admin','admin'].includes(S.currentRole) ? `<button data-action="open-modal" data-modal="new-student" class="btn-amber">${ic('user-plus',14)} Novo Aluno</button>` : ''}
     </div>
 
     <div style="position:relative;margin-bottom:10px">
@@ -949,19 +977,21 @@ function pageStudents() {
       <input data-input="search-students" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
     </div>
 
-    <!-- Filtro por plano -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
-      <button data-action="filter-plan" data-plan="" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${!planFilter?'rgba(247,247,247,.4)':'rgba(255,255,255,.1)'};background:${!planFilter?'rgba(255,255,255,.1)':'transparent'};color:${!planFilter?'#F7F7F7':'rgba(247,247,247,.4)'}">TODOS (${list.length})</button>
+    <!-- Filtro por plano + Antigos Alunos na mesma linha -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <button data-action="filter-plan" data-plan="" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${!planFilter&&!showAlumni?'rgba(247,247,247,.4)':'rgba(255,255,255,.1)'};background:${!planFilter&&!showAlumni?'rgba(255,255,255,.1)':'transparent'};color:${!planFilter&&!showAlumni?'#F7F7F7':'rgba(247,247,247,.4)'}">TODOS (${activeList.length})</button>
       ${plans.map(p=>{
         const c=p==='ETERNITY'?'#a855f7':p==='GROWTH'?'#f59e0b':'#6b7280';
-        const active=planFilter===p;
+        const active=planFilter===p&&!showAlumni;
         return `<button data-action="filter-plan" data-plan="${p}" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${active?c+'60':'rgba(255,255,255,.08)'};background:${active?c+'18':'transparent'};color:${active?c:'rgba(247,247,247,.4)'}">${p} (${planCount(p)})</button>`;
       }).join('')}
+      <span style="width:1px;height:18px;background:rgba(255,255,255,.1);margin:0 4px"></span>
+      <button data-action="toggle-alumni" data-alumni="${showAlumni?'0':'1'}" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${showAlumni?'#f59e0b60':'rgba(255,255,255,.08)'};background:${showAlumni?'rgba(245,158,11,.12)':'transparent'};color:${showAlumni?'#f59e0b':'rgba(247,247,247,.4)'}">ANTIGOS ALUNOS (${alumniList.length})</button>
     </div>
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
       ${filtered.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum aluno cadastrado ainda'}</div>`
+        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : showAlumni ? 'Nenhum antigo aluno registrado ainda' : 'Nenhum aluno cadastrado ainda'}</div>`
         : filtered.map(st=>{
             const planColor = st.plan==='ETERNITY'?'#a855f7':st.plan==='GROWTH'?'#f59e0b':'#6b7280';
             const planBg    = st.plan==='ETERNITY'?'rgba(168,85,247,0.12)':st.plan==='GROWTH'?'rgba(245,158,11,0.1)':'rgba(107,114,128,0.1)';
@@ -972,7 +1002,9 @@ function pageStudents() {
                 <div style="font-weight:700;font-size:13px;color:#F7F7F7;margin-bottom:2px">${st.full_name || '—'}</div>
                 <div style="font-size:11px;color:rgba(247,247,247,.35)">${st.email || '—'}</div>
               </div>
-              <span style="font-size:10px;font-weight:800;letter-spacing:1px;color:${planColor};background:${planBg};border:1px solid ${planColor}40;border-radius:7px;padding:4px 10px;flex-shrink:0">${st.plan || 'FAST'}</span>
+              ${st.is_alumni
+                ? `<span style="font-size:9px;font-weight:700;letter-spacing:.8px;color:rgba(247,247,247,.3);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:4px 10px;flex-shrink:0">ANTIGO</span>`
+                : `<span style="font-size:10px;font-weight:800;letter-spacing:1px;color:${planColor};background:${planBg};border:1px solid ${planColor}40;border-radius:7px;padding:4px 10px;flex-shrink:0">${st.plan || 'FAST'}</span>`}
             </div>`;
           }).join('')}
     </div>
@@ -1398,7 +1430,15 @@ async function openStudentDetail(studentId) {
           <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
-          ${['super_admin','admin'].includes(S.currentRole) ? `<button onclick="deleteStudent('${studentId}')" style="background:none;border:1px solid rgba(248,113,113,.2);border-radius:7px;color:rgba(248,113,113,.5);cursor:pointer;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px;font-family:inherit;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.5)';this.style.background='rgba(248,113,113,.08)'" onmouseleave="this.style.color='rgba(248,113,113,.5)';this.style.borderColor='rgba(248,113,113,.2)';this.style.background='none'">
+          ${['super_admin','admin'].includes(S.currentRole) ? `
+          ${st.is_alumni
+            ? `<button onclick="restoreStudent('${studentId}')" style="background:none;border:1px solid rgba(34,197,94,.25);border-radius:7px;color:rgba(34,197,94,.6);cursor:pointer;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px;font-family:inherit;transition:all .15s" onmouseenter="this.style.color='#22c55e';this.style.borderColor='rgba(34,197,94,.5)';this.style.background='rgba(34,197,94,.08)'" onmouseleave="this.style.color='rgba(34,197,94,.6)';this.style.borderColor='rgba(34,197,94,.25)';this.style.background='none'">
+              <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.86"/></svg> Restaurar
+            </button>`
+            : `<button onclick="moveToAlumni('${studentId}')" style="background:none;border:1px solid rgba(245,158,11,.2);border-radius:7px;color:rgba(245,158,11,.5);cursor:pointer;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px;font-family:inherit;transition:all .15s" onmouseenter="this.style.color='#f59e0b';this.style.borderColor='rgba(245,158,11,.5)';this.style.background='rgba(245,158,11,.08)'" onmouseleave="this.style.color='rgba(245,158,11,.5)';this.style.borderColor='rgba(245,158,11,.2)';this.style.background='none'">
+              <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Ex-Aluno
+            </button>`}
+          <button onclick="deleteStudent('${studentId}')" style="background:none;border:1px solid rgba(248,113,113,.2);border-radius:7px;color:rgba(248,113,113,.5);cursor:pointer;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px;font-family:inherit;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.5)';this.style.background='rgba(248,113,113,.08)'" onmouseleave="this.style.color='rgba(248,113,113,.5)';this.style.borderColor='rgba(248,113,113,.2)';this.style.background='none'">
             <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Excluir aluno
           </button>` : ''}
         </div>
@@ -1450,6 +1490,19 @@ async function openStudentDetail(studentId) {
           </div>
           <div id="se-err" style="font-size:11px;color:#f87171;display:none"></div>
           <button id="se-save-btn" onclick="saveStudentEdit('${studentId}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;width:100%">Salvar Alterações</button>
+
+          ${['super_admin','admin'].includes(S.currentRole) ? `
+          <div style="border-top:1px solid rgba(255,255,255,.07);margin-top:12px;padding-top:12px">
+            ${st.is_alumni
+              ? `<button onclick="restoreStudent('${studentId}')" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px 16px;color:#22c55e;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s" onmouseenter="this.style.background='rgba(34,197,94,.15)'" onmouseleave="this.style.background='rgba(34,197,94,.08)'">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.86"/></svg>
+                  Restaurar como Aluno Ativo
+                </button>`
+              : `<button onclick="moveToAlumni('${studentId}')" style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px 16px;color:#f59e0b;font-size:12px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s" onmouseenter="this.style.background='rgba(245,158,11,.12)'" onmouseleave="this.style.background='rgba(245,158,11,.06)'">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  Mover para Antigos Alunos
+                </button>`}
+          </div>` : ''}
         </div>
 
         <!-- TAB: CALLS -->
@@ -1777,6 +1830,59 @@ async function deleteStudent(studentId) {
   document.getElementById('mr').innerHTML = '';
   document.getElementById('pc').innerHTML = renderPage('students');
   lucide.createIcons();
+}
+
+async function expUpgradePlan(studentId) {
+  const sel = document.getElementById('exp-upgrade-' + studentId);
+  const newPlan = sel?.value;
+  if (!newPlan) { showToast('Selecione um plano primeiro.', 'error'); return; }
+  const st = S.students.list.find(s => s.id === studentId) || S.expirations.list.find(s => s.id === studentId);
+  const name = st?.full_name || st?.email || 'Aluno';
+  if (!confirm(`Fazer upgrade de ${name} para o plano ${newPlan}?`)) return;
+  const { error } = await SB.from('student_profiles').update({ plan: newPlan }).eq('id', studentId);
+  if (error) { showToast('Erro: ' + error.message, 'error'); return; }
+  if (st) st.plan = newPlan;
+  const stMain = S.students.list.find(s => s.id === studentId);
+  if (stMain && stMain !== st) stMain.plan = newPlan;
+  S.expirations.list = [];
+  await loadExpirations();
+  document.getElementById('pc').innerHTML = renderPage('expirations');
+  lucide.createIcons();
+  showToast(`${name} agora está no plano ${newPlan}!`, 'success');
+}
+
+async function moveToAlumni(studentId) {
+  const st = S.students.list.find(s => s.id === studentId) || S.expirations.list.find(s => s.id === studentId);
+  const name = st?.full_name || st?.email || 'este aluno';
+  if (!confirm(`Mover ${name} para Antigos Alunos?\n\nO aluno continuará no sistema, mas será separado da lista de alunos ativos.`)) return;
+  const { error } = await SB.from('student_profiles').update({ is_alumni: true }).eq('id', studentId);
+  if (error) { showToast('Erro ao mover: ' + error.message, 'error'); return; }
+  const idx = S.students.list.findIndex(s => s.id === studentId);
+  if (idx !== -1) S.students.list[idx].is_alumni = true;
+  document.getElementById('mr').innerHTML = '';
+  // Atualiza a página atual
+  if (S.page === 'expirations') {
+    S.expirations.list = S.expirations.list.filter(s => s.id !== studentId);
+    document.getElementById('pc').innerHTML = renderPage('expirations');
+  } else {
+    document.getElementById('pc').innerHTML = renderPage('students');
+  }
+  lucide.createIcons();
+  showToast(`${name} movido para Antigos Alunos.`, 'success');
+}
+
+async function restoreStudent(studentId) {
+  const st = S.students.list.find(s => s.id === studentId);
+  const name = st?.full_name || st?.email || 'este aluno';
+  if (!confirm(`Restaurar ${name} como aluno ativo?`)) return;
+  const { error } = await SB.from('student_profiles').update({ is_alumni: false }).eq('id', studentId);
+  if (error) { showToast('Erro ao restaurar: ' + error.message, 'error'); return; }
+  const idx = S.students.list.findIndex(s => s.id === studentId);
+  if (idx !== -1) S.students.list[idx].is_alumni = false;
+  document.getElementById('mr').innerHTML = '';
+  document.getElementById('pc').innerHTML = renderPage('students');
+  lucide.createIcons();
+  showToast(`${name} restaurado como aluno ativo.`, 'success');
 }
 
 async function resetStudentPassword(email) {
@@ -2314,8 +2420,16 @@ document.addEventListener('click', function(e) {
     case 'view-student':
       openStudentDetail(id);
       break;
+    case 'toggle-alumni':
+      S.students.showAlumni = t.dataset.alumni === '1';
+      S.students.planFilter = '';
+      S.students.search = '';
+      document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
+      break;
     case 'filter-plan':
       S.students.planFilter = t.dataset.plan || '';
+      S.students.showAlumni = false;
       document.getElementById('pc').innerHTML = renderPage('students');
       lucide.createIcons();
       break;
