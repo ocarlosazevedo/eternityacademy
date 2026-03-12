@@ -843,20 +843,6 @@ function pageProgress() {
       </div>
     </div>` : ''}
 
-    <!-- Certificado -->
-    ${pct === 100 ? `
-    <div style="margin-top:28px;background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(112,34,187,.08));border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:24px 28px;text-align:center;animation:fadeUp .4s ease">
-      <div style="width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      </div>
-      <div style="font-size:16px;font-weight:900;color:#22c55e;margin-bottom:4px">Mentoria Concluída!</div>
-      <p style="font-size:13px;color:rgba(247,247,247,.45);line-height:1.6;margin-bottom:18px">Parabéns! Você completou todas as calls do plano ${pInfo?.label||S.dash.plan}.<br>Baixe seu certificado de conclusão.</p>
-      <button onclick="generateCertificate()" style="background:linear-gradient(135deg,#166534,#22c55e);border:none;border-radius:12px;padding:14px 28px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:.3px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform=''">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Baixar Certificado
-      </button>
-    </div>` : ''}
-
     <!-- Tarefas -->
     <div style="margin-top:32px">
       <div class="lbl" style="margin-bottom:16px">TAREFAS DE EXECUÇÃO</div>
@@ -1462,113 +1448,6 @@ async function loadDashTasks() {
       .order('created_at');
     S.dash.tasks = data || [];
   } catch(e) { S.dash.tasks = null; /* fallback to hardcoded HW */ }
-}
-
-/* ─── Certificate generation ──────────────────────────────────────── */
-function generateCertificate() {
-  const name = S.user?.user_metadata?.name || S.user?.email?.split('@')[0] || 'Aluno';
-  const plan = S.dash.plan || 'FAST';
-  const pInfo = PLAN_INFO[plan];
-  const today = new Date();
-  const dateStr = `${today.getDate().toString().padStart(2,'0')}/${(today.getMonth()+1).toString().padStart(2,'0')}/${today.getFullYear()}`;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 1600; canvas.height = 1130;
-  const ctx = canvas.getContext('2d');
-
-  // Background
-  const bgGrad = ctx.createLinearGradient(0,0,1600,1130);
-  bgGrad.addColorStop(0,'#0a0a0a'); bgGrad.addColorStop(0.5,'#1a0a2e'); bgGrad.addColorStop(1,'#0a0a0a');
-  ctx.fillStyle = bgGrad; ctx.fillRect(0,0,1600,1130);
-
-  // Border
-  ctx.strokeStyle = 'rgba(112,34,187,0.4)'; ctx.lineWidth = 3;
-  ctx.strokeRect(40,40,1520,1050);
-  ctx.strokeStyle = 'rgba(112,34,187,0.15)'; ctx.lineWidth = 1;
-  ctx.strokeRect(52,52,1496,1026);
-
-  // Corner accents
-  const drawCorner = (x,y,dx,dy) => {
-    ctx.strokeStyle = '#7022BB'; ctx.lineWidth = 3; ctx.beginPath();
-    ctx.moveTo(x+dx*40,y); ctx.lineTo(x,y); ctx.lineTo(x,y+dy*40); ctx.stroke();
-  };
-  drawCorner(50,50,1,1); drawCorner(1550,50,-1,1); drawCorner(50,1080,1,-1); drawCorner(1550,1080,-1,-1);
-
-  // Top decoration
-  const topGrad = ctx.createLinearGradient(400,0,1200,0);
-  topGrad.addColorStop(0,'transparent'); topGrad.addColorStop(0.5,'rgba(112,34,187,0.3)'); topGrad.addColorStop(1,'transparent');
-  ctx.fillStyle = topGrad; ctx.fillRect(400,42,800,2);
-
-  // Title
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(247,247,247,0.2)'; ctx.font = '600 13px Arial, sans-serif'; ctx.letterSpacing = '8px';
-  ctx.fillText('ETERNITY ACADEMY', 800, 130);
-
-  ctx.fillStyle = '#F7F7F7'; ctx.font = '700 42px Georgia, serif';
-  ctx.fillText('CERTIFICADO DE CONCLUSÃO', 800, 210);
-
-  // Divider
-  const divGrad = ctx.createLinearGradient(500,0,1100,0);
-  divGrad.addColorStop(0,'transparent'); divGrad.addColorStop(0.5,'#7022BB'); divGrad.addColorStop(1,'transparent');
-  ctx.fillStyle = divGrad; ctx.fillRect(500,240,600,2);
-
-  // Body text
-  ctx.fillStyle = 'rgba(247,247,247,0.5)'; ctx.font = '400 18px Arial, sans-serif';
-  ctx.fillText('Certificamos que', 800, 320);
-
-  // Student name
-  ctx.fillStyle = '#F7F7F7'; ctx.font = '700 46px Georgia, serif';
-  ctx.fillText(name.toUpperCase(), 800, 400);
-
-  // Name underline
-  const nameWidth = ctx.measureText(name.toUpperCase()).width;
-  const ulGrad = ctx.createLinearGradient(800-nameWidth/2-20,0,800+nameWidth/2+20,0);
-  ulGrad.addColorStop(0,'transparent'); ulGrad.addColorStop(0.5,'rgba(112,34,187,0.5)'); ulGrad.addColorStop(1,'transparent');
-  ctx.fillStyle = ulGrad; ctx.fillRect(800-nameWidth/2-20,418,nameWidth+40,2);
-
-  // Completion text
-  ctx.fillStyle = 'rgba(247,247,247,0.5)'; ctx.font = '400 18px Arial, sans-serif';
-  ctx.fillText('concluiu com sucesso o programa de mentoria', 800, 490);
-
-  // Plan badge
-  const planLabel = `PLANO ${plan}`;
-  ctx.fillStyle = '#7022BB'; ctx.font = '800 28px Arial, sans-serif';
-  ctx.fillText(planLabel, 800, 550);
-
-  // Plan sub
-  if (pInfo) {
-    ctx.fillStyle = 'rgba(247,247,247,0.35)'; ctx.font = '400 16px Arial, sans-serif';
-    ctx.fillText(pInfo.sub, 800, 585);
-  }
-
-  // Calls info
-  const calls = pInfo ? pInfo.calls : CALLS.filter(c=>!c.bonus).length;
-  ctx.fillStyle = 'rgba(247,247,247,0.4)'; ctx.font = '400 16px Arial, sans-serif';
-  ctx.fillText(`${calls} calls de mentoria completadas`, 800, 640);
-
-  // Date
-  ctx.fillStyle = 'rgba(247,247,247,0.3)'; ctx.font = '400 15px Arial, sans-serif';
-  ctx.fillText(`Emitido em ${dateStr}`, 800, 720);
-
-  // Signature line
-  ctx.strokeStyle = 'rgba(247,247,247,0.15)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(580,880); ctx.lineTo(1020,880); ctx.stroke();
-  ctx.fillStyle = 'rgba(247,247,247,0.4)'; ctx.font = '400 14px Arial, sans-serif';
-  ctx.fillText('Eternity Academy', 800, 910);
-  ctx.fillStyle = 'rgba(247,247,247,0.25)'; ctx.font = '400 12px Arial, sans-serif';
-  ctx.fillText('www.eternityacademy.com.br', 800, 935);
-
-  // Bottom accent
-  const botGrad = ctx.createLinearGradient(400,0,1200,0);
-  botGrad.addColorStop(0,'transparent'); botGrad.addColorStop(0.5,'rgba(112,34,187,0.3)'); botGrad.addColorStop(1,'transparent');
-  ctx.fillStyle = botGrad; ctx.fillRect(400,1086,800,2);
-
-  // Download
-  const link = document.createElement('a');
-  link.download = `Certificado_${plan}_${name.replace(/\s+/g,'_')}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  showToast('Certificado baixado!', 'success');
 }
 
 /* ─── Feedback status ──────────────────────────────────────────────── */
