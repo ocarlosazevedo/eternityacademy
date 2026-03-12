@@ -410,7 +410,7 @@ const S = {
   page: 'dashboard',
   user: null,
   gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
-  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null, myFeedbacks:null, goalAmount:null, editingGoal:false },
+  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null, myFeedbacks:null, goalAmount:null, editingGoal:false, phone:'' },
   links: { list: [] },
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
@@ -1555,7 +1555,7 @@ function pageConfig() {
       <div class="card" style="padding:22px 24px;margin-bottom:16px;border-radius:18px">
         <div style="font-weight:800;font-size:14px;color:#F7F7F7;margin-bottom:20px">Telefone</div>
         ${fieldLabel('NÚMERO / WHATSAPP')}
-        <input id="cfg-phone" type="tel" class="inp" placeholder="+55 00 00000-0000" value="+55 31 99999-0000" style="margin-bottom:8px"/>
+        <input id="cfg-phone" type="tel" class="inp" placeholder="+55 00 00000-0000" value="${S.dash.phone||''}" style="margin-bottom:8px"/>
         <div style="font-size:11px;color:rgba(247,247,247,.22);margin-bottom:16px">Usado para lembretes de call e contato com o mentor.</div>
         ${saveBtnHtml('telefone','Salvar alterações')}
       </div>
@@ -1929,11 +1929,12 @@ async function loadLinks() {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
     const [profileRes, linksRes] = await Promise.all([
-      SB.from('student_profiles').select('plan, goal_amount').eq('id', session.user.id).maybeSingle(),
+      SB.from('student_profiles').select('plan, goal_amount, phone').eq('id', session.user.id).maybeSingle(),
       SB.from('important_links').select('id,name,url,order').eq('student_id', session.user.id).order('order').order('created_at'),
     ]);
     S.dash.plan  = profileRes.data?.plan || null;
     S.dash.goalAmount = profileRes.data?.goal_amount || null;
+    S.dash.phone = profileRes.data?.phone || '';
     S.links.list = linksRes.data || [];
   } catch(e) { /* silencioso */ }
 }
@@ -2053,6 +2054,14 @@ async function saveCfg(id) {
     if(!em) return;
     const {error}=await SB.auth.updateUser({email:em});
     if(error){alert('Erro: '+error.message);return;}
+  } else if(id==='telefone') {
+    const ph=document.getElementById('cfg-phone')?.value?.trim()||'';
+    if(!ph) return;
+    const {data:{session}}=await SB.auth.getSession();
+    if(!session) return;
+    const {error}=await SB.from('student_profiles').update({phone:ph}).eq('id',session.user.id);
+    if(error){showToast('Erro ao salvar telefone: '+error.message,'error');return;}
+    S.dash.phone=ph;
   }
   S.cfg.saved=id;
   document.getElementById('pc').innerHTML=pageConfig();
