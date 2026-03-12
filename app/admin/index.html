@@ -637,15 +637,32 @@ function pageAnalytics() {
   if (!data) return `<div style="padding:60px;text-align:center">${spinner(22)}</div>`;
 
   const now = new Date();
+  const PERIODS = {
+    day:    { label:'Hoje',             days:0 },
+    week:   { label:'Últimos 7 dias',   days:7 },
+    month:  { label:'Últimos 30 dias',  days:30 },
+    prev_month:{ label:'Mês passado',   days:-1 },
+    '90d':  { label:'Últimos 90 dias',  days:90 },
+    '180d': { label:'Últimos 180 dias', days:180 },
+    '1y':   { label:'Último ano',       days:365 },
+  };
+  const pCfg = PERIODS[period] || PERIODS.week;
+
   let startDate;
-  if (period === 'day') {
+  if (pCfg.days === 0) {
     startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  } else if (period === 'week') {
-    startDate = new Date(now); startDate.setDate(now.getDate() - 7);
+  } else if (pCfg.days === -1) {
+    startDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    var endPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
   } else {
-    startDate = new Date(now); startDate.setDate(now.getDate() - 30);
+    startDate = new Date(now); startDate.setDate(now.getDate() - pCfg.days);
   }
-  const inPeriod = (d) => d && new Date(d) >= startDate;
+  const inPeriod = (d) => {
+    if (!d) return false;
+    const dt = new Date(d);
+    if (pCfg.days === -1) return dt >= startDate && dt <= endPrevMonth;
+    return dt >= startDate;
+  };
 
   const { students, bookings, tasks, feedbacks } = data;
   const activeStudents = students.filter(s => !s.is_alumni);
@@ -656,35 +673,39 @@ function pageAnalytics() {
   const periodBookings  = bookings.filter(b => inPeriod(b.scheduled_at));
   const periodTasks     = tasks.filter(t => inPeriod(t.created_at));
   const periodFeedbacks = feedbacks.filter(f => inPeriod(f.created_at));
-  const completedTasks  = tasks.filter(t => t.done);
-  const taskRate        = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+  const periodCompletedTasks = periodTasks.filter(t => t.done);
+  const periodTaskRate  = periodTasks.length > 0 ? Math.round((periodCompletedTasks.length / periodTasks.length) * 100) : 0;
+  const allCompletedTasks = tasks.filter(t => t.done);
+  const allTaskRate     = tasks.length > 0 ? Math.round((allCompletedTasks.length / tasks.length) * 100) : 0;
 
   // Calls por aluno (engajamento)
   const callsByStudent = {};
-  bookings.forEach(b => { callsByStudent[b.student_id] = (callsByStudent[b.student_id]||0) + 1; });
+  periodBookings.forEach(b => { callsByStudent[b.student_id] = (callsByStudent[b.student_id]||0) + 1; });
   const studentsWithCalls = Object.keys(callsByStudent).length;
   const engagementRate = activeStudents.length > 0 ? Math.round((studentsWithCalls / activeStudents.length) * 100) : 0;
 
-  // Rating médio
-  const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((a,f) => a + (f.rating||0), 0) / feedbacks.length).toFixed(1) : '—';
+  // Rating médio do período
+  const avgRating = periodFeedbacks.length > 0 ? (periodFeedbacks.reduce((a,f) => a + (f.rating||0), 0) / periodFeedbacks.length).toFixed(1) : '—';
 
   // Distribuição de planos
   const planDist = { FAST:0, GROWTH:0, ETERNITY:0 };
   activeStudents.forEach(s => { planDist[s.plan||'FAST']++; });
 
-  // Top alunos (mais calls realizadas)
+  // Top alunos (mais calls no período)
+  const allCallsByStudent = {};
+  bookings.forEach(b => { allCallsByStudent[b.student_id] = (allCallsByStudent[b.student_id]||0) + 1; });
   const topStudents = activeStudents.map(s => ({
     ...s,
     callCount: callsByStudent[s.id] || 0,
+    totalCalls: allCallsByStudent[s.id] || 0,
     tasksDone: tasks.filter(t => t.student_id === s.id && t.done).length,
     tasksTotal: tasks.filter(t => t.student_id === s.id).length,
-  })).sort((a,b) => b.callCount - a.callCount).slice(0,5);
+  })).sort((a,b) => b.callCount - a.callCount || b.totalCalls - a.totalCalls).slice(0,5);
 
   // Expirados / expirando
   const expired = activeStudents.filter(s => s.plan_expires_at && new Date(s.plan_expires_at) < now).length;
   const expSoon = activeStudents.filter(s => { if(!s.plan_expires_at) return false; const d=Math.ceil((new Date(s.plan_expires_at)-now)/86400000); return d>=0&&d<=7; }).length;
 
-  const periodLabel = period === 'day' ? 'Hoje' : period === 'week' ? 'Últimos 7 dias' : 'Últimos 30 dias';
   const planColors = { FAST:'#6b7280', GROWTH:'#f59e0b', ETERNITY:'#a855f7' };
 
   const statCard = (val, label, icon, color) => `
@@ -704,14 +725,27 @@ function pageAnalytics() {
       <div>
         <div class="lbl">MÉTRICAS</div>
         <h1 class="ph1">Analytics</h1>
-        <p class="sub" style="margin-top:4px">${periodLabel}</p>
+        <p class="sub" style="margin-top:4px">${pCfg.label}</p>
       </div>
-      <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border-radius:10px;padding:3px">
-        ${['day','week','month'].map(p => {
-          const lbl = p==='day'?'Dia':p==='week'?'Semana':'Mês';
-          const active = period === p;
-          return `<button data-action="analytics-period" data-period="${p}" style="padding:6px 14px;border-radius:7px;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;border:none;font-family:inherit;transition:all .15s;background:${active?'rgba(255,255,255,.1)':'transparent'};color:${active?'#F7F7F7':'rgba(247,247,247,.4)'}">${lbl}</button>`;
-        }).join('')}
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <!-- Period selector -->
+        <div style="position:relative">
+          <button id="analytics-period-btn" onclick="document.getElementById('analytics-period-dd').style.display=document.getElementById('analytics-period-dd').style.display==='none'?'flex':'none'" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#F7F7F7;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap">
+            ${ic('calendar-days',12)} ${pCfg.label}
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div id="analytics-period-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;flex-direction:column;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:6px;min-width:180px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+            ${Object.entries(PERIODS).map(([k,v]) => `
+              <button data-action="analytics-period" data-period="${k}" style="padding:8px 12px;border-radius:7px;font-size:11px;font-weight:${period===k?'700':'500'};cursor:pointer;border:none;font-family:inherit;text-align:left;transition:all .12s;background:${period===k?'rgba(112,34,187,.15)':'transparent'};color:${period===k?'#a78bfa':'rgba(247,247,247,.5)'}" onmouseenter="this.style.background='rgba(255,255,255,.05)'" onmouseleave="this.style.background='${period===k?'rgba(112,34,187,.15)':'transparent'}'">
+                ${v.label}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <!-- Export -->
+        <button onclick="exportAnalyticsCSV()" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.06);color:#22c55e;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s" onmouseenter="this.style.background='rgba(34,197,94,.12)'" onmouseleave="this.style.background='rgba(34,197,94,.06)'">
+          ${ic('download',12,'color:#22c55e')} Exportar CSV
+        </button>
       </div>
     </div>
 
@@ -726,12 +760,12 @@ function pageAnalytics() {
     <!-- Métricas gerais -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px" class="fu2">
       <div class="stat-card" style="text-align:center">
-        <div class="stat-val" style="font-size:28px">${taskRate}%</div>
-        <div class="stat-lbl">Taxa de Conclusão de Tarefas</div>
+        <div class="stat-val" style="font-size:28px">${periodTaskRate}%</div>
+        <div class="stat-lbl">Conclusão de Tarefas (período)</div>
         <div style="margin-top:8px;background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden">
-          <div style="width:${taskRate}%;height:100%;background:#22c55e;border-radius:6px;transition:width .3s"></div>
+          <div style="width:${periodTaskRate}%;height:100%;background:#22c55e;border-radius:6px;transition:width .3s"></div>
         </div>
-        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${completedTasks.length} de ${tasks.length} tarefas</div>
+        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${periodCompletedTasks.length} de ${periodTasks.length} · geral ${allTaskRate}%</div>
       </div>
       <div class="stat-card" style="text-align:center">
         <div class="stat-val" style="font-size:28px">${engagementRate}%</div>
@@ -743,9 +777,9 @@ function pageAnalytics() {
       </div>
       <div class="stat-card" style="text-align:center">
         <div class="stat-val" style="font-size:28px">${avgRating}</div>
-        <div class="stat-lbl">Nota Média dos Feedbacks</div>
+        <div class="stat-lbl">Nota Média (período)</div>
         <div style="display:flex;justify-content:center;gap:3px;margin-top:8px">${avgRating !== '—' ? starsHtml(Math.round(parseFloat(avgRating))) : '<span style="color:rgba(247,247,247,.15);font-size:11px">Sem feedbacks</span>'}</div>
-        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${feedbacks.length} avaliações</div>
+        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${periodFeedbacks.length} avaliações no período</div>
       </div>
     </div>
 
@@ -790,7 +824,7 @@ function pageAnalytics() {
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px">
             ${ic('users',14,'color:rgba(247,247,247,.4)')}
             <div style="flex:1">
-              <div style="font-size:12px;font-weight:700;color:rgba(247,247,247,.5)">${activeStudents.filter(s=>!callsByStudent[s.id]).length} aluno(s) sem nenhuma call</div>
+              <div style="font-size:12px;font-weight:700;color:rgba(247,247,247,.5)">${activeStudents.filter(s=>!allCallsByStudent[s.id]).length} aluno(s) sem nenhuma call</div>
             </div>
           </div>
         </div>
@@ -799,7 +833,7 @@ function pageAnalytics() {
 
     <!-- Top Alunos -->
     <div class="stat-card" style="margin-bottom:24px">
-      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">TOP ALUNOS (MAIS CALLS)</div>
+      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">TOP ALUNOS NO PERÍODO</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${topStudents.length === 0
           ? `<div style="text-align:center;padding:20px;color:rgba(247,247,247,.2);font-size:12px">Nenhum dado disponível</div>`
@@ -810,7 +844,7 @@ function pageAnalytics() {
               ${avatar(s.full_name||s.email||'?',32)}
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:12px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.full_name||'—'}</div>
-                <div style="font-size:10px;color:rgba(247,247,247,.3)">${s.callCount} call${s.callCount!==1?'s':''} · ${s.tasksDone}/${s.tasksTotal} tarefas</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.3)">${s.callCount} call${s.callCount!==1?'s':''} no período · ${s.tasksDone}/${s.tasksTotal} tarefas</div>
               </div>
               <span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}30;border-radius:5px;padding:2px 7px">${s.plan||'FAST'}</span>
             </div>`;
@@ -819,6 +853,45 @@ function pageAnalytics() {
     </div>
 
   </div>`;
+}
+
+function exportAnalyticsCSV() {
+  const { period, data } = S.analytics;
+  if (!data) return;
+  const now = new Date();
+  const PERIODS = {
+    day:{label:'Hoje',days:0}, week:{label:'Ultimos_7_dias',days:7}, month:{label:'Ultimos_30_dias',days:30},
+    prev_month:{label:'Mes_passado',days:-1}, '90d':{label:'Ultimos_90_dias',days:90}, '180d':{label:'Ultimos_180_dias',days:180}, '1y':{label:'Ultimo_ano',days:365},
+  };
+  const pCfg = PERIODS[period] || PERIODS.week;
+  let startDate;
+  if (pCfg.days === 0) { startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); }
+  else if (pCfg.days === -1) { startDate = new Date(now.getFullYear(), now.getMonth()-1, 1); var endPM = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59); }
+  else { startDate = new Date(now); startDate.setDate(now.getDate() - pCfg.days); }
+  const inP = (d) => { if(!d) return false; const dt=new Date(d); if(pCfg.days===-1) return dt>=startDate&&dt<=endPM; return dt>=startDate; };
+
+  const { students, bookings, tasks, feedbacks } = data;
+  const rows = [['Aluno','Email','Plano','Status','Calls no Período','Tarefas Feitas','Tarefas Total','Feedbacks','Nota Média','Expiração']];
+  students.forEach(s => {
+    const pCalls = bookings.filter(b => b.student_id === s.id && inP(b.scheduled_at)).length;
+    const sTasks = tasks.filter(t => t.student_id === s.id);
+    const sDone  = sTasks.filter(t => t.done).length;
+    const sFb    = feedbacks.filter(f => f.student_id === s.id && inP(f.created_at));
+    const sAvg   = sFb.length > 0 ? (sFb.reduce((a,f)=>a+(f.rating||0),0)/sFb.length).toFixed(1) : '';
+    rows.push([
+      s.full_name||'', s.email||'', s.plan||'FAST', s.is_alumni?'Antigo':'Ativo',
+      pCalls, sDone, sTasks.length, sFb.length, sAvg, s.plan_expires_at||'',
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analytics_${pCfg.label}_${pad(now.getDate())}${pad(now.getMonth()+1)}${now.getFullYear()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado!', 'success');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -2654,6 +2727,8 @@ document.addEventListener('click', function(e) {
       break;
     case 'analytics-period':
       S.analytics.period = t.dataset.period || 'week';
+      const dd = document.getElementById('analytics-period-dd');
+      if (dd) dd.style.display = 'none';
       document.getElementById('pc').innerHTML = renderPage('analytics');
       lucide.createIcons();
       break;
