@@ -307,9 +307,9 @@ const S = {
   // Availability
   avail: { slots:[], blocked:[], yr: new Date().getFullYear(), mo: new Date().getMonth(), loading:false },
   // Bookings
-  bookings: { list:[], loading:false, filter:'upcoming', search:'' },
+  bookings: { list:[], loading:false, filter:'upcoming', search:'', page:0, perPage:30, _ts:0 },
   // Students
-  students: { list:[], loading:false, search:'', planFilter:'', showAlumni:false, selected:[] },
+  students: { list:[], loading:false, search:'', planFilter:'', showAlumni:false, selected:[], page:0, perPage:30, _ts:0 },
   // Tasks
   tasks: { list:[], loading:false, filterStudentId:'' },
   // Feedbacks
@@ -505,7 +505,11 @@ async function loadAvailability() {
   S.avail.blocked = blockRes.data || [];
 }
 
-async function loadBookings() {
+const CACHE_TTL = 60000; // 60s
+
+async function loadBookings(forceRefresh=false) {
+  const fresh = Date.now() - S.bookings._ts < CACHE_TTL;
+  if (S.bookings.list.length && !forceRefresh && fresh) return;
   const [bookRes, profRes] = await Promise.all([
     SB.from('bookings').select('*')
       .eq('mentor_email', MENTOR_EMAIL)
@@ -520,12 +524,14 @@ async function loadBookings() {
     _sName:  b.student_name  || profs[b.student_id]?.full_name  || profs[b.student_id]?.email || '—',
     _sEmail: b.student_email || profs[b.student_id]?.email || '—',
   }));
+  S.bookings._ts = Date.now();
 }
-
 async function loadStudents(forceRefresh=false) {
-  if (S.students.list.length && !forceRefresh) return;
+  const fresh = Date.now() - S.students._ts < CACHE_TTL;
+  if (S.students.list.length && !forceRefresh && fresh) return;
   const { data } = await SB.from('student_profiles').select('*').order('created_at', {ascending:false});
   S.students.list = data || [];
+  S.students._ts = Date.now();
 }
 
 async function loadTasks() {
@@ -1284,6 +1290,13 @@ function pageBookings() {
       })
     : timeFiltered;
 
+  const totalFiltered = filtered.length;
+  const { page: pg, perPage } = S.bookings;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / perPage));
+  const safePage = Math.min(pg, totalPages - 1);
+  if (safePage !== pg) S.bookings.page = safePage;
+  const paginated = filtered.slice(safePage * perPage, (safePage + 1) * perPage);
+
   return `
   <div style="padding:28px 32px;max-width:800px">
     <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:14px">
@@ -1303,9 +1316,9 @@ function pageBookings() {
     </div>
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
-      ${filtered.length === 0
+      ${totalFiltered === 0
         ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('calendar-x',16)} ${q ? 'Nenhum resultado para "'+search+'"' : 'Nenhum agendamento '+(filter==='upcoming'?'futuro':'passado')}</div>`
-        : filtered.map(b=>{
+        : paginated.map(b=>{
             const sName = b._sName || 'Aluno';
             const isPast = b.scheduled_at <= now;
             return `<div class="trow">
@@ -1321,6 +1334,15 @@ function pageBookings() {
             </div>`;
           }).join('')}
     </div>
+
+    ${totalPages > 1 ? `
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px">
+      <button data-action="bookings-page" data-pg="${safePage-1}" ${safePage===0?'disabled':''} style="padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:${safePage===0?'default':'pointer'};border:1px solid rgba(255,255,255,.1);background:transparent;color:${safePage===0?'rgba(247,247,247,.15)':'rgba(247,247,247,.5)'};font-family:inherit">${ic('chevron-left',12)} Anterior</button>
+      <span style="font-size:11px;color:rgba(247,247,247,.35);font-weight:600">${safePage+1} de ${totalPages}</span>
+      <button data-action="bookings-page" data-pg="${safePage+1}" ${safePage>=totalPages-1?'disabled':''} style="padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:${safePage>=totalPages-1?'default':'pointer'};border:1px solid rgba(255,255,255,.1);background:transparent;color:${safePage>=totalPages-1?'rgba(247,247,247,.15)':'rgba(247,247,247,.5)'};font-family:inherit">Próximo ${ic('chevron-right',12)}</button>
+    </div>
+    <div style="text-align:center;margin-top:6px;font-size:10px;color:rgba(247,247,247,.2)">${totalFiltered} resultado${totalFiltered!==1?'s':''}</div>
+    ` : ''}
   </div>`;
 }
 
@@ -1340,6 +1362,13 @@ function pageStudents() {
     ? base.filter(st => (st.full_name||'').toLowerCase().includes(q) || (st.email||'').toLowerCase().includes(q))
     : base;
   if (!showAlumni && planFilter) filtered = filtered.filter(st => (st.plan||'FAST') === planFilter);
+
+  const totalFiltered = filtered.length;
+  const { page: pg, perPage } = S.students;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / perPage));
+  const safePage = Math.min(pg, totalPages - 1);
+  if (safePage !== pg) S.students.page = safePage;
+  const paginated = filtered.slice(safePage * perPage, (safePage + 1) * perPage);
 
   const plans = ['FAST','GROWTH','ETERNITY'];
   const planCount = p => activeList.filter(s=>(s.plan||'FAST')===p).length;
@@ -1385,9 +1414,9 @@ function pageStudents() {
     </div>` : ''}
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
-      ${filtered.length === 0
+      ${totalFiltered === 0
         ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('users',16)} ${q ? 'Nenhum resultado para "'+search+'"' : showAlumni ? 'Nenhum antigo aluno registrado ainda' : 'Nenhum aluno cadastrado ainda'}</div>`
-        : filtered.map(st=>{
+        : paginated.map(st=>{
             const planColor = st.plan==='ETERNITY'?'#a855f7':st.plan==='GROWTH'?'#f59e0b':'#6b7280';
             const planBg    = st.plan==='ETERNITY'?'rgba(168,85,247,0.12)':st.plan==='GROWTH'?'rgba(245,158,11,0.1)':'rgba(107,114,128,0.1)';
             const isSel = selected.includes(st.id);
@@ -1409,6 +1438,15 @@ function pageStudents() {
             </div>`;
           }).join('')}
     </div>
+
+    ${totalPages > 1 ? `
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px">
+      <button data-action="students-page" data-pg="${safePage-1}" ${safePage===0?'disabled':''} style="padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:${safePage===0?'default':'pointer'};border:1px solid rgba(255,255,255,.1);background:transparent;color:${safePage===0?'rgba(247,247,247,.15)':'rgba(247,247,247,.5)'};font-family:inherit">${ic('chevron-left',12)} Anterior</button>
+      <span style="font-size:11px;color:rgba(247,247,247,.35);font-weight:600">${safePage+1} de ${totalPages}</span>
+      <button data-action="students-page" data-pg="${safePage+1}" ${safePage>=totalPages-1?'disabled':''} style="padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:${safePage>=totalPages-1?'default':'pointer'};border:1px solid rgba(255,255,255,.1);background:transparent;color:${safePage>=totalPages-1?'rgba(247,247,247,.15)':'rgba(247,247,247,.5)'};font-family:inherit">Próximo ${ic('chevron-right',12)}</button>
+    </div>
+    <div style="text-align:center;margin-top:6px;font-size:10px;color:rgba(247,247,247,.2)">${totalFiltered} resultado${totalFiltered!==1?'s':''}</div>
+    ` : ''}
   </div>`;
 }
 
@@ -2868,6 +2906,7 @@ document.addEventListener('click', function(e) {
       break;
     case 'book-filter':
       S.bookings.filter = v;
+      S.bookings.page = 0;
       document.getElementById('pc').innerHTML = renderPage('bookings');
       lucide.createIcons();
       break;
@@ -2931,13 +2970,25 @@ document.addEventListener('click', function(e) {
       S.students.showAlumni = t.dataset.alumni === '1';
       S.students.planFilter = '';
       S.students.search = '';
+      S.students.page = 0;
       document.getElementById('pc').innerHTML = renderPage('students');
       lucide.createIcons();
       break;
     case 'filter-plan':
       S.students.planFilter = t.dataset.plan || '';
       S.students.showAlumni = false;
+      S.students.page = 0;
       document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
+      break;
+    case 'students-page':
+      S.students.page = parseInt(t.dataset.pg) || 0;
+      document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
+      break;
+    case 'bookings-page':
+      S.bookings.page = parseInt(t.dataset.pg) || 0;
+      document.getElementById('pc').innerHTML = renderPage('bookings');
       lucide.createIcons();
       break;
     case 'close-student-detail':
@@ -2956,6 +3007,7 @@ document.addEventListener('input', function(e) {
   switch (t.dataset.input) {
     case 'search-students':
       S.students.search = v;
+      S.students.page = 0;
       debounce('search-students', () => {
         document.getElementById('pc').innerHTML = renderPage('students');
         lucide.createIcons();
@@ -2964,6 +3016,7 @@ document.addEventListener('input', function(e) {
       break;
     case 'search-bookings':
       S.bookings.search = v;
+      S.bookings.page = 0;
       debounce('search-bookings', () => {
         document.getElementById('pc').innerHTML = renderPage('bookings');
         lucide.createIcons();
@@ -3061,13 +3114,30 @@ SB.auth.getSession().then(async function({ data: { session } }) {
   document.getElementById('app').style.display = 'flex';
   render();
 
-  // Auto-refresh a cada 30s nas páginas tasks, bookings e feedbacks
-  setInterval(async () => {
-    if (!['tasks','bookings','feedbacks'].includes(S.page)) return;
-    await loadPageData(S.page);
-    document.getElementById('pc').innerHTML = renderPage(S.page);
-    lucide.createIcons();
-  }, 30000);
+  // Supabase Realtime — atualiza a página automaticamente quando dados mudam
+  function realtimeRefresh(table) {
+    const pageMap = { bookings:'bookings', tasks:'tasks', feedbacks:'feedbacks', student_profiles:'students', weekly_growth:'students' };
+    const targetPage = pageMap[table];
+    // Invalidar cache
+    if (table === 'student_profiles') S.students._ts = 0;
+    if (table === 'bookings') S.bookings._ts = 0;
+    // Se estiver na página afetada, recarrega
+    if (targetPage && S.page === targetPage) {
+      loadPageData(S.page).then(() => {
+        document.getElementById('pc').innerHTML = renderPage(S.page);
+        lucide.createIcons();
+      });
+    }
+    // Sempre atualizar overview se dados mudaram
+    if (S.page === 'overview') { S.stats.loaded = false; loadAndRender('overview'); }
+  }
+  SB.channel('admin-realtime')
+    .on('postgres_changes', { event:'*', schema:'public', table:'bookings' },    () => realtimeRefresh('bookings'))
+    .on('postgres_changes', { event:'*', schema:'public', table:'tasks' },       () => realtimeRefresh('tasks'))
+    .on('postgres_changes', { event:'*', schema:'public', table:'feedbacks' },   () => realtimeRefresh('feedbacks'))
+    .on('postgres_changes', { event:'*', schema:'public', table:'student_profiles' }, () => realtimeRefresh('student_profiles'))
+    .on('postgres_changes', { event:'*', schema:'public', table:'weekly_growth' },    () => realtimeRefresh('weekly_growth'))
+    .subscribe();
 });
 
 SB.auth.onAuthStateChange(function(event) {
