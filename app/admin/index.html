@@ -729,10 +729,9 @@ function pageAnalytics() {
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <!-- Period selector -->
-        <button onclick="toggleAnalyticsDd()" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#F7F7F7;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap">
-          ${ic('calendar-days',12)} ${pCfg.label}
-          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+        <select onchange="S.analytics.period=this.value;document.getElementById('pc').innerHTML=renderPage('analytics');lucide.createIcons()" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#F7F7F7;font-family:inherit;outline:none;color-scheme:dark">
+          ${Object.entries(PERIODS).map(([k,v]) => `<option value="${k}" ${period===k?'selected':''}>${v.label}</option>`).join('')}
+        </select>
         <!-- Export -->
         <button onclick="exportAnalyticsCSV()" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.06);color:#22c55e;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s" onmouseenter="this.style.background='rgba(34,197,94,.12)'" onmouseleave="this.style.background='rgba(34,197,94,.06)'">
           ${ic('download',12,'color:#22c55e')} Exportar CSV
@@ -845,22 +844,7 @@ function pageAnalytics() {
 
   </div>
 
-  <!-- Period dropdown overlay -->
-  <div id="analytics-period-dd" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999">
-    <div style="position:fixed;top:80px;right:40px;flex-direction:column;background:#1a1a1a;border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 12px 40px rgba(0,0,0,.8);display:flex" onclick="event.stopPropagation()">
-      <div style="padding:8px 12px 6px;font-size:9px;font-weight:700;color:rgba(247,247,247,.25);letter-spacing:1.5px">PERÍODO</div>
-      ${Object.entries(PERIODS).map(([k,v]) => `
-        <button data-action="analytics-period" data-period="${k}" style="padding:9px 12px;border-radius:7px;font-size:11px;font-weight:${period===k?'700':'500'};cursor:pointer;border:none;font-family:inherit;text-align:left;transition:all .12s;background:${period===k?'rgba(112,34,187,.15)':'transparent'};color:${period===k?'#a78bfa':'rgba(247,247,247,.55)'}" onmouseenter="if('${period}'!=='${k}')this.style.background='rgba(255,255,255,.06)'" onmouseleave="this.style.background='${period===k?'rgba(112,34,187,.15)':'transparent'}'">
-          ${v.label}
-        </button>
-      `).join('')}
-    </div>
   </div>`;
-}
-
-function toggleAnalyticsDd() {
-  const dd = document.getElementById('analytics-period-dd');
-  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
 }
 
 function exportAnalyticsCSV() {
@@ -2731,13 +2715,6 @@ document.addEventListener('click', function(e) {
       S.students.planFilter = t.dataset.plan || '';
       S.students.showAlumni = false;
       document.getElementById('pc').innerHTML = renderPage('students');
-      lucide.createIcons();
-      break;
-    case 'analytics-period':
-      S.analytics.period = t.dataset.period || 'week';
-      const dd = document.getElementById('analytics-period-dd');
-      if (dd) dd.style.display = 'none';
-      document.getElementById('pc').innerHTML = renderPage('analytics');
       lucide.createIcons();
       break;
     case 'close-student-detail':
