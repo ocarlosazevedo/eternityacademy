@@ -31,7 +31,9 @@
     html.light .topbar { background: #fff; border-color: rgba(0,0,0,.08); }
     html.light .topbar-bc { color: rgba(0,0,0,.45); }
     html.light .topbar-logo { border-color: rgba(0,0,0,.08); }
-    html.light .topbar-logo img { filter: invert(1); }
+    html.light .topbar-logo .logo-dark { display: none; }
+    html.light .topbar-logo .logo-light { display: block !important; }
+    .topbar-logo .logo-light { display: none; }
     html.light .sidebar { background: #fff; border-color: rgba(0,0,0,.08); }
     html.light .sb-name { color: #1a1a1a; }
     html.light .sb-foot { color: rgba(0,0,0,.3); border-color: rgba(0,0,0,.08); }
@@ -214,7 +216,8 @@
   <!-- Topbar full-width -->
   <header class="topbar">
     <div class="topbar-logo">
-      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy"/>
+      <img class="logo-dark" src="/medias/eahorizontalglow.png" alt="Eternity Academy"/>
+      <img class="logo-light" src="/medias/eahorizontal-dark.png" alt="Eternity Academy"/>
     </div>
     <div class="topbar-bc">Início <span style="color:rgba(247,247,247,0.1)">›</span> <strong id="bc">Dashboard</strong></div>
   </header>
