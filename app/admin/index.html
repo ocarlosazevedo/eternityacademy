@@ -718,17 +718,19 @@ async function loadAnalytics() {
   if (S.analytics.data && !S.analytics.loading) return;
   S.analytics.loading = true;
   const now = new Date();
-  const [stRes, bkRes, tkRes, fbRes] = await Promise.all([
+  const [stRes, bkRes, tkRes, fbRes, gwRes] = await Promise.all([
     SB.from('student_profiles').select('id,full_name,plan,is_alumni,created_at,plan_expires_at'),
     SB.from('bookings').select('id,student_id,scheduled_at,status,created_at'),
     SB.from('tasks').select('id,student_id,done,created_at'),
     SB.from('feedbacks').select('id,student_id,rating,created_at'),
+    SB.from('weekly_growth').select('student_id,gross_revenue,net_revenue,created_at'),
   ]);
   S.analytics.data = {
     students: stRes.data || [],
     bookings: bkRes.data || [],
     tasks: tkRes.data || [],
     feedbacks: fbRes.data || [],
+    growth: gwRes.data || [],
     fetchedAt: now,
   };
   S.analytics.loading = false;
@@ -766,7 +768,7 @@ function pageAnalytics() {
     return dt >= startDate;
   };
 
-  const { students, bookings, tasks, feedbacks } = data;
+  const { students, bookings, tasks, feedbacks, growth } = data;
   const activeStudents = students.filter(s => !s.is_alumni);
   const alumniStudents = students.filter(s => !!s.is_alumni);
 
@@ -793,16 +795,17 @@ function pageAnalytics() {
   const planDist = { FAST:0, GROWTH:0, ETERNITY:0 };
   activeStudents.forEach(s => { planDist[s.plan||'FAST']++; });
 
-  // Top alunos (mais calls no período)
+  // Top faturamento no período
   const allCallsByStudent = {};
   bookings.forEach(b => { allCallsByStudent[b.student_id] = (allCallsByStudent[b.student_id]||0) + 1; });
-  const topStudents = activeStudents.map(s => ({
+  const revenueByStudent = {};
+  (growth || []).filter(g => inPeriod(g.created_at)).forEach(g => {
+    revenueByStudent[g.student_id] = (revenueByStudent[g.student_id]||0) + Number(g.gross_revenue||0);
+  });
+  const topRevenue = students.filter(s => revenueByStudent[s.id] > 0).map(s => ({
     ...s,
-    callCount: callsByStudent[s.id] || 0,
-    totalCalls: allCallsByStudent[s.id] || 0,
-    tasksDone: tasks.filter(t => t.student_id === s.id && t.done).length,
-    tasksTotal: tasks.filter(t => t.student_id === s.id).length,
-  })).sort((a,b) => b.callCount - a.callCount || b.totalCalls - a.totalCalls).slice(0,5);
+    revenue: revenueByStudent[s.id] || 0,
+  })).sort((a,b) => b.revenue - a.revenue).slice(0,5);
 
   // Expirados / expirando
   const expired = activeStudents.filter(s => s.plan_expires_at && new Date(s.plan_expires_at) < now).length;
@@ -923,20 +926,21 @@ function pageAnalytics() {
       </div>
     </div>
 
-    <!-- Top Alunos -->
+    <!-- Top Faturamento -->
     <div class="stat-card" style="margin-bottom:24px">
-      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">TOP ALUNOS NO PERÍODO</div>
+      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">ALUNOS QUE MAIS FATURARAM NO PERÍODO</div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        ${topStudents.length === 0
-          ? `<div style="text-align:center;padding:20px;color:rgba(247,247,247,.2);font-size:12px">Nenhum dado disponível</div>`
-          : topStudents.map((s,i) => {
+        ${topRevenue.length === 0
+          ? `<div style="text-align:center;padding:20px;color:rgba(247,247,247,.2);font-size:12px">Nenhum faturamento registrado no período</div>`
+          : topRevenue.map((s,i) => {
             const c = planColors[s.plan||'FAST'];
+            const rev = 'US$ ' + s.revenue.toLocaleString('en-US',{minimumFractionDigits:2});
             return `<div style="display:flex;align-items:center;gap:12px;padding:8px 10px;background:rgba(255,255,255,.02);border-radius:9px">
               <span style="font-size:12px;font-weight:900;color:rgba(247,247,247,.2);width:18px;text-align:center">${i+1}</span>
               ${avatar(s.full_name||s.email||'?',32)}
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:12px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.full_name||'—'}</div>
-                <div style="font-size:10px;color:rgba(247,247,247,.3)">${s.callCount} call${s.callCount!==1?'s':''} no período · ${s.tasksDone}/${s.tasksTotal} tarefas</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.3)">${rev}</div>
               </div>
               <span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}30;border-radius:5px;padding:2px 7px">${s.plan||'FAST'}</span>
             </div>`;
@@ -964,8 +968,10 @@ function exportAnalyticsCSV() {
   else { startDate = new Date(now); startDate.setDate(now.getDate() - pCfg.days); }
   const inP = (d) => { if(!d) return false; const dt=new Date(d); if(pCfg.days===-1) return dt>=startDate&&dt<=endPM; return dt>=startDate; };
 
-  const { students, bookings, tasks, feedbacks } = data;
-  const rows = [['Aluno','Email','Plano','Status','Calls no Período','Tarefas Feitas','Tarefas Total','Feedbacks','Nota Média','Expiração']];
+  const { students, bookings, tasks, feedbacks, growth } = data;
+  const revByStudent = {};
+  (growth||[]).filter(g => inP(g.created_at)).forEach(g => { revByStudent[g.student_id] = (revByStudent[g.student_id]||0) + Number(g.gross_revenue||0); });
+  const rows = [['Aluno','Email','Plano','Status','Faturamento (USD)','Calls no Período','Tarefas Feitas','Tarefas Total','Feedbacks','Nota Média','Expiração']];
   students.forEach(s => {
     const pCalls = bookings.filter(b => b.student_id === s.id && inP(b.scheduled_at)).length;
     const sTasks = tasks.filter(t => t.student_id === s.id);
@@ -974,7 +980,7 @@ function exportAnalyticsCSV() {
     const sAvg   = sFb.length > 0 ? (sFb.reduce((a,f)=>a+(f.rating||0),0)/sFb.length).toFixed(1) : '';
     rows.push([
       s.full_name||'', s.email||'', s.plan||'FAST', s.is_alumni?'Antigo':'Ativo',
-      pCalls, sDone, sTasks.length, sFb.length, sAvg, s.plan_expires_at||'',
+      (revByStudent[s.id]||0).toFixed(2), pCalls, sDone, sTasks.length, sFb.length, sAvg, s.plan_expires_at||'',
     ]);
   });
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
