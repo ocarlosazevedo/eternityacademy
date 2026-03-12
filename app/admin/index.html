@@ -1618,6 +1618,7 @@ async function openStudentDetail(studentId) {
     : S.feedbacks.list.filter(f => f.student_id === studentId);
   let studentLinks = linkRes.data || [];
   const growthData = growthRes.data || [];
+  console.log('[ADMIN GROWTH]', { studentId, growthData, error: growthRes.error });
 
   const PLAN_WEEKS = { FAST:4, GROWTH:12, ETERNITY:48 };
   const maxWeeks = PLAN_WEEKS[st.plan] || 12;
