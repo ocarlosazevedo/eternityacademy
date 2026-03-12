@@ -1739,10 +1739,8 @@ async function openStudentDetail(studentId) {
   const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '—';
   const profitColor = profitPct === '—' ? 'rgba(247,247,247,.3)' : Number(profitPct) >= 30 ? '#22c55e' : Number(profitPct) >= 15 ? '#f59e0b' : '#f87171';
 
-  const GC = { BRL:{s:'R$',l:'pt-BR'}, USD:{s:'US$',l:'en-US'}, EUR:{s:'€',l:'de-DE'}, GBP:{s:'£',l:'en-GB'} };
-  const gCur = (growthData.length > 0 && growthData[0].currency) ? growthData[0].currency : 'BRL';
-  const gc = GC[gCur] || GC.BRL;
-  const gFmt = (v) => gc.s + ' ' + (parseFloat(v)||0).toLocaleString(gc.l,{minimumFractionDigits:2});
+  const gCur = 'USD';
+  const gFmt = (v) => 'US$ ' + (parseFloat(v)||0).toLocaleString('en-US',{minimumFractionDigits:2});
 
   const growthWeekMap = {};
   growthData.forEach(g => { growthWeekMap[g.week_number] = g; });

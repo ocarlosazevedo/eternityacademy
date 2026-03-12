@@ -323,7 +323,7 @@ const S = {
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
   cfg:  { pw:'', pwConf:'', saved:'' },
-  growth: { list:[], loading:false, currency:'BRL' },
+  growth: { list:[], loading:false, currency:'USD', displayCurrency:'USD', rates:null },
 };
 
 const SUPABASE_FN  = 'https://subsagwkktjjujdfpavf.supabase.co/functions/v1';
@@ -973,8 +973,23 @@ async function loadGrowth() {
     .eq('student_id', S.user.id)
     .order('week_number', { ascending: true });
   S.growth.list = data || [];
-  if (data && data.length > 0 && data[0].currency) S.growth.currency = data[0].currency;
+  // Valores são sempre armazenados em USD
+  S.growth.currency = 'USD';
+  if (data && data.length > 0 && data[0].currency) S.growth.displayCurrency = data[0].currency;
   S.growth.loading = false;
+  // Carregar taxas de câmbio
+  if (!S.growth.rates) await loadExchangeRates();
+}
+
+async function loadExchangeRates() {
+  try {
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const json = await res.json();
+    S.growth.rates = json.rates || null;
+  } catch(e) {
+    // Fallback com taxas aproximadas
+    S.growth.rates = { USD:1, BRL:5.70, EUR:0.92, GBP:0.79 };
+  }
 }
 
 async function saveGrowthWeek(weekNum) {
@@ -984,13 +999,20 @@ async function saveGrowthWeek(weekNum) {
   const gross = parseFloat(grossEl.value) || 0;
   const net   = parseFloat(netEl.value) || 0;
 
+  // Valores são sempre armazenados em USD
+  const dc = S.growth.displayCurrency;
+  const rates = S.growth.rates || { USD:1, BRL:5.70, EUR:0.92, GBP:0.79 };
+  const rate = rates[dc] || 1;
+  const grossUSD = dc === 'USD' ? gross : gross / rate;
+  const netUSD   = dc === 'USD' ? net   : net   / rate;
+
   const existing = S.growth.list.find(g => g.week_number === weekNum);
   let error;
   if (existing) {
-    ({ error } = await SB.from('weekly_growth').update({ gross_revenue: gross, net_revenue: net, currency: S.growth.currency, updated_at: new Date().toISOString() }).eq('id', existing.id));
-    if (!error) { existing.gross_revenue = gross; existing.net_revenue = net; existing.currency = S.growth.currency; }
+    ({ error } = await SB.from('weekly_growth').update({ gross_revenue: grossUSD, net_revenue: netUSD, currency: 'USD', updated_at: new Date().toISOString() }).eq('id', existing.id));
+    if (!error) { existing.gross_revenue = grossUSD; existing.net_revenue = netUSD; existing.currency = 'USD'; }
   } else {
-    const row = { student_id: S.user.id, week_number: weekNum, gross_revenue: gross, net_revenue: net, currency: S.growth.currency };
+    const row = { student_id: S.user.id, week_number: weekNum, gross_revenue: grossUSD, net_revenue: netUSD, currency: 'USD' };
     const { data, error: e } = await SB.from('weekly_growth').insert(row).select().single();
     error = e;
     if (!error && data) S.growth.list.push(data);
@@ -1007,10 +1029,18 @@ function pageGrowth() {
   const maxWeeks = pInfo ? pInfo.weeks : 4;
   const list = S.growth.list;
 
-  // Totais
-  const totalGross = list.reduce((a, g) => a + (parseFloat(g.gross_revenue) || 0), 0);
-  const totalNet   = list.reduce((a, g) => a + (parseFloat(g.net_revenue) || 0), 0);
-  const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '0.0';
+  // Taxas e conversão
+  const rates = S.growth.rates || { USD:1, BRL:5.70, EUR:0.92, GBP:0.79 };
+  const dc = S.growth.displayCurrency || 'USD';
+  const rate = rates[dc] || 1;
+  const convert = (usdVal) => (parseFloat(usdVal) || 0) * rate;
+
+  // Totais em USD, depois convertidos
+  const totalGrossUSD = list.reduce((a, g) => a + (parseFloat(g.gross_revenue) || 0), 0);
+  const totalNetUSD   = list.reduce((a, g) => a + (parseFloat(g.net_revenue) || 0), 0);
+  const totalGross = convert(totalGrossUSD);
+  const totalNet   = convert(totalNetUSD);
+  const profitPct  = totalGrossUSD > 0 ? ((totalNetUSD / totalGrossUSD) * 100).toFixed(1) : '0.0';
   const filledWeeks = list.filter(g => parseFloat(g.gross_revenue) > 0 || parseFloat(g.net_revenue) > 0).length;
 
   const CURRENCIES = {
@@ -1019,20 +1049,20 @@ function pageGrowth() {
     EUR: { symbol:'€', locale:'de-DE' },
     GBP: { symbol:'£', locale:'en-GB' },
   };
-  const cur = CURRENCIES[S.growth.currency] || CURRENCIES.BRL;
+  const cur = CURRENCIES[dc] || CURRENCIES.USD;
   const fmtMoney = (v) => {
     const n = parseFloat(v) || 0;
     return cur.symbol + ' ' + n.toLocaleString(cur.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  // Gerar semanas
+  // Gerar semanas (convertidas para moeda de exibição)
   const weeks = [];
   for (let w = 1; w <= maxWeeks; w++) {
     const entry = list.find(g => g.week_number === w);
     weeks.push({
       num: w,
-      gross: entry ? parseFloat(entry.gross_revenue) || 0 : 0,
-      net: entry ? parseFloat(entry.net_revenue) || 0 : 0,
+      gross: entry ? convert(entry.gross_revenue) : 0,
+      net: entry ? convert(entry.net_revenue) : 0,
       saved: !!entry,
     });
   }
@@ -1050,13 +1080,14 @@ function pageGrowth() {
 
     <!-- Seletor de moeda -->
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
-      <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">MOEDA</label>
-      <select onchange="S.growth.currency=this.value;document.getElementById('pc').innerHTML=pageGrowth();lucide.createIcons()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px 12px;color:#F7F7F7;font-size:12px;font-weight:600;font-family:inherit;outline:none;appearance:none;cursor:pointer;min-width:120px">
-        <option value="BRL" ${S.growth.currency==='BRL'?'selected':''}>R$ — Real</option>
-        <option value="USD" ${S.growth.currency==='USD'?'selected':''}>US$ — Dólar</option>
-        <option value="EUR" ${S.growth.currency==='EUR'?'selected':''}>€ — Euro</option>
-        <option value="GBP" ${S.growth.currency==='GBP'?'selected':''}>£ — Libra</option>
+      <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">EXIBIR EM</label>
+      <select onchange="S.growth.displayCurrency=this.value;document.getElementById('pc').innerHTML=pageGrowth();lucide.createIcons()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px 12px;color:#F7F7F7;font-size:12px;font-weight:600;font-family:inherit;outline:none;appearance:none;cursor:pointer;min-width:140px">
+        <option value="USD" ${dc==='USD'?'selected':''}>US$ — Dólar</option>
+        <option value="BRL" ${dc==='BRL'?'selected':''}>R$ — Real</option>
+        <option value="EUR" ${dc==='EUR'?'selected':''}>€ — Euro</option>
+        <option value="GBP" ${dc==='GBP'?'selected':''}>£ — Libra</option>
       </select>
+      ${dc !== 'USD' ? `<span style="font-size:9px;color:rgba(247,247,247,.25);font-weight:600">1 USD = ${rate.toFixed(2)} ${dc}</span>` : ''}
     </div>
 
     <!-- Resumo -->
@@ -1087,7 +1118,7 @@ function pageGrowth() {
           const h = Math.max(8, Math.round((w.gross / maxGross) * 90));
           const hNet = w.gross > 0 ? Math.max(4, Math.round((w.net / w.gross) * h)) : 0;
           return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-            <div style="font-size:8px;color:rgba(247,247,247,.3)">${fmtMoney(w.gross).replace('R$ ','')}</div>
+            <div style="font-size:8px;color:rgba(247,247,247,.3)">${fmtMoney(w.gross).replace(/^[^\\d]+/,'')}</div>
             <div style="width:100%;max-width:40px;position:relative;height:${h}px;border-radius:4px 4px 0 0;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);overflow:hidden">
               <div style="position:absolute;bottom:0;width:100%;height:${hNet}px;background:rgba(59,130,246,.3);border-top:1px solid rgba(59,130,246,.4)"></div>
             </div>
@@ -1125,11 +1156,11 @@ function pageGrowth() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
                 <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO BRUTO (${cur.symbol})</label>
-                <input id="gw-gross-${w.num}" type="number" step="0.01" min="0" value="${w.gross||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#22c55e;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
+                <input id="gw-gross-${w.num}" type="number" step="0.01" min="0" value="${w.gross ? w.gross.toFixed(2) : ''}" placeholder="0.00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#22c55e;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
               </div>
               <div>
                 <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO LÍQUIDO (${cur.symbol})</label>
-                <input id="gw-net-${w.num}" type="number" step="0.01" min="0" value="${w.net||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#3b82f6;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
+                <input id="gw-net-${w.num}" type="number" step="0.01" min="0" value="${w.net ? w.net.toFixed(2) : ''}" placeholder="0.00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#3b82f6;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
               </div>
             </div>
             <button onclick="saveGrowthWeek(${w.num})" style="background:linear-gradient(135deg,#2F054C,#7022BB);border:none;border-radius:9px;padding:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
