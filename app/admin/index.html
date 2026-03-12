@@ -361,9 +361,9 @@ const S = {
   // Students
   students: { list:[], loading:false, search:'', planFilter:'', showAlumni:false, selected:[], page:0, perPage:30, _ts:0 },
   // Tasks
-  tasks: { list:[], loading:false, filterStudentId:'' },
+  tasks: { list:[], loading:false, filterStudentId:'', search:'', sort:'recent' },
   // Feedbacks
-  feedbacks: { list:[], loading:false },
+  feedbacks: { list:[], loading:false, search:'', sort:'recent' },
   // Expirations
   expirations: { list:[], loading:false },
   // Collaborators
@@ -1505,8 +1505,17 @@ function pageStudents() {
    PAGE: TAREFAS
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageTasks() {
-  const { list, filterStudentId } = S.tasks;
+  const { list, filterStudentId, search, sort } = S.tasks;
   const { list: stList } = S.students;
+  const q = search.toLowerCase();
+  let filtered = list.filter(t => {
+    if (!q) return true;
+    const sName = (t.student_profiles?.full_name || t.student_profiles?.email || '').toLowerCase();
+    return t.title.toLowerCase().includes(q) || sName.includes(q) || (t.mentor_note||'').toLowerCase().includes(q);
+  });
+  if (sort === 'az') filtered.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+  else if (sort === 'oldest') filtered.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+  else filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
 
   return `
   <div style="padding:28px 32px;max-width:800px">
@@ -1523,19 +1532,28 @@ function pageTasks() {
       </div>
     </div>
 
-    <!-- Filter -->
-    <div class="fu1" style="margin-bottom:16px">
-      <select data-action="task-filter" class="inp" style="max-width:280px">
+    <!-- Search + Filter + Sort -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:180px;position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:rgba(247,247,247,.3)">${ic('search',14)}</span>
+        <input data-action="task-search" class="inp" placeholder="Buscar tarefa ou aluno…" value="${search}" style="padding-left:34px"/>
+      </div>
+      <select data-action="task-filter" class="inp" style="max-width:220px">
         <option value="">Todos os alunos</option>
         ${stList.map(s=>`<option value="${s.id}" ${filterStudentId===s.id?'selected':''}>${s.full_name||s.email}</option>`).join('')}
+      </select>
+      <select data-action="task-sort" class="inp" style="max-width:170px">
+        <option value="recent" ${sort==='recent'?'selected':''}>Mais recentes</option>
+        <option value="oldest" ${sort==='oldest'?'selected':''}>Mais antigos</option>
+        <option value="az" ${sort==='az'?'selected':''}>A – Z</option>
       </select>
     </div>
 
     <!-- Task list -->
     <div class="fu2" style="display:flex;flex-direction:column;gap:8px">
-      ${list.length === 0
+      ${filtered.length === 0
         ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('check-square',16)} Nenhuma tarefa encontrada</div>`
-        : list.map(t=>{
+        : filtered.map(t=>{
             const sName = t.student_profiles?.full_name || t.student_profiles?.email || 'Aluno';
             return `<div class="trow" style="opacity:${t.done?.5:1}">
               <div class="hw-check${t.done?' done':''}">
@@ -1630,7 +1648,16 @@ function pageCollaborators() {
    PAGE: FEEDBACKS
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageFeedbacks() {
-  const { list } = S.feedbacks;
+  const { list, search, sort } = S.feedbacks;
+  const q = search.toLowerCase();
+  let filtered = list.filter(f => {
+    if (!q) return true;
+    return (f.student_name||'').toLowerCase().includes(q) || (f.body||'').toLowerCase().includes(q) || (f.call_title||'').toLowerCase().includes(q);
+  });
+  if (sort === 'az') filtered.sort((a,b) => (a.student_name||'').localeCompare(b.student_name||''));
+  else if (sort === 'oldest') filtered.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+  else filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
   return `
   <div style="padding:28px 32px;max-width:800px">
     <div class="fu" style="margin-bottom:24px">
@@ -1639,10 +1666,23 @@ function pageFeedbacks() {
       <p class="sub" style="margin-top:4px">Enviados pelos alunos após as calls</p>
     </div>
 
+    <!-- Search + Sort -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:180px;position:relative">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:rgba(247,247,247,.3)">${ic('search',14)}</span>
+        <input data-action="feedback-search" class="inp" placeholder="Buscar por aluno ou conteúdo…" value="${search}" style="padding-left:34px"/>
+      </div>
+      <select data-action="feedback-sort" class="inp" style="max-width:170px">
+        <option value="recent" ${sort==='recent'?'selected':''}>Mais recentes</option>
+        <option value="oldest" ${sort==='oldest'?'selected':''}>Mais antigos</option>
+        <option value="az" ${sort==='az'?'selected':''}>A – Z</option>
+      </select>
+    </div>
+
     <div class="fu1" style="display:flex;flex-direction:column;gap:12px">
-      ${list.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('message-square',16)} Nenhum feedback recebido ainda</div>`
-        : list.map(f=>`
+      ${filtered.length === 0
+        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px;gap:8px">${ic('message-square',16)} Nenhum feedback encontrado</div>`
+        : filtered.map(f=>`
             <div class="card" style="padding:20px 22px">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
                 <div style="display:flex;align-items:center;gap:10px">
@@ -3208,8 +3248,44 @@ document.addEventListener('change', function(e) {
     S.tasks.filterStudentId = t.value;
     S.tasks.list = [];
     loadAndRender('tasks');
+    return;
+  }
+  const ts = e.target.closest('[data-action="task-sort"]');
+  if (ts) {
+    S.tasks.sort = ts.value;
+    document.getElementById('pc').innerHTML = renderPage('tasks');
+    lucide.createIcons();
+    return;
+  }
+  const fs = e.target.closest('[data-action="feedback-sort"]');
+  if (fs) {
+    S.feedbacks.sort = fs.value;
+    document.getElementById('pc').innerHTML = renderPage('feedbacks');
+    lucide.createIcons();
+    return;
   }
 });
+
+document.addEventListener('input', debounce(function(e) {
+  const tSearch = e.target.closest('[data-action="task-search"]');
+  if (tSearch) {
+    S.tasks.search = tSearch.value;
+    document.getElementById('pc').innerHTML = renderPage('tasks');
+    lucide.createIcons();
+    const inp = document.querySelector('[data-action="task-search"]');
+    if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    return;
+  }
+  const fSearch = e.target.closest('[data-action="feedback-search"]');
+  if (fSearch) {
+    S.feedbacks.search = fSearch.value;
+    document.getElementById('pc').innerHTML = renderPage('feedbacks');
+    lucide.createIcons();
+    const inp = document.querySelector('[data-action="feedback-search"]');
+    if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    return;
+  }
+}, 250));
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    INIT
