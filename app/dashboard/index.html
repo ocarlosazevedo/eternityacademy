@@ -244,6 +244,36 @@ const SB = supabase.createClient(
   'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy'
 );
 
+/* Error monitoring */
+window.onerror = function(msg, src, line, col, err) {
+  try {
+    SB.from('error_logs').insert({
+      user_id: null, user_email: null, source: 'dashboard',
+      error_message: String(msg), error_stack: err?.stack || `${src}:${line}:${col}`,
+      url: window.location.href,
+    }).then();
+  } catch(_) {}
+};
+window.addEventListener('unhandledrejection', function(e) {
+  try {
+    SB.from('error_logs').insert({
+      user_id: null, user_email: null, source: 'dashboard',
+      error_message: String(e.reason?.message || e.reason || 'Unhandled rejection'),
+      error_stack: e.reason?.stack || null, url: window.location.href,
+    }).then();
+  } catch(_) {}
+});
+
+/* Usage analytics */
+function trackEvent(event, page, action, metadata) {
+  try {
+    SB.from('usage_analytics').insert({
+      user_id: S?.user?.id || null, source: 'dashboard',
+      event, page, action, metadata: metadata || null,
+    }).then();
+  } catch(_) {}
+}
+
 /* ─── DATA ──────────────────────────────────────────────────────────── */
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const WDAYS  = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
@@ -462,6 +492,7 @@ function render(scrollReset=true) {
     case 'config':    pc.innerHTML=pageConfig();  break;
   }
   lucide.createIcons();
+  trackEvent('page_view', S.page);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

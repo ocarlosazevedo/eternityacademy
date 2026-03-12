@@ -263,6 +263,45 @@ const NAV_ACCESS = {
 const ROLE_LABEL = { super_admin:'Super Admin', admin:'Admin', professor:'Professor(a)' };
 const ROLE_FIRST = { super_admin:'overview', admin:'overview', professor:'availability' };
 
+/* Error monitoring — captura erros globais e salva no Supabase */
+window.onerror = function(msg, src, line, col, err) {
+  try {
+    const sess = SB.auth?.session?.();
+    SB.from('error_logs').insert({
+      user_id: sess?.user?.id || null,
+      user_email: sess?.user?.email || null,
+      source: 'admin',
+      error_message: String(msg),
+      error_stack: err?.stack || `${src}:${line}:${col}`,
+      url: window.location.href,
+    }).then();
+  } catch(_) {}
+};
+window.addEventListener('unhandledrejection', function(e) {
+  try {
+    const sess = SB.auth?.session?.();
+    SB.from('error_logs').insert({
+      user_id: sess?.user?.id || null,
+      user_email: sess?.user?.email || null,
+      source: 'admin',
+      error_message: String(e.reason?.message || e.reason || 'Unhandled rejection'),
+      error_stack: e.reason?.stack || null,
+      url: window.location.href,
+    }).then();
+  } catch(_) {}
+});
+
+/* Usage analytics */
+function trackEvent(event, page, action, metadata) {
+  try {
+    SB.from('usage_analytics').insert({
+      user_id: S.user?.id || null,
+      source: 'admin',
+      event, page, action, metadata: metadata || null,
+    }).then();
+  } catch(_) {}
+}
+
 /* Debounce */
 const _dbTimers = {};
 function debounce(key, fn, ms=250) { clearTimeout(_dbTimers[key]); _dbTimers[key] = setTimeout(fn, ms); }
@@ -443,6 +482,7 @@ async function loadAndRender(page) {
   await loadPageData(page);
   pc.innerHTML = renderPage(page);
   lucide.createIcons();
+  trackEvent('page_view', page);
 }
 
 async function loadPageData(page) {
