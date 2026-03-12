@@ -503,7 +503,8 @@ function pageDash() {
   const tasks = S.dash.tasks;
   const pendHw = tasks === null ? HW.filter(h=>!h.done) : tasks.filter(t=>!t.done);
   const done  = CALLS.filter(c=>c.done).length;
-  const total = CALLS.length;
+  const planInfo = PLAN_INFO[S.dash.plan];
+  const total = planInfo ? planInfo.calls : CALLS.length;
   const pct   = total > 0 ? Math.round((done/total)*100) : 0;
   const lastCall = CALLS.filter(c=>c.done).slice(-1)[0];
   const pending3 = CALLS.filter(c=>!c.done&&!c.sched&&!c.locked).slice(0,3);
@@ -891,10 +892,10 @@ function pageCal() {
 function pageProgress() {
   const regular = CALLS.filter(c=>!c.bonus);
   const bonus   = CALLS.filter(c=>c.bonus);
-  const done=CALLS.filter(c=>c.done).length, total=CALLS.length;
+  const pInfo = PLAN_INFO[S.dash.plan];
+  const done=CALLS.filter(c=>c.done).length, total=pInfo?pInfo.calls:CALLS.length;
   const pct=regular.length>0?Math.round((regular.filter(c=>c.done).length/regular.length)*100):0;
   const allTasks = S.dash.tasks || HW;
-  const pInfo = PLAN_INFO[S.dash.plan];
 
   const callRow = (c,i) => {
     const locked = c.locked && !c.done && !c.sched;
