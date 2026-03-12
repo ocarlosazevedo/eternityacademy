@@ -157,6 +157,44 @@
       .trow { flex-wrap:wrap; gap:8px; padding:12px 14px; }
       input, textarea, select { font-size:16px; }
     }
+
+    /* ─── Light mode ─── */
+    html.light { --black:#f5f5f5; --white:#1a1a1a; --surface:#ffffff; --card:#ffffff; --border:rgba(0,0,0,.08); --faint:rgba(0,0,0,.03); --muted:rgba(0,0,0,.55); }
+    html.light body { background:#f5f5f5; color:#1a1a1a; }
+    html.light .sidebar { background:#fff; border-right-color:rgba(0,0,0,.08); }
+    html.light .topbar { background:rgba(255,255,255,.92); border-bottom-color:rgba(0,0,0,.06); color:#1a1a1a; }
+    html.light .nav-item { color:rgba(0,0,0,.55); }
+    html.light .nav-item:hover { color:rgba(0,0,0,.85); background:rgba(0,0,0,.04); }
+    html.light .nav-item.active { background:rgba(245,158,11,.1); color:#1a1a1a; }
+    html.light .sb-foot { color:rgba(0,0,0,.25); }
+    html.light .card, html.light .stat-card { background:#fff; border-color:rgba(0,0,0,.08); }
+    html.light .trow { background:#fff; border-color:rgba(0,0,0,.06); }
+    html.light .inp { background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.1); color:#1a1a1a; }
+    html.light .inp::placeholder { color:rgba(0,0,0,.3); }
+    html.light .lbl { color:rgba(0,0,0,.35); }
+    html.light .sub { color:rgba(0,0,0,.45); }
+    html.light .ph1 { color:#1a1a1a; }
+    html.light .btn-ghost { color:rgba(0,0,0,.6); border-color:rgba(0,0,0,.1); }
+    html.light .mob-top { background:rgba(255,255,255,.95); }
+    html.light .drw { background:#fff; }
+    html.light .drw-icon { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08); }
+    html.light .sb-name { color:#1a1a1a; }
+    html.light .sb-plan { color:rgba(0,0,0,.4); }
+    html.light .sb-logo img { filter:none; }
+    html.light [style*="color:#F7F7F7"] { color:#1a1a1a !important; }
+    html.light [style*="color:rgba(247,247,247"] { color:rgba(0,0,0,.55) !important; }
+    html.light [style*="background:#111"] { background:#fff !important; }
+    html.light [style*="background:#050508"] { background:#f5f5f5 !important; }
+    html.light [style*="background:#090909"] { background:#fff !important; }
+    html.light [style*="background:#0e0e0e"] { background:#fff !important; }
+    html.light [style*="background:#141414"] { background:#f9f9f9 !important; }
+    html.light [style*="background:rgba(255,255,255,0.03)"] { background:rgba(0,0,0,.02) !important; }
+    html.light [style*="background:rgba(255,255,255,.03)"] { background:rgba(0,0,0,.02) !important; }
+    html.light [style*="background:rgba(255,255,255,.02)"] { background:rgba(0,0,0,.015) !important; }
+    html.light [style*="background:rgba(255,255,255,.06)"] { background:rgba(0,0,0,.04) !important; }
+    html.light [style*="background:rgba(255,255,255,0.04)"] { background:rgba(0,0,0,.03) !important; }
+    html.light [style*="background:rgba(255,255,255,0.05)"] { background:rgba(0,0,0,.03) !important; }
+    html.light select { color-scheme:light !important; }
   </style>
 </head>
 <body>
@@ -177,6 +215,9 @@
       <div class="sb-plan" id="sb-plan">ADMIN</div>
     </div>
     <nav class="sb-nav" id="sb-nav"></nav>
+    <div style="padding:8px 12px;border-top:1px solid var(--border)">
+      <div onclick="toggleTheme()" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600;transition:all .15s" onmouseenter="this.style.background='var(--faint)'" onmouseleave="this.style.background='transparent'" id="theme-toggle-btn"></div>
+    </div>
     <div class="sb-foot">ETERNITY HOLDING CO. © 2026</div>
   </aside>
 
@@ -331,6 +372,13 @@ function showToast(msg, type='info') {
   setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(), 300); }, 3000);
 }
 
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  localStorage.setItem('ea-admin-theme', isLight ? 'light' : 'dark');
+  renderSidebar();
+}
+if (localStorage.getItem('ea-admin-theme') === 'light') document.documentElement.classList.add('light');
+
 /* Audit log */
 async function logAudit(action, targetType, targetId, targetName, details) {
   try {
@@ -437,6 +485,10 @@ function renderSidebar() {
       ${ic(n.ic,15)} <span>${n.label}</span>
     </div>
   `).join('');
+  // Theme toggle
+  const isLight = document.documentElement.classList.contains('light');
+  const themeBtn = document.getElementById('theme-toggle-btn');
+  if (themeBtn) themeBtn.innerHTML = ic(isLight?'sun':'moon',14) + '<span>' + (isLight?'Modo Claro':'Modo Escuro') + '</span>';
   // Mobile drawer nav
   const drwNav = document.getElementById('drw-nav');
   if (drwNav) drwNav.innerHTML = nav.map(n=>`
@@ -1013,173 +1065,155 @@ function selectAuditDate(dateKey) {
   lucide.createIcons();
 }
 
+function _auditMonthHtml(yr, mo, grouped, todayKey, sel, thirtyAgo, today, pad2) {
+  var WDAYS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  var MNAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var firstDay = new Date(yr, mo, 1).getDay();
+  var daysInMonth = new Date(yr, mo + 1, 0).getDate();
+  var headerRow = WDAYS.map(function(w){ return '<div style="text-align:center;font-size:9px;font-weight:700;color:rgba(247,247,247,.3);padding:4px 0">'+w+'</div>'; }).join('');
+  var cells = '';
+  for (var i = 0; i < firstDay; i++) cells += '<div></div>';
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dk = yr+'-'+pad2(mo+1)+'-'+pad2(d);
+    var dt = new Date(yr, mo, d);
+    var inRange = dt >= thirtyAgo && dt <= today;
+    var count = (grouped[dk]||[]).length;
+    var isToday = dk === todayKey;
+    var isSel = dk === sel;
+    if (!inRange) {
+      cells += '<div style="text-align:center;padding:6px 0;font-size:11px;color:rgba(247,247,247,.1);border-radius:8px">'+d+'</div>';
+    } else {
+      var bg = isSel ? 'rgba(112,34,187,.5)' : isToday ? 'rgba(112,34,187,.15)' : 'transparent';
+      var bdr = isSel ? '1px solid rgba(112,34,187,.7)' : isToday ? '1px solid rgba(112,34,187,.3)' : '1px solid transparent';
+      var dot = count > 0 ? '<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#a855f7"></div>' : '';
+      cells += '<div onclick="selectAuditDate(\''+dk+'\')" style="text-align:center;padding:6px 0;font-size:11px;font-weight:'+(count>0?'800':'500')+';color:'+(count>0?'#F7F7F7':'rgba(247,247,247,.35)')+';border-radius:8px;cursor:pointer;background:'+bg+';border:'+bdr+';transition:all .15s;position:relative">'+d+dot+'</div>';
+    }
+  }
+  return '<div style="margin-bottom:4px"><div style="font-size:13px;font-weight:800;color:#F7F7F7;margin-bottom:10px;text-align:center">'+MNAMES[mo]+' '+yr+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">'+headerRow+cells+'</div></div>';
+}
+
 function pageAudit() {
-  const list = S.audit.list;
-  const sel = S.audit.selectedDate;
-  const pad2 = n => String(n).padStart(2,'0');
-  const fmtTime = dt => { const d=new Date(dt); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
-  const actionLabels = {
+  var list = S.audit.list;
+  var sel = S.audit.selectedDate;
+  var pad2 = function(n){ return String(n).padStart(2,'0'); };
+  var fmtTime = function(dt){ var d=new Date(dt); return pad2(d.getHours())+':'+pad2(d.getMinutes()); };
+  var MONTHS_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var actionLabels = {
     move_to_alumni:'Movido para Antigos', restore_student:'Restaurado como Ativo',
     delete_student:'Aluno Excluído', bulk_move_alumni:'Mover em Lote (Antigos)',
     bulk_delete:'Exclusão em Lote', upgrade_plan:'Plano Alterado', edit_student:'Perfil Editado',
   };
-  const actionColors = {
+  var actionColors = {
     move_to_alumni:'#f59e0b', restore_student:'#22c55e', delete_student:'#f87171',
     bulk_move_alumni:'#f59e0b', bulk_delete:'#f87171', upgrade_plan:'#a855f7', edit_student:'#3b82f6',
   };
-  const actionIcons = {
+  var actionIcons = {
     move_to_alumni:'user-minus', restore_student:'user-check', delete_student:'trash-2',
     bulk_move_alumni:'users', bulk_delete:'trash-2', upgrade_plan:'arrow-up-circle', edit_student:'edit-3',
   };
 
   // Agrupar por data
-  const grouped = {};
-  list.forEach(l => {
-    const d = new Date(l.created_at);
-    const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  var grouped = {};
+  list.forEach(function(l) {
+    var d = new Date(l.created_at);
+    var key = d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(l);
   });
+  var dateKeys = Object.keys(grouped).sort(function(a,b){ return b.localeCompare(a); });
 
-  const WEEKDAYS_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const MONTHS_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const today = new Date();
-  const todayKey = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  var today = new Date();
+  var todayKey = today.getFullYear()+'-'+pad2(today.getMonth()+1)+'-'+pad2(today.getDate());
+  var calMonth = today.getMonth();
+  var calYear = today.getFullYear();
+  var prevMonth = calMonth === 0 ? 11 : calMonth - 1;
+  var prevYear = calMonth === 0 ? calYear - 1 : calYear;
+  var thirtyAgo = new Date(today); thirtyAgo.setDate(today.getDate() - 30);
 
-  // Montar grid do mês atual e anterior (cobrindo 30 dias)
-  // Mostrar o mês que contém a maioria dos últimos 30 dias
-  const calMonth = today.getMonth();
-  const calYear = today.getFullYear();
-  const prevMonth = calMonth === 0 ? 11 : calMonth - 1;
-  const prevYear = calMonth === 0 ? calYear - 1 : calYear;
+  var calHtml = '';
+  if (prevYear !== calYear || prevMonth !== calMonth) {
+    calHtml += '<div class="stat-card" style="padding:18px 20px">'+_auditMonthHtml(prevYear, prevMonth, grouped, todayKey, sel, thirtyAgo, today, pad2)+'</div>';
+  }
+  calHtml += '<div class="stat-card" style="padding:18px 20px">'+_auditMonthHtml(calYear, calMonth, grouped, todayKey, sel, thirtyAgo, today, pad2)+'</div>';
 
-  const buildMonthGrid = (yr, mo) => {
-    const firstDay = new Date(yr, mo, 1).getDay();
-    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
-    const cells = [];
-    for (let i = 0; i < firstDay; i++) cells.push(null);
-    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-    return { cells, daysInMonth, label: `${MONTHS_FULL[mo]} ${yr}` };
-  };
+  // Detalhe do dia selecionado
+  var selItems = sel ? (grouped[sel] || []) : [];
+  var selLabel = '';
+  if (sel) {
+    var parts = sel.split('-').map(Number);
+    selLabel = parts[2]+' de '+MONTHS_FULL[parts[1]-1]+' de '+parts[0];
+  }
 
-  const thirtyAgo = new Date(today); thirtyAgo.setDate(today.getDate() - 30);
+  var detailHtml = '';
+  if (sel) {
+    var itemsHtml = '';
+    if (selItems.length === 0) {
+      itemsHtml = '<div style="text-align:center;padding:24px;color:rgba(247,247,247,.2);font-size:12px">'+ic('check-circle',16)+' Nenhuma alteração neste dia</div>';
+    } else {
+      selItems.forEach(function(l) {
+        var color = actionColors[l.action]||'rgba(247,247,247,.3)';
+        var icon = actionIcons[l.action]||'activity';
+        itemsHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.05)">'
+          +'<div style="width:30px;height:30px;border-radius:8px;background:'+color+'15;border:1px solid '+color+'25;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic(icon,13,'color:'+color)+'</div>'
+          +'<div style="flex:1;min-width:0">'
+          +'<div style="font-size:12px;font-weight:700;color:#F7F7F7">'+(actionLabels[l.action]||l.action)+'</div>'
+          +(l.target_name ? '<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:2px">'+l.target_name+'</div>' : '')
+          +(l.details ? '<div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:2px">'+l.details+'</div>' : '')
+          +'</div>'
+          +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-size:11px;font-weight:600;color:rgba(247,247,247,.4)">'+fmtTime(l.created_at)+'</div>'
+          +'<div style="font-size:9px;color:rgba(247,247,247,.2);margin-top:2px">'+(l.admin_name||'—')+'</div>'
+          +'</div></div>';
+      });
+      itemsHtml = '<div style="display:flex;flex-direction:column;gap:6px">'+itemsHtml+'</div>';
+    }
+    detailHtml = '<div class="stat-card" style="padding:18px 20px;margin-bottom:20px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+      +'<div style="font-size:13px;font-weight:800;color:#F7F7F7">'+ic('calendar',14)+' &nbsp;'+selLabel+'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +'<span style="font-size:11px;color:rgba(247,247,247,.3)">'+selItems.length+' ação'+(selItems.length!==1?'ões':'')+'</span>'
+      +'<button onclick="selectAuditDate(\'\')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.3);padding:4px">'+ic('x',14)+'</button>'
+      +'</div></div>'+itemsHtml+'</div>';
+  }
 
-  const renderMonth = (yr, mo) => {
-    const mg = buildMonthGrid(yr, mo);
-    return `
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:800;color:#F7F7F7;margin-bottom:10px;text-align:center">${mg.label}</div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
-          ${WEEKDAYS_SHORT.map(w => `<div style="text-align:center;font-size:9px;font-weight:700;color:rgba(247,247,247,.3);padding:4px 0">${w}</div>`).join('')}
-          ${mg.cells.map(d => {
-            if (d === null) return `<div></div>`;
-            const dk = `${yr}-${pad2(mo+1)}-${pad2(d)}`;
-            const dt = new Date(yr, mo, d);
-            const inRange = dt >= thirtyAgo && dt <= today;
-            const count = (grouped[dk]||[]).length;
-            const isToday = dk === todayKey;
-            const isSel = dk === sel;
-            if (!inRange) {
-              return `<div style="text-align:center;padding:6px 0;font-size:11px;color:rgba(247,247,247,.1);border-radius:8px">${d}</div>`;
-            }
-            const bg = isSel ? 'rgba(112,34,187,.5)' : isToday ? 'rgba(112,34,187,.15)' : 'transparent';
-            const border = isSel ? '1px solid rgba(112,34,187,.7)' : isToday ? '1px solid rgba(112,34,187,.3)' : '1px solid transparent';
-            return `<div onclick="selectAuditDate('${dk}')" style="text-align:center;padding:6px 0;font-size:11px;font-weight:${count>0?'800':'500'};color:${count>0?'#F7F7F7':'rgba(247,247,247,.35)'};border-radius:8px;cursor:pointer;background:${bg};border:${border};transition:all .15s;position:relative" onmouseenter="this.style.background='rgba(112,34,187,.25)'" onmouseleave="this.style.background='${bg}'">
-              ${d}
-              ${count > 0 ? `<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#a855f7"></div>` : ''}
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  };
+  // Histórico completo
+  var histHtml = '';
+  if (dateKeys.length === 0) {
+    histHtml = '<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px">'+ic('scroll-text',16)+' Nenhuma ação nos últimos 30 dias</div>';
+  } else {
+    dateKeys.forEach(function(dk) {
+      var items = grouped[dk];
+      var p = dk.split('-').map(Number);
+      var dayLabel = dk === todayKey ? 'Hoje' : p[2]+' de '+MONTHS_FULL[p[1]-1];
+      var rows = '';
+      items.forEach(function(l) {
+        var color = actionColors[l.action]||'rgba(247,247,247,.3)';
+        rows += '<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.02)">'
+          +'<div style="width:6px;height:6px;border-radius:50%;background:'+color+';flex-shrink:0"></div>'
+          +'<div style="flex:1;min-width:0;font-size:12px;color:rgba(247,247,247,.6)">'+(actionLabels[l.action]||l.action)+(l.target_name ? ' · <span style="color:rgba(247,247,247,.4)">'+l.target_name+'</span>' : '')+'</div>'
+          +'<span style="font-size:10px;color:rgba(247,247,247,.25);flex-shrink:0">'+fmtTime(l.created_at)+'</span></div>';
+      });
+      histHtml += '<div style="margin-bottom:16px">'
+        +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer" onclick="selectAuditDate(\''+dk+'\')">'
+        +'<div style="font-size:12px;font-weight:800;color:#F7F7F7">'+dayLabel+'</div>'
+        +'<div style="flex:1;height:1px;background:rgba(255,255,255,.06)"></div>'
+        +'<span style="font-size:10px;font-weight:700;color:rgba(247,247,247,.25)">'+items.length+'</span></div>'
+        +'<div style="display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid rgba(112,34,187,.15)">'+rows+'</div></div>';
+    });
+  }
 
-  const dateKeys = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+  var totalActions = list.length;
+  var gridCols = (prevYear !== calYear || prevMonth !== calMonth) ? '1fr 1fr' : '1fr';
 
-  // Ações do dia selecionado
-  const selItems = sel ? (grouped[sel] || []) : [];
-  const selLabel = sel ? (() => {
-    const [y,m,d] = sel.split('-').map(Number);
-    return `${d} de ${MONTHS_FULL[m-1]} de ${y}`;
-  })() : '';
-
-  const totalActions = list.length;
-
-  return `
-  <div style="padding:28px 32px;max-width:800px">
-    <div class="fu" style="margin-bottom:24px">
-      <div class="lbl">AUDITORIA</div>
-      <h1 class="ph1">Histórico de Alterações</h1>
-      <p class="sub">Últimos 30 dias · ${totalActions} ação${totalActions!==1?'ões':''}</p>
-    </div>
-
-    <!-- Calendário -->
-    <div style="display:grid;grid-template-columns:${prevMonth !== calMonth ? '1fr 1fr' : '1fr'};gap:16px;margin-bottom:24px">
-      ${prevYear !== calYear || prevMonth !== calMonth ? `<div class="stat-card" style="padding:18px 20px">${renderMonth(prevYear, prevMonth)}</div>` : ''}
-      <div class="stat-card" style="padding:18px 20px">${renderMonth(calYear, calMonth)}</div>
-    </div>
-
-    <!-- Detalhe do dia selecionado -->
-    ${sel ? `
-      <div class="stat-card" style="padding:18px 20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div style="font-size:13px;font-weight:800;color:#F7F7F7">${ic('calendar',14)} &nbsp;${selLabel}</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:11px;color:rgba(247,247,247,.3)">${selItems.length} ação${selItems.length!==1?'ões':''}</span>
-            <button onclick="selectAuditDate('')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.3);padding:4px">${ic('x',14)}</button>
-          </div>
-        </div>
-        ${selItems.length === 0
-          ? `<div style="text-align:center;padding:24px;color:rgba(247,247,247,.2);font-size:12px">${ic('check-circle',16)} Nenhuma alteração neste dia</div>`
-          : `<div style="display:flex;flex-direction:column;gap:6px">
-              ${selItems.map(l => {
-                const color = actionColors[l.action]||'rgba(247,247,247,.3)';
-                const icon = actionIcons[l.action]||'activity';
-                return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.05)">
-                  <div style="width:30px;height:30px;border-radius:8px;background:${color}15;border:1px solid ${color}25;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icon,13,`color:${color}`)}</div>
-                  <div style="flex:1;min-width:0">
-                    <div style="font-size:12px;font-weight:700;color:#F7F7F7">${actionLabels[l.action]||l.action}</div>
-                    ${l.target_name ? `<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:2px">${l.target_name}</div>` : ''}
-                    ${l.details ? `<div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:2px">${l.details}</div>` : ''}
-                  </div>
-                  <div style="text-align:right;flex-shrink:0">
-                    <div style="font-size:11px;font-weight:600;color:rgba(247,247,247,.4)">${fmtTime(l.created_at)}</div>
-                    <div style="font-size:9px;color:rgba(247,247,247,.2);margin-top:2px">${l.admin_name||'—'}</div>
-                  </div>
-                </div>`;
-              }).join('')}
-            </div>`}
-      </div>
-    ` : ''}
-
-    <!-- Histórico completo -->
-    <div style="margin-top:${sel?'20':'0'}px">
-      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">HISTÓRICO COMPLETO</div>
-      ${dateKeys.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px">${ic('scroll-text',16)} Nenhuma ação nos últimos 30 dias</div>`
-        : dateKeys.map(dk => {
-          const items = grouped[dk];
-          const [y,m,d] = dk.split('-').map(Number);
-          const dayLabel = dk === todayKey ? 'Hoje' : `${d} de ${MONTHS_FULL[m-1]}`;
-          return `<div style="margin-bottom:16px">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer" onclick="selectAuditDate('${dk}')">
-              <div style="font-size:12px;font-weight:800;color:#F7F7F7">${dayLabel}</div>
-              <div style="flex:1;height:1px;background:rgba(255,255,255,.06)"></div>
-              <span style="font-size:10px;font-weight:700;color:rgba(247,247,247,.25)">${items.length}</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid rgba(112,34,187,.15)">
-              ${items.map(l => {
-                const color = actionColors[l.action]||'rgba(247,247,247,.3)';
-                return `<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.02)">
-                  <div style="width:6px;height:6px;border-radius:50%;background:${color};flex-shrink:0"></div>
-                  <div style="flex:1;min-width:0;font-size:12px;color:rgba(247,247,247,.6)">${actionLabels[l.action]||l.action}${l.target_name ? ` · <span style="color:rgba(247,247,247,.4)">${l.target_name}</span>`:''}</div>
-                  <span style="font-size:10px;color:rgba(247,247,247,.25);flex-shrink:0">${fmtTime(l.created_at)}</span>
-                </div>`;
-              }).join('')}
-            </div>
-          </div>`;
-        }).join('')}
-    </div>
-  </div>`;
+  return '<div style="padding:28px 32px;max-width:800px">'
+    +'<div class="fu" style="margin-bottom:24px">'
+    +'<div class="lbl">AUDITORIA</div>'
+    +'<h1 class="ph1">Histórico de Alterações</h1>'
+    +'<p class="sub">Últimos 30 dias · '+totalActions+' ação'+(totalActions!==1?'ões':'')+'</p></div>'
+    +'<div style="display:grid;grid-template-columns:'+gridCols+';gap:16px;margin-bottom:24px">'+calHtml+'</div>'
+    +detailHtml
+    +'<div><div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">HISTÓRICO COMPLETO</div>'
+    +histHtml+'</div></div>';
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
