@@ -1302,29 +1302,35 @@ async function openStudentDetail(studentId) {
         const statusColor = isCancelled ? '#f87171' : isDone ? '#22c55e' : '#f59e0b';
         const statusLabel = isCancelled ? 'Cancelada' : isDone ? 'Concluída' : 'Agendada';
         return `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+        <div id="call-row-${b.id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
           <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};flex-shrink:0"></div>
           <div style="flex:1;min-width:0">
             <div style="font-size:12px;font-weight:700;color:#F7F7F7">${b.call_title || 'Call de Mentoria'}${b.call_number ? ` <span style="color:rgba(247,247,247,.35);font-weight:500">· #${b.call_number}</span>` : ''}</div>
             <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${fmt(b.scheduled_at)}</div>
           </div>
-          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor}">${statusLabel}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor};flex-shrink:0">${statusLabel}</span>
+          <button onclick="deleteStudentCall('${b.id}')" title="Excluir call" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.18);padding:3px;border-radius:5px;display:flex;align-items:center;flex-shrink:0;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.background='rgba(248,113,113,.1)'" onmouseleave="this.style.color='rgba(247,247,247,.18)';this.style.background='none'">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </button>
         </div>`;
       }).join('');
 
   const taskRows = tasks.length === 0
     ? `<div style="color:rgba(247,247,247,.25);font-size:12px;padding:12px 0">Nenhuma tarefa registrada</div>`
     : tasks.map(t => `
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid ${t.done?'rgba(34,197,94,.12)':'rgba(255,255,255,0.06)'}">
-          <div style="width:16px;height:16px;border-radius:5px;border:1.5px solid ${t.done?'#22c55e':'rgba(255,255,255,.2)'};background:${t.done?'rgba(34,197,94,.15)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+        <div id="task-row-${t.id}" style="display:flex;align-items:flex-start;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid ${t.done?'rgba(34,197,94,.12)':'rgba(255,255,255,0.06)'}">
+          <button onclick="toggleStudentTask('${t.id}',${!t.done})" title="${t.done?'Marcar pendente':'Marcar concluída'}" style="width:18px;height:18px;border-radius:5px;border:1.5px solid ${t.done?'#22c55e':'rgba(255,255,255,.25)'};background:${t.done?'rgba(34,197,94,.15)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .2s;padding:0">
             ${t.done ? `<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>` : ''}
-          </div>
+          </button>
           <div style="flex:1;min-width:0">
             <div style="font-size:12px;font-weight:700;color:${t.done?'rgba(247,247,247,.4)':'#F7F7F7'};text-decoration:${t.done?'line-through':'none'}">${t.title}</div>
             ${t.call_number ? `<div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">Call #${t.call_number}</div>` : ''}
             ${t.mentor_note ? `<div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:3px;font-style:italic">${t.mentor_note}</div>` : ''}
           </div>
           <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${t.done?'#22c55e':'rgba(247,247,247,.3)'};flex-shrink:0">${t.done?'FEITA':'PENDENTE'}</span>
+          <button onclick="deleteStudentTask('${t.id}')" title="Excluir tarefa" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.18);padding:3px;border-radius:5px;display:flex;align-items:center;flex-shrink:0;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.background='rgba(248,113,113,.1)'" onmouseleave="this.style.color='rgba(247,247,247,.18)';this.style.background='none'">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </button>
         </div>`).join('');
 
   const doneCount = tasks.filter(t=>t.done).length;
@@ -1357,7 +1363,17 @@ async function openStudentDetail(studentId) {
         <div style="flex:1;min-width:0">
           <div style="font-weight:900;font-size:17px;color:#F7F7F7;line-height:1.2">${st.full_name || '—'}</div>
           <div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:2px">${st.email || '—'}</div>
-          <span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#9333ea;background:rgba(147,51,234,.12);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px">${st.plan || 'FAST'}</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
+            <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#9333ea;background:rgba(147,51,234,.12);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px">${st.plan || 'FAST'}</span>
+            ${st.phone ? `<a href="https://wa.me/${st.phone.replace(/\D/g,'')}" target="_blank" rel="noopener" title="Abrir WhatsApp" style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:#22c55e;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:5px;padding:2px 7px;text-decoration:none">
+              <svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.858L.057 23.428a.75.75 0 0 0 .916.941l5.704-1.494A11.954 11.954 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.532-5.207-1.457l-.374-.22-3.884 1.018 1.037-3.79-.241-.389A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+              WhatsApp
+            </a>` : ''}
+            <button onclick="resetStudentPassword('${st.email}')" title="Enviar link de redefinição de senha" style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:rgba(247,247,247,.5);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:2px 7px;cursor:pointer;font-family:inherit">
+              <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Reset senha
+            </button>
+          </div>
         </div>
         <div style="display:flex;gap:14px;text-align:center;flex-shrink:0">
           <div><div style="font-weight:900;font-size:20px;color:#F7F7F7">${callsDone}</div><div style="font-size:8px;color:rgba(247,247,247,.3);letter-spacing:1px">CALLS</div></div>
@@ -1435,9 +1451,15 @@ async function openStudentDetail(studentId) {
                 <input id="nc-time" type="time" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;color-scheme:dark"/>
               </div>
             </div>
-            <div style="margin-bottom:10px">
-              <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">TÍTULO <span style="font-weight:400;opacity:.5">(opcional)</span></div>
-              <input id="nc-title" type="text" placeholder="Call de Mentoria" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box"/>
+            <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;margin-bottom:8px">
+              <div>
+                <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">TÍTULO <span style="font-weight:400;opacity:.5">(opcional)</span></div>
+                <input id="nc-title" type="text" placeholder="Call de Mentoria" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box"/>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;margin-bottom:5px">Nº CALL</div>
+                <input id="nc-num" type="number" min="1" placeholder="1" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 11px;color:#F7F7F7;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box"/>
+              </div>
             </div>
             <div id="nc-err" style="display:none;font-size:11px;color:#f87171;margin-bottom:8px"></div>
             <button id="nc-btn" onclick="addStudentCall('${studentId}')" style="width:100%;padding:10px;border-radius:9px;background:linear-gradient(135deg,#7022BB,#9333ea);border:none;color:#fff;font-size:12px;font-weight:800;letter-spacing:.4px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">
@@ -1624,12 +1646,14 @@ async function addStudentCall(studentId) {
   const dateEl  = document.getElementById('nc-date');
   const timeEl  = document.getElementById('nc-time');
   const titleEl = document.getElementById('nc-title');
+  const numEl   = document.getElementById('nc-num');
   const errEl   = document.getElementById('nc-err');
   const btn     = document.getElementById('nc-btn');
 
   const dateVal  = dateEl?.value?.trim();
   const timeVal  = timeEl?.value?.trim() || '09:00';
   const titleVal = titleEl?.value?.trim() || 'Call de Mentoria';
+  const numVal   = numEl?.value ? parseInt(numEl.value) : null;
 
   if (!dateVal) {
     errEl.textContent = 'Selecione a data da call.';
@@ -1638,18 +1662,13 @@ async function addStudentCall(studentId) {
   }
   errEl.style.display = 'none';
 
-  // Monta ISO com fuso -03:00
   const scheduledAt = `${dateVal}T${timeVal}:00-03:00`;
-
   if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
 
-  const { data, error } = await SB.from('bookings').insert({
-    student_id:   studentId,
-    mentor_email: MENTOR_EMAIL,
-    scheduled_at: scheduledAt,
-    call_title:   titleVal,
-    status:       'confirmed',
-  }).select().single();
+  const payload = { student_id: studentId, mentor_email: MENTOR_EMAIL, scheduled_at: scheduledAt, call_title: titleVal, status: 'confirmed' };
+  if (numVal) payload.call_number = numVal;
+
+  const { data, error } = await SB.from('bookings').insert(payload).select().single();
 
   if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Marcar Call'; }
 
@@ -1659,36 +1678,79 @@ async function addStudentCall(studentId) {
     return;
   }
 
-  // Limpa formulário
   if (dateEl)  dateEl.value  = '';
   if (timeEl)  timeEl.value  = '';
   if (titleEl) titleEl.value = '';
+  if (numEl)   numEl.value   = '';
 
-  // Adiciona na lista sem reabrir modal
-  const now = new Date();
-  const d   = new Date(scheduledAt);
+  const now2 = new Date();
+  const d    = new Date(scheduledAt);
   const pad2 = n => String(n).padStart(2,'0');
   const fmtStr = `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  const isPast = d < now;
+  const isPast = d < now2;
   const statusColor = isPast ? '#22c55e' : '#f59e0b';
   const statusLabel = isPast ? 'Concluída' : 'Agendada';
 
   const list = document.getElementById('nc-calls-list');
   if (list) {
     const row = document.createElement('div');
+    row.id = `call-row-${data.id}`;
     row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)';
     row.innerHTML = `
       <div style="width:7px;height:7px;border-radius:50%;background:${statusColor};flex-shrink:0"></div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;color:#F7F7F7">${titleVal}</div>
+        <div style="font-size:12px;font-weight:700;color:#F7F7F7">${titleVal}${numVal ? ` <span style="color:rgba(247,247,247,.35);font-weight:500">· #${numVal}</span>` : ''}</div>
         <div style="font-size:10px;color:rgba(247,247,247,.35);margin-top:2px">${fmtStr}</div>
       </div>
-      <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor}">${statusLabel}</span>`;
+      <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:${statusColor};flex-shrink:0">${statusLabel}</span>
+      <button onclick="deleteStudentCall('${data.id}')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.18);padding:3px;border-radius:5px;display:flex;align-items:center;flex-shrink:0;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.background='rgba(248,113,113,.1)'" onmouseleave="this.style.color='rgba(247,247,247,.18)';this.style.background='none'">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </button>`;
     list.prepend(row);
   }
-
-  // Invalida cache de students para próxima abertura
   S.stats.loaded = false;
+}
+
+async function deleteStudentCall(bookingId) {
+  if (!confirm('Excluir esta call? Esta ação não pode ser desfeita.')) return;
+  await SB.from('bookings').delete().eq('id', bookingId);
+  const el = document.getElementById(`call-row-${bookingId}`);
+  if (el) el.remove();
+  S.stats.loaded = false;
+}
+
+async function toggleStudentTask(taskId, done) {
+  await SB.from('tasks').update({ done }).eq('id', taskId);
+  const row = document.getElementById(`task-row-${taskId}`);
+  if (!row) return;
+  const check = row.querySelector('button:first-child');
+  const title = row.querySelector('div > div:first-child');
+  const badge = row.querySelector('span');
+  if (check) {
+    check.style.borderColor = done ? '#22c55e' : 'rgba(255,255,255,.25)';
+    check.style.background  = done ? 'rgba(34,197,94,.15)' : 'transparent';
+    check.innerHTML = done ? '<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>' : '';
+    check.title = done ? 'Marcar pendente' : 'Marcar concluída';
+    check.onclick = () => toggleStudentTask(taskId, !done);
+  }
+  if (title) { title.style.color = done ? 'rgba(247,247,247,.4)' : '#F7F7F7'; title.style.textDecoration = done ? 'line-through' : 'none'; }
+  if (badge) { badge.textContent = done ? 'FEITA' : 'PENDENTE'; badge.style.color = done ? '#22c55e' : 'rgba(247,247,247,.3)'; }
+  row.style.borderColor = done ? 'rgba(34,197,94,.12)' : 'rgba(255,255,255,0.06)';
+}
+
+async function deleteStudentTask(taskId) {
+  if (!confirm('Excluir esta tarefa? Esta ação não pode ser desfeita.')) return;
+  await SB.from('tasks').delete().eq('id', taskId);
+  const el = document.getElementById(`task-row-${taskId}`);
+  if (el) el.remove();
+}
+
+async function resetStudentPassword(email) {
+  if (!email) return;
+  if (!confirm(`Enviar link de redefinição de senha para ${email}?`)) return;
+  const { error } = await SB.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/nova-senha' });
+  if (error) { alert('Erro: ' + error.message); }
+  else { alert('Link enviado para ' + email); }
 }
 
 async function saveStudentEdit(studentId) {
