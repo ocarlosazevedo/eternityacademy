@@ -243,8 +243,8 @@ const NAV_ACCESS = {
   overview:      ['super_admin','admin'],
   availability:  ['super_admin'],
   bookings:      ['super_admin'],
-  students:      ['super_admin','admin'],
-  expirations:   ['super_admin','admin'],
+  students:      ['super_admin','admin','professor'],
+  expirations:   ['super_admin','admin','professor'],
   collaborators: ['super_admin'],
   tasks:         ['super_admin','admin','professor'],
   feedbacks:     ['super_admin','admin'],
@@ -266,7 +266,7 @@ const S = {
   // Bookings
   bookings: { list:[], loading:false, filter:'upcoming', search:'' },
   // Students
-  students: { list:[], loading:false, search:'' },
+  students: { list:[], loading:false, search:'', planFilter:'' },
   // Tasks
   tasks: { list:[], loading:false, filterStudentId:'' },
   // Feedbacks
@@ -924,11 +924,15 @@ function pageBookings() {
    PAGE: ALUNOS
 ═══════════════════════════════════════════════════════════════════════════════ */
 function pageStudents() {
-  const { list, search } = S.students;
+  const { list, search, planFilter } = S.students;
   const q = (search || '').toLowerCase().trim();
-  const filtered = q
+  let filtered = q
     ? list.filter(st => (st.full_name||'').toLowerCase().includes(q) || (st.email||'').toLowerCase().includes(q))
     : list;
+  if (planFilter) filtered = filtered.filter(st => (st.plan||'FAST') === planFilter);
+
+  const plans = ['FAST','GROWTH','ETERNITY'];
+  const planCount = p => list.filter(s=>(s.plan||'FAST')===p).length;
 
   return `
   <div style="padding:28px 32px;max-width:800px">
@@ -937,14 +941,22 @@ function pageStudents() {
         <div class="lbl">ALUNOS</div>
         <h1 class="ph1">${list.length} Aluno${list.length!==1?'s':''}</h1>
       </div>
-      <button data-action="open-modal" data-modal="new-student" class="btn-amber">
-        ${ic('user-plus',14)} Novo Aluno
-      </button>
+      ${['super_admin','admin'].includes(S.currentRole) ? `<button data-action="open-modal" data-modal="new-student" class="btn-amber">${ic('user-plus',14)} Novo Aluno</button>` : ''}
     </div>
 
-    <div style="position:relative;margin-bottom:16px">
+    <div style="position:relative;margin-bottom:10px">
       <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,0.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input data-input="search-students" class="inp" placeholder="Buscar por nome ou e-mail..." value="${search||''}" style="padding-left:36px">
+    </div>
+
+    <!-- Filtro por plano -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+      <button data-action="filter-plan" data-plan="" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${!planFilter?'rgba(247,247,247,.4)':'rgba(255,255,255,.1)'};background:${!planFilter?'rgba(255,255,255,.1)':'transparent'};color:${!planFilter?'#F7F7F7':'rgba(247,247,247,.4)'}">TODOS (${list.length})</button>
+      ${plans.map(p=>{
+        const c=p==='ETERNITY'?'#a855f7':p==='GROWTH'?'#f59e0b':'#6b7280';
+        const active=planFilter===p;
+        return `<button data-action="filter-plan" data-plan="${p}" style="padding:5px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid ${active?c+'60':'rgba(255,255,255,.08)'};background:${active?c+'18':'transparent'};color:${active?c:'rgba(247,247,247,.4)'}">${p} (${planCount(p)})</button>`;
+      }).join('')}
     </div>
 
     <div class="fu1" style="display:flex;flex-direction:column;gap:8px">
@@ -1382,9 +1394,14 @@ async function openStudentDetail(studentId) {
           <div style="width:1px;background:rgba(255,255,255,.07)"></div>
           <div><div style="font-weight:900;font-size:20px;color:#F7F7F7">${feedbacks.length}</div><div style="font-size:8px;color:rgba(247,247,247,.3);letter-spacing:1px">FEEDBACKS</div></div>
         </div>
-        <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px;flex-shrink:0">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+          <button onclick="document.getElementById('mr').innerHTML=''" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer;padding:4px">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          ${['super_admin','admin'].includes(S.currentRole) ? `<button onclick="deleteStudent('${studentId}')" style="background:none;border:1px solid rgba(248,113,113,.2);border-radius:7px;color:rgba(248,113,113,.5);cursor:pointer;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:4px;font-family:inherit;transition:all .15s" onmouseenter="this.style.color='#f87171';this.style.borderColor='rgba(248,113,113,.5)';this.style.background='rgba(248,113,113,.08)'" onmouseleave="this.style.color='rgba(248,113,113,.5)';this.style.borderColor='rgba(248,113,113,.2)';this.style.background='none'">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Excluir aluno
+          </button>` : ''}
+        </div>
       </div>
 
       <!-- Tabs -->
@@ -1743,6 +1760,23 @@ async function deleteStudentTask(taskId) {
   await SB.from('tasks').delete().eq('id', taskId);
   const el = document.getElementById(`task-row-${taskId}`);
   if (el) el.remove();
+}
+
+async function deleteStudent(studentId) {
+  const st = S.students.list.find(s => s.id === studentId);
+  const name = st?.full_name || st?.email || 'este aluno';
+  if (!confirm(`Excluir permanentemente ${name}?\n\nIsso remove todos os dados: calls, tarefas, feedbacks e links. Esta ação não pode ser desfeita.`)) return;
+  await Promise.all([
+    SB.from('bookings').delete().eq('student_id', studentId),
+    SB.from('tasks').delete().eq('student_id', studentId),
+    SB.from('important_links').delete().eq('student_id', studentId),
+  ]);
+  await SB.from('student_profiles').delete().eq('id', studentId);
+  S.students.list = S.students.list.filter(s => s.id !== studentId);
+  S.stats.loaded = false;
+  document.getElementById('mr').innerHTML = '';
+  document.getElementById('pc').innerHTML = renderPage('students');
+  lucide.createIcons();
 }
 
 async function resetStudentPassword(email) {
@@ -2279,6 +2313,11 @@ document.addEventListener('click', function(e) {
       break;
     case 'view-student':
       openStudentDetail(id);
+      break;
+    case 'filter-plan':
+      S.students.planFilter = t.dataset.plan || '';
+      document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
       break;
     case 'close-student-detail':
       if (e.target === t) {

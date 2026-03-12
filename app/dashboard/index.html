@@ -144,6 +144,9 @@
 
     /* ── Animations ── */
     @keyframes fadeUp   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastIn  { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+    @keyframes toastOut { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(8px); } }
+    #toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
     @keyframes scaleIn  { from { transform:scale(0.93); opacity:0; } to { transform:scale(1); opacity:1; } }
     @keyframes glow     { 0%,100%{box-shadow:0 0 30px rgba(112,34,187,.4)}50%{box-shadow:0 0 60px rgba(112,34,187,.7)} }
     @keyframes spin     { to { transform:rotate(360deg); } }
@@ -312,7 +315,7 @@ const S = {
   page: 'dashboard',
   user: null,
   gcal: { connected: false, meetLink: null, eventLink: null, loading: false },
-  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null },
+  dash: { feedback:'', sent:false, rating:0, tasks:null, feedbackDone:false, taskModal:null, plan:null, myFeedbacks:null },
   links: { list: [] },
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
@@ -1040,9 +1043,30 @@ function pageCalls() {
     </div>
 
     <div style="margin-bottom:10px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,0.35)">HISTÓRICO</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:32px">
       ${pastHtml}
     </div>
+
+    ${S.dash.myFeedbacks && S.dash.myFeedbacks.length ? `
+    <div style="margin-bottom:10px;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(247,247,247,0.35)">MEUS FEEDBACKS</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${S.dash.myFeedbacks.map(f => {
+        const stars = n => n ? '★'.repeat(n)+'☆'.repeat(5-n) : '—';
+        const d = new Date(f.created_at);
+        const p2 = n => String(n).padStart(2,'0');
+        const dateStr = `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()}`;
+        return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px 18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${f.body?'10px':'0'}">
+            <div>
+              <div style="font-weight:700;font-size:13px;color:var(--white)">${f.call_title || 'Call de Mentoria'}</div>
+              <div style="font-size:11px;color:rgba(247,247,247,0.35);margin-top:2px">${dateStr}</div>
+            </div>
+            <span style="font-size:15px;color:#f59e0b;letter-spacing:2px">${stars(f.rating)}</span>
+          </div>
+          ${f.body ? `<p style="font-size:12px;color:rgba(247,247,247,0.45);line-height:1.6;margin:0;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-style:italic">"${f.body}"</p>` : ''}
+        </div>`;
+      }).join('')}
+    </div>` : ''}
   </div>`;
 }
 
@@ -1427,6 +1451,16 @@ async function loadDashTasks() {
 }
 
 /* ─── Feedback status ──────────────────────────────────────────────── */
+async function loadMyFeedbacks() {
+  try {
+    const { data } = await SB.from('feedbacks')
+      .select('id,call_title,rating,body,created_at')
+      .eq('student_id', S.user.id)
+      .order('created_at', { ascending: false });
+    S.dash.myFeedbacks = data || [];
+  } catch(e) { S.dash.myFeedbacks = []; }
+}
+
 async function loadFeedbackStatus() {
   try {
     const lastCall = CALLS.filter(c => c.done).slice(-1)[0];
@@ -1608,6 +1642,7 @@ SB.auth.getSession().then(async function({data:{session}}) {
     loadCalls(),
   ]);
   await loadFeedbackStatus();
+  loadMyFeedbacks(); // não bloqueia — carrega em background
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='flex';
   render();
@@ -1616,6 +1651,22 @@ SB.auth.getSession().then(async function({data:{session}}) {
 SB.auth.onAuthStateChange(function(event, session) {
   if(event==='SIGNED_OUT') window.location.replace('/login');
 });
+
+function showToast(msg, type='success') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const colors = { success:'#22c55e', error:'#f87171', info:'#7022BB' };
+  const color = colors[type] || colors.success;
+  const t = document.createElement('div');
+  t.style.cssText = `background:#1a1a1a;border:1px solid ${color}40;border-left:3px solid ${color};border-radius:10px;padding:12px 16px;font-size:12px;font-weight:600;color:#F7F7F7;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);animation:toastIn .3s ease both;pointer-events:auto;min-width:220px;max-width:320px`;
+  t.innerHTML = `<div style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0"></div>${msg}`;
+  container.appendChild(t);
+  setTimeout(() => { t.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => t.remove(), 300); }, 3500);
+}
 </script>
 </body>
 </html>

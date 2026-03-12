@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0D1526" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Nova Senha · Eternity Academy</title>
+  <link rel="icon" type="image/png" href="/medias/eternityfavicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:     #0D1526;
+      --card:   #131929;
+      --purple: #7022BB;
+      --dp:     #5B18A0;
+      --border: rgba(255,255,255,0.08);
+      --text:   rgba(247,247,247,0.92);
+      --muted:  rgba(247,247,247,0.50);
+      --font:   'Red Hat Display', sans-serif;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+    .bg-deco { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .bg-deco::before { content: ''; position: absolute; top: -160px; right: -160px; width: 560px; height: 560px; border-radius: 50%; background: radial-gradient(circle, rgba(112,34,187,0.18) 0%, transparent 70%); filter: blur(80px); }
+    .bg-deco::after  { content: ''; position: absolute; bottom: -100px; left: -100px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(112,34,187,0.10) 0%, transparent 70%); filter: blur(70px); }
+    .page { position: relative; z-index: 1; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 32px 20px; }
+    .card { width: 100%; max-width: 480px; background: var(--card); border: 1px solid rgba(255,255,255,0.07); border-radius: 24px; padding: 44px 44px 40px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: fadeUp 0.45s ease both; }
+    .logo-wrap { display: flex; justify-content: center; margin-bottom: 32px; }
+    .logo-wrap img { height: 72px; width: auto; display: block; }
+    .heading { margin-bottom: 28px; }
+    .heading h1 { font-size: 24px; font-weight: 900; color: var(--text); letter-spacing: -0.4px; line-height: 1.2; margin-bottom: 6px; }
+    .heading p { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+    .field { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 13px; font-weight: 600; color: rgba(247,247,247,0.70); margin-bottom: 7px; }
+    .ea-input { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.10); border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 15px; font-family: var(--font); font-weight: 500; outline: none; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
+    .ea-input::placeholder { color: rgba(247,247,247,0.25); }
+    .ea-input:focus { border-color: rgba(112,34,187,0.6); box-shadow: 0 0 0 3px rgba(112,34,187,0.12); }
+    .ea-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-family: var(--font); font-weight: 800; font-size: 15px; letter-spacing: 0.5px; cursor: pointer; background: linear-gradient(135deg, var(--purple) 0%, var(--dp) 100%); color: #FFFFFF; transition: opacity 0.18s, transform 0.15s; box-shadow: 0 4px 20px rgba(112,34,187,0.35); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .ea-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .ea-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #FFFFFF; border-radius: 50%; animation: spin 0.75s linear infinite; display: none; }
+    .ea-btn.loading .btn-label { display: none; }
+    .ea-btn.loading .spinner   { display: block; }
+    .banner { display: none; align-items: center; gap: 10px; border-radius: 10px; padding: 11px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 500; }
+    .banner svg { flex-shrink: 0; }
+    .banner.error   { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22); color: #f87171; }
+    .banner.success { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.18); color: #22c55e; }
+    .card-footer { text-align: center; margin-top: 28px; font-size: 10px; color: rgba(247,247,247,0.22); letter-spacing: 0.8px; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 540px) { .card { padding: 36px 24px 32px; border-radius: 20px; } .heading h1 { font-size: 20px; } }
+  </style>
+</head>
+<body>
+<div class="bg-deco" aria-hidden="true"></div>
+<div class="page">
+  <div class="card">
+    <div class="logo-wrap">
+      <img src="/medias/eahorizontalglow.png" alt="Eternity Academy" />
+    </div>
+    <div class="heading">
+      <h1>Criar nova senha</h1>
+      <p>Digite sua nova senha abaixo para recuperar o acesso à sua conta.</p>
+    </div>
+
+    <div id="banner" class="banner" role="alert">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="bannerText"></span>
+    </div>
+
+    <form id="resetForm" novalidate>
+      <div class="field">
+        <label class="field-label" for="password">Nova Senha</label>
+        <input class="ea-input" type="password" id="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+      </div>
+      <div class="field">
+        <label class="field-label" for="passwordConf">Confirmar Senha</label>
+        <input class="ea-input" type="password" id="passwordConf" placeholder="Repita a senha" autocomplete="new-password" required />
+      </div>
+      <button type="submit" class="ea-btn" id="btnSubmit">
+        <span class="btn-label">Salvar nova senha</span>
+        <div class="spinner" aria-hidden="true"></div>
+      </button>
+    </form>
+
+    <p class="card-footer">© 2026 ETERNITY HOLDING CO. — TODOS OS DIREITOS RESERVADOS</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL  = 'https://subsagwkktjjujdfpavf.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_Ln7neAZZMFVZ_yHU64DHHg_QV4ubdDy';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  var form       = document.getElementById('resetForm');
+  var passEl     = document.getElementById('password');
+  var passConfEl = document.getElementById('passwordConf');
+  var btnSubmit  = document.getElementById('btnSubmit');
+  var banner     = document.getElementById('banner');
+  var bannerText = document.getElementById('bannerText');
+
+  function showBanner(msg, type) {
+    bannerText.textContent = msg;
+    banner.className = 'banner ' + (type || 'error');
+    banner.style.display = 'flex';
+  }
+  function hideBanner() { banner.style.display = 'none'; }
+  function setLoading(on) {
+    btnSubmit.disabled = on;
+    if (on) btnSubmit.classList.add('loading');
+    else     btnSubmit.classList.remove('loading');
+  }
+
+  // Supabase recupera a sessão automaticamente via hash do link de reset
+  sb.auth.onAuthStateChange(function (event, session) {
+    if (event === 'PASSWORD_RECOVERY') {
+      // sessão pronta, formulário habilitado — não faz nada especial
+    }
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideBanner();
+
+    var pw     = passEl.value;
+    var pwConf = passConfEl.value;
+
+    if (pw.length < 8) {
+      showBanner('A senha deve ter pelo menos 8 caracteres.');
+      return;
+    }
+    if (pw !== pwConf) {
+      showBanner('As senhas não coincidem.');
+      return;
+    }
+
+    setLoading(true);
+
+    sb.auth.updateUser({ password: pw }).then(function (result) {
+      setLoading(false);
+      if (result.error) {
+        showBanner(result.error.message || 'Erro ao atualizar senha.');
+      } else {
+        showBanner('Senha atualizada com sucesso! Redirecionando...', 'success');
+        setTimeout(function () {
+          window.location.replace('/login');
+        }, 2000);
+      }
+    }).catch(function () {
+      setLoading(false);
+      showBanner('Erro de conexão. Tente novamente.');
+    });
+  });
+
+  [passEl, passConfEl].forEach(function (el) {
+    el.addEventListener('input', hideBanner);
+  });
+}());
+</script>
+</body>
+</html>
