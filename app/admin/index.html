@@ -1000,7 +1000,8 @@ function exportAnalyticsCSV() {
 async function loadAuditLog() {
   if (S.audit.loaded) return;
   S.audit.loading = true;
-  const { data } = await SB.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100);
+  const since = new Date(); since.setDate(since.getDate() - 30);
+  const { data } = await SB.from('audit_log').select('*').gte('created_at', since.toISOString()).order('created_at', { ascending: false });
   S.audit.list = data || [];
   S.audit.loaded = true;
   S.audit.loading = false;
@@ -1009,7 +1010,7 @@ async function loadAuditLog() {
 function pageAudit() {
   const list = S.audit.list;
   const pad2 = n => String(n).padStart(2,'0');
-  const fmt = dt => { const d=new Date(dt); return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+  const fmtTime = dt => { const d=new Date(dt); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
   const actionLabels = {
     move_to_alumni:'Movido para Antigos', restore_student:'Restaurado como Ativo',
     delete_student:'Aluno Excluído', bulk_move_alumni:'Mover em Lote (Antigos)',
@@ -1019,28 +1020,98 @@ function pageAudit() {
     move_to_alumni:'#f59e0b', restore_student:'#22c55e', delete_student:'#f87171',
     bulk_move_alumni:'#f59e0b', bulk_delete:'#f87171', upgrade_plan:'#a855f7', edit_student:'#3b82f6',
   };
+  const actionIcons = {
+    move_to_alumni:'user-minus', restore_student:'user-check', delete_student:'trash-2',
+    bulk_move_alumni:'users', bulk_delete:'trash-2', upgrade_plan:'arrow-up-circle', edit_student:'edit-3',
+  };
+
+  // Agrupar por data
+  const grouped = {};
+  list.forEach(l => {
+    const d = new Date(l.created_at);
+    const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(l);
+  });
+  const dateKeys = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+
+  const WEEKDAYS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const today = new Date();
+  const todayKey = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
+  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+  const yesterdayKey = `${yesterday.getFullYear()}-${pad2(yesterday.getMonth()+1)}-${pad2(yesterday.getDate())}`;
+
+  const dateLabel = (key) => {
+    if (key === todayKey) return 'Hoje';
+    if (key === yesterdayKey) return 'Ontem';
+    const [y,m,d] = key.split('-').map(Number);
+    const dt = new Date(y,m-1,d);
+    return `${WEEKDAYS[dt.getDay()]}, ${d} de ${MONTHS[m-1]}`;
+  };
+
+  // Gerar calendário dos últimos 30 dias
+  const allDays = [];
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    allDays.push(`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`);
+  }
+  const totalActions = list.length;
 
   return `
   <div style="padding:28px 32px;max-width:800px">
-    <div class="fu" style="margin-bottom:20px">
+    <div class="fu" style="margin-bottom:24px">
       <div class="lbl">AUDITORIA</div>
       <h1 class="ph1">Histórico de Alterações</h1>
-      <p class="sub">Últimas 100 ações registradas</p>
+      <p class="sub">Últimos 30 dias · ${totalActions} ação${totalActions!==1?'ões':''} registrada${totalActions!==1?'s':''}</p>
     </div>
-    <div class="fu1" style="display:flex;flex-direction:column;gap:6px">
-      ${list.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px">${ic('scroll-text',16)} Nenhuma ação registrada ainda</div>`
-        : list.map(l => `
-          <div class="trow" style="gap:12px">
-            <div style="width:8px;height:8px;border-radius:50%;background:${actionColors[l.action]||'rgba(247,247,247,.3)'};flex-shrink:0;margin-top:5px"></div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:700;color:#F7F7F7">${actionLabels[l.action]||l.action}</div>
-              ${l.target_name ? `<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:1px">${l.target_name}</div>` : ''}
-              ${l.details ? `<div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:2px">${l.details}</div>` : ''}
+
+    <!-- Mini calendário de atividade -->
+    <div class="stat-card" style="margin-bottom:24px;padding:18px 20px">
+      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:12px">ATIVIDADE NOS ÚLTIMOS 30 DIAS</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${allDays.slice().reverse().map(dk => {
+          const count = (grouped[dk]||[]).length;
+          const intensity = count === 0 ? 'rgba(255,255,255,.04)' : count <= 2 ? 'rgba(112,34,187,.25)' : count <= 5 ? 'rgba(112,34,187,.5)' : 'rgba(112,34,187,.8)';
+          const [,m,d] = dk.split('-');
+          return `<div title="${d}/${m} — ${count} ação${count!==1?'ões':''}" style="width:22px;height:22px;border-radius:5px;background:${intensity};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${count>0?'#F7F7F7':'rgba(247,247,247,.15)'};cursor:default">${parseInt(d)}</div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end">
+        <span style="font-size:9px;color:rgba(247,247,247,.25)">Menos</span>
+        ${['rgba(255,255,255,.04)','rgba(112,34,187,.25)','rgba(112,34,187,.5)','rgba(112,34,187,.8)'].map(c => `<div style="width:12px;height:12px;border-radius:3px;background:${c}"></div>`).join('')}
+        <span style="font-size:9px;color:rgba(247,247,247,.25)">Mais</span>
+      </div>
+    </div>
+
+    <!-- Timeline por dia -->
+    <div style="display:flex;flex-direction:column;gap:0">
+      ${dateKeys.length === 0
+        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px">${ic('scroll-text',16)} Nenhuma ação registrada nos últimos 30 dias</div>`
+        : dateKeys.map(dk => `
+          <div style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="font-size:12px;font-weight:800;color:#F7F7F7">${dateLabel(dk)}</div>
+              <div style="flex:1;height:1px;background:rgba(255,255,255,.06)"></div>
+              <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.25)">${grouped[dk].length}</div>
             </div>
-            <div style="text-align:right;flex-shrink:0">
-              <div style="font-size:10px;color:rgba(247,247,247,.3)">${fmt(l.created_at)}</div>
-              <div style="font-size:9px;color:rgba(247,247,247,.2);margin-top:2px">${l.admin_name||'—'}</div>
+            <div style="display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid rgba(112,34,187,.2)">
+              ${grouped[dk].map(l => {
+                const color = actionColors[l.action]||'rgba(247,247,247,.3)';
+                const icon = actionIcons[l.action]||'activity';
+                return `<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.04)">
+                  <div style="width:28px;height:28px;border-radius:8px;background:${color}15;border:1px solid ${color}25;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icon,12,`color:${color}`)}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:12px;font-weight:700;color:#F7F7F7">${actionLabels[l.action]||l.action}</div>
+                    ${l.target_name ? `<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:1px">${l.target_name}</div>` : ''}
+                    ${l.details ? `<div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:2px">${l.details}</div>` : ''}
+                  </div>
+                  <div style="text-align:right;flex-shrink:0">
+                    <div style="font-size:11px;font-weight:600;color:rgba(247,247,247,.35)">${fmtTime(l.created_at)}</div>
+                    <div style="font-size:9px;color:rgba(247,247,247,.2);margin-top:2px">${l.admin_name||'—'}</div>
+                  </div>
+                </div>`;
+              }).join('')}
             </div>
           </div>`).join('')}
     </div>
