@@ -370,7 +370,7 @@ const S = {
   collaborators: { list:[], loading:false, search:'' },
   // Analytics
   analytics: { period:'week', data:null, loading:false },
-  audit: { list:[], loading:false, loaded:false },
+  audit: { list:[], loading:false, loaded:false, selectedDate:'' },
   // Modals
   cfg: { pw:'', pwConf:'', saved:'' },
   modal: null,
@@ -1007,8 +1007,15 @@ async function loadAuditLog() {
   S.audit.loading = false;
 }
 
+function selectAuditDate(dateKey) {
+  S.audit.selectedDate = S.audit.selectedDate === dateKey ? '' : dateKey;
+  document.getElementById('pc').innerHTML = renderPage('audit');
+  lucide.createIcons();
+}
+
 function pageAudit() {
   const list = S.audit.list;
+  const sel = S.audit.selectedDate;
   const pad2 = n => String(n).padStart(2,'0');
   const fmtTime = dt => { const d=new Date(dt); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
   const actionLabels = {
@@ -1033,29 +1040,66 @@ function pageAudit() {
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(l);
   });
-  const dateKeys = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
 
-  const WEEKDAYS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-  const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const WEEKDAYS_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const MONTHS_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const today = new Date();
   const todayKey = `${today.getFullYear()}-${pad2(today.getMonth()+1)}-${pad2(today.getDate())}`;
-  const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
-  const yesterdayKey = `${yesterday.getFullYear()}-${pad2(yesterday.getMonth()+1)}-${pad2(yesterday.getDate())}`;
 
-  const dateLabel = (key) => {
-    if (key === todayKey) return 'Hoje';
-    if (key === yesterdayKey) return 'Ontem';
-    const [y,m,d] = key.split('-').map(Number);
-    const dt = new Date(y,m-1,d);
-    return `${WEEKDAYS[dt.getDay()]}, ${d} de ${MONTHS[m-1]}`;
+  // Montar grid do mês atual e anterior (cobrindo 30 dias)
+  // Mostrar o mês que contém a maioria dos últimos 30 dias
+  const calMonth = today.getMonth();
+  const calYear = today.getFullYear();
+  const prevMonth = calMonth === 0 ? 11 : calMonth - 1;
+  const prevYear = calMonth === 0 ? calYear - 1 : calYear;
+
+  const buildMonthGrid = (yr, mo) => {
+    const firstDay = new Date(yr, mo, 1).getDay();
+    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    return { cells, daysInMonth, label: `${MONTHS_FULL[mo]} ${yr}` };
   };
 
-  // Gerar calendário dos últimos 30 dias
-  const allDays = [];
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(today); d.setDate(today.getDate() - i);
-    allDays.push(`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`);
-  }
+  const thirtyAgo = new Date(today); thirtyAgo.setDate(today.getDate() - 30);
+
+  const renderMonth = (yr, mo) => {
+    const mg = buildMonthGrid(yr, mo);
+    return `
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:800;color:#F7F7F7;margin-bottom:10px;text-align:center">${mg.label}</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+          ${WEEKDAYS_SHORT.map(w => `<div style="text-align:center;font-size:9px;font-weight:700;color:rgba(247,247,247,.3);padding:4px 0">${w}</div>`).join('')}
+          ${mg.cells.map(d => {
+            if (d === null) return `<div></div>`;
+            const dk = `${yr}-${pad2(mo+1)}-${pad2(d)}`;
+            const dt = new Date(yr, mo, d);
+            const inRange = dt >= thirtyAgo && dt <= today;
+            const count = (grouped[dk]||[]).length;
+            const isToday = dk === todayKey;
+            const isSel = dk === sel;
+            if (!inRange) {
+              return `<div style="text-align:center;padding:6px 0;font-size:11px;color:rgba(247,247,247,.1);border-radius:8px">${d}</div>`;
+            }
+            const bg = isSel ? 'rgba(112,34,187,.5)' : isToday ? 'rgba(112,34,187,.15)' : 'transparent';
+            const border = isSel ? '1px solid rgba(112,34,187,.7)' : isToday ? '1px solid rgba(112,34,187,.3)' : '1px solid transparent';
+            return `<div onclick="selectAuditDate('${dk}')" style="text-align:center;padding:6px 0;font-size:11px;font-weight:${count>0?'800':'500'};color:${count>0?'#F7F7F7':'rgba(247,247,247,.35)'};border-radius:8px;cursor:pointer;background:${bg};border:${border};transition:all .15s;position:relative" onmouseenter="this.style.background='rgba(112,34,187,.25)'" onmouseleave="this.style.background='${bg}'">
+              ${d}
+              ${count > 0 ? `<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#a855f7"></div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  };
+
+  // Ações do dia selecionado
+  const selItems = sel ? (grouped[sel] || []) : [];
+  const selLabel = sel ? (() => {
+    const [y,m,d] = sel.split('-').map(Number);
+    return `${d} de ${MONTHS_FULL[m-1]} de ${y}`;
+  })() : '';
+
   const totalActions = list.length;
 
   return `
@@ -1063,58 +1107,51 @@ function pageAudit() {
     <div class="fu" style="margin-bottom:24px">
       <div class="lbl">AUDITORIA</div>
       <h1 class="ph1">Histórico de Alterações</h1>
-      <p class="sub">Últimos 30 dias · ${totalActions} ação${totalActions!==1?'ões':''} registrada${totalActions!==1?'s':''}</p>
+      <p class="sub">Últimos 30 dias · ${totalActions} ação${totalActions!==1?'ões':''}</p>
     </div>
 
-    <!-- Mini calendário de atividade -->
-    <div class="stat-card" style="margin-bottom:24px;padding:18px 20px">
-      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:12px">ATIVIDADE NOS ÚLTIMOS 30 DIAS</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">
-        ${allDays.slice().reverse().map(dk => {
-          const count = (grouped[dk]||[]).length;
-          const intensity = count === 0 ? 'rgba(255,255,255,.04)' : count <= 2 ? 'rgba(112,34,187,.25)' : count <= 5 ? 'rgba(112,34,187,.5)' : 'rgba(112,34,187,.8)';
-          const [,m,d] = dk.split('-');
-          return `<div title="${d}/${m} — ${count} ação${count!==1?'ões':''}" style="width:22px;height:22px;border-radius:5px;background:${intensity};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${count>0?'#F7F7F7':'rgba(247,247,247,.15)'};cursor:default">${parseInt(d)}</div>`;
-        }).join('')}
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;justify-content:flex-end">
-        <span style="font-size:9px;color:rgba(247,247,247,.25)">Menos</span>
-        ${['rgba(255,255,255,.04)','rgba(112,34,187,.25)','rgba(112,34,187,.5)','rgba(112,34,187,.8)'].map(c => `<div style="width:12px;height:12px;border-radius:3px;background:${c}"></div>`).join('')}
-        <span style="font-size:9px;color:rgba(247,247,247,.25)">Mais</span>
-      </div>
+    <!-- Calendário -->
+    <div style="display:grid;grid-template-columns:${prevMonth !== calMonth ? '1fr 1fr' : '1fr'};gap:16px;margin-bottom:24px">
+      ${prevYear !== calYear || prevMonth !== calMonth ? `<div class="stat-card" style="padding:18px 20px">${renderMonth(prevYear, prevMonth)}</div>` : ''}
+      <div class="stat-card" style="padding:18px 20px">${renderMonth(calYear, calMonth)}</div>
     </div>
 
-    <!-- Timeline por dia -->
-    <div style="display:flex;flex-direction:column;gap:0">
-      ${dateKeys.length === 0
-        ? `<div class="trow" style="justify-content:center;color:rgba(247,247,247,.3);font-size:13px">${ic('scroll-text',16)} Nenhuma ação registrada nos últimos 30 dias</div>`
-        : dateKeys.map(dk => `
-          <div style="margin-bottom:20px">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="font-size:12px;font-weight:800;color:#F7F7F7">${dateLabel(dk)}</div>
-              <div style="flex:1;height:1px;background:rgba(255,255,255,.06)"></div>
-              <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.25)">${grouped[dk].length}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;padding-left:12px;border-left:2px solid rgba(112,34,187,.2)">
-              ${grouped[dk].map(l => {
+    <!-- Detalhe do dia selecionado -->
+    ${sel ? `
+      <div class="stat-card" style="padding:18px 20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:800;color:#F7F7F7">${ic('calendar',14)} &nbsp;${selLabel}</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:rgba(247,247,247,.3)">${selItems.length} ação${selItems.length!==1?'ões':''}</span>
+            <button onclick="selectAuditDate('')" style="background:none;border:none;cursor:pointer;color:rgba(247,247,247,.3);padding:4px">${ic('x',14)}</button>
+          </div>
+        </div>
+        ${selItems.length === 0
+          ? `<div style="text-align:center;padding:24px;color:rgba(247,247,247,.2);font-size:12px">${ic('check-circle',16)} Nenhuma alteração neste dia</div>`
+          : `<div style="display:flex;flex-direction:column;gap:6px">
+              ${selItems.map(l => {
                 const color = actionColors[l.action]||'rgba(247,247,247,.3)';
                 const icon = actionIcons[l.action]||'activity';
-                return `<div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.04)">
-                  <div style="width:28px;height:28px;border-radius:8px;background:${color}15;border:1px solid ${color}25;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icon,12,`color:${color}`)}</div>
+                return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.05)">
+                  <div style="width:30px;height:30px;border-radius:8px;background:${color}15;border:1px solid ${color}25;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ic(icon,13,`color:${color}`)}</div>
                   <div style="flex:1;min-width:0">
                     <div style="font-size:12px;font-weight:700;color:#F7F7F7">${actionLabels[l.action]||l.action}</div>
-                    ${l.target_name ? `<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:1px">${l.target_name}</div>` : ''}
+                    ${l.target_name ? `<div style="font-size:11px;color:rgba(247,247,247,.4);margin-top:2px">${l.target_name}</div>` : ''}
                     ${l.details ? `<div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:2px">${l.details}</div>` : ''}
                   </div>
                   <div style="text-align:right;flex-shrink:0">
-                    <div style="font-size:11px;font-weight:600;color:rgba(247,247,247,.35)">${fmtTime(l.created_at)}</div>
+                    <div style="font-size:11px;font-weight:600;color:rgba(247,247,247,.4)">${fmtTime(l.created_at)}</div>
                     <div style="font-size:9px;color:rgba(247,247,247,.2);margin-top:2px">${l.admin_name||'—'}</div>
                   </div>
                 </div>`;
               }).join('')}
-            </div>
-          </div>`).join('')}
-    </div>
+            </div>`}
+      </div>
+    ` : `
+      <div style="text-align:center;padding:30px;color:rgba(247,247,247,.2);font-size:13px">
+        ${ic('mouse-pointer-click',18)} Clique em um dia no calendário para ver as alterações
+      </div>
+    `}
   </div>`;
 }
 
