@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS weekly_growth (
   week_number int NOT NULL,
   gross_revenue numeric(12,2) DEFAULT 0,
   net_revenue numeric(12,2) DEFAULT 0,
+  currency text DEFAULT 'BRL',
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   UNIQUE(student_id, week_number)

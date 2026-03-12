@@ -1626,6 +1626,11 @@ async function openStudentDetail(studentId) {
   const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '—';
   const profitColor = profitPct === '—' ? 'rgba(247,247,247,.3)' : Number(profitPct) >= 30 ? '#22c55e' : Number(profitPct) >= 15 ? '#f59e0b' : '#f87171';
 
+  const GC = { BRL:{s:'R$',l:'pt-BR'}, USD:{s:'US$',l:'en-US'}, EUR:{s:'€',l:'de-DE'}, GBP:{s:'£',l:'en-GB'} };
+  const gCur = (growthData.length > 0 && growthData[0].currency) ? growthData[0].currency : 'BRL';
+  const gc = GC[gCur] || GC.BRL;
+  const gFmt = (v) => gc.s + ' ' + (parseFloat(v)||0).toLocaleString(gc.l,{minimumFractionDigits:2});
+
   const growthWeekMap = {};
   growthData.forEach(g => { growthWeekMap[g.week_number] = g; });
   const growthRows = [];
@@ -1640,7 +1645,7 @@ async function openStudentDetail(studentId) {
         <div style="width:28px;height:28px;border-radius:8px;background:rgba(147,51,234,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#9333ea;flex-shrink:0">${w}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:700;color:#F7F7F7">Semana ${w}</div>
-          <div style="font-size:10px;color:rgba(247,247,247,.4);margin-top:2px">Bruto: R$ ${gr.toLocaleString('pt-BR',{minimumFractionDigits:2})} · Líquido: R$ ${nr.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          <div style="font-size:10px;color:rgba(247,247,247,.4);margin-top:2px">Bruto: ${gFmt(gr)} · Líquido: ${gFmt(nr)}</div>
         </div>
         <span style="font-size:11px;font-weight:800;color:${pc}">${pp}%</span>
       </div>`);
@@ -1904,18 +1909,21 @@ async function openStudentDetail(studentId) {
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
             <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:11px;padding:12px 14px;text-align:center">
               <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(34,197,94,.5);margin-bottom:4px">BRUTO TOTAL</div>
-              <div style="font-size:16px;font-weight:800;color:#22c55e">R$ ${totalGross.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div style="font-size:16px;font-weight:800;color:#22c55e">${gFmt(totalGross)}</div>
             </div>
             <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:11px;padding:12px 14px;text-align:center">
               <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(59,130,246,.5);margin-bottom:4px">LÍQUIDO TOTAL</div>
-              <div style="font-size:16px;font-weight:800;color:#3b82f6">R$ ${totalNet.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div style="font-size:16px;font-weight:800;color:#3b82f6">${gFmt(totalNet)}</div>
             </div>
             <div style="background:rgba(147,51,234,.06);border:1px solid rgba(147,51,234,.15);border-radius:11px;padding:12px 14px;text-align:center">
               <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(147,51,234,.5);margin-bottom:4px">MARGEM LUCRO</div>
               <div style="font-size:16px;font-weight:800;color:${profitColor}">${profitPct}${profitPct !== '—' ? '%' : ''}</div>
             </div>
           </div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-top:4px">${growthData.length} de ${maxWeeks} semanas preenchidas</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25)">${growthData.length} de ${maxWeeks} semanas preenchidas</span>
+            <span style="font-size:9px;font-weight:700;background:rgba(147,51,234,.1);color:rgba(147,51,234,.6);border:1px solid rgba(147,51,234,.2);border-radius:5px;padding:2px 7px;letter-spacing:.5px">${gCur}</span>
+          </div>
           <div style="display:flex;flex-direction:column;gap:6px">
             ${growthRows.join('')}
           </div>

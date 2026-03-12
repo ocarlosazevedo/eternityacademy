@@ -320,7 +320,7 @@ const S = {
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
   cfg:  { pw:'', pwConf:'', saved:'' },
-  growth: { list:[], loading:false },
+  growth: { list:[], loading:false, currency:'BRL' },
 };
 
 const SUPABASE_FN  = 'https://subsagwkktjjujdfpavf.supabase.co/functions/v1';
@@ -941,6 +941,7 @@ async function loadGrowth() {
     .eq('student_id', S.user.id)
     .order('week_number', { ascending: true });
   S.growth.list = data || [];
+  if (data && data.length > 0 && data[0].currency) S.growth.currency = data[0].currency;
   S.growth.loading = false;
 }
 
@@ -954,10 +955,10 @@ async function saveGrowthWeek(weekNum) {
   const existing = S.growth.list.find(g => g.week_number === weekNum);
   let error;
   if (existing) {
-    ({ error } = await SB.from('weekly_growth').update({ gross_revenue: gross, net_revenue: net, updated_at: new Date().toISOString() }).eq('id', existing.id));
-    if (!error) { existing.gross_revenue = gross; existing.net_revenue = net; }
+    ({ error } = await SB.from('weekly_growth').update({ gross_revenue: gross, net_revenue: net, currency: S.growth.currency, updated_at: new Date().toISOString() }).eq('id', existing.id));
+    if (!error) { existing.gross_revenue = gross; existing.net_revenue = net; existing.currency = S.growth.currency; }
   } else {
-    const row = { student_id: S.user.id, week_number: weekNum, gross_revenue: gross, net_revenue: net };
+    const row = { student_id: S.user.id, week_number: weekNum, gross_revenue: gross, net_revenue: net, currency: S.growth.currency };
     const { data, error: e } = await SB.from('weekly_growth').insert(row).select().single();
     error = e;
     if (!error && data) S.growth.list.push(data);
@@ -980,9 +981,16 @@ function pageGrowth() {
   const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '0.0';
   const filledWeeks = list.filter(g => parseFloat(g.gross_revenue) > 0 || parseFloat(g.net_revenue) > 0).length;
 
+  const CURRENCIES = {
+    BRL: { symbol:'R$', locale:'pt-BR' },
+    USD: { symbol:'US$', locale:'en-US' },
+    EUR: { symbol:'€', locale:'de-DE' },
+    GBP: { symbol:'£', locale:'en-GB' },
+  };
+  const cur = CURRENCIES[S.growth.currency] || CURRENCIES.BRL;
   const fmtMoney = (v) => {
     const n = parseFloat(v) || 0;
-    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return cur.symbol + ' ' + n.toLocaleString(cur.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   // Gerar semanas
@@ -1006,6 +1014,17 @@ function pageGrowth() {
       <div class="lbl">FINANCEIRO</div>
       <h1 class="ph1">Controle de Crescimento</h1>
       <p class="sub">Plano ${pInfo?.label||plan} · ${maxWeeks} semanas · ${filledWeeks} preenchida${filledWeeks!==1?'s':''}</p>
+    </div>
+
+    <!-- Seletor de moeda -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <label style="font-size:10px;font-weight:700;color:rgba(247,247,247,.35);letter-spacing:1px">MOEDA</label>
+      <select onchange="S.growth.currency=this.value;document.getElementById('pc').innerHTML=pageGrowth();lucide.createIcons()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px 12px;color:#F7F7F7;font-size:12px;font-weight:600;font-family:inherit;outline:none;appearance:none;cursor:pointer;min-width:120px">
+        <option value="BRL" ${S.growth.currency==='BRL'?'selected':''}>R$ — Real</option>
+        <option value="USD" ${S.growth.currency==='USD'?'selected':''}>US$ — Dólar</option>
+        <option value="EUR" ${S.growth.currency==='EUR'?'selected':''}>€ — Euro</option>
+        <option value="GBP" ${S.growth.currency==='GBP'?'selected':''}>£ — Libra</option>
+      </select>
     </div>
 
     <!-- Resumo -->
@@ -1073,11 +1092,11 @@ function pageGrowth() {
           <div id="gw-form-${w.num}" style="display:${filled?'none':'flex'};flex-direction:column;gap:8px;${filled?'margin-top:10px':''}">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
-                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO BRUTO (R$)</label>
+                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO BRUTO (${cur.symbol})</label>
                 <input id="gw-gross-${w.num}" type="number" step="0.01" min="0" value="${w.gross||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#22c55e;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
               </div>
               <div>
-                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO LÍQUIDO (R$)</label>
+                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO LÍQUIDO (${cur.symbol})</label>
                 <input id="gw-net-${w.num}" type="number" step="0.01" min="0" value="${w.net||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#3b82f6;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
               </div>
             </div>
