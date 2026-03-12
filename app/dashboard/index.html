@@ -497,10 +497,12 @@ function renderSidebar() {
     drwAvatar.textContent = ini.toUpperCase();
   }
   // Bottom "Minha Conta" — desktop sidebar
+  const isLight = document.documentElement.classList.contains('light');
   const sbAcc = document.getElementById('sb-account');
   if(sbAcc) sbAcc.innerHTML = `
-    <div class="nav-item${S.page==='config'?' active':''}" data-action="nav" data-page="config">
-      ${ic('user',15)} <span>Minha Conta</span>
+    <div class="nav-item${S.page==='config'?' active':''}" data-action="nav" data-page="config" style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:10px">${ic('user',15)} <span>Minha Conta</span></div>
+      <div onclick="event.stopPropagation();toggleTheme()" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--faint);border:1px solid var(--border);transition:all .15s" title="${isLight?'Modo Escuro':'Modo Claro'}">${ic(isLight?'sun':'moon',13)}</div>
     </div>
   `;
   // Drawer nav

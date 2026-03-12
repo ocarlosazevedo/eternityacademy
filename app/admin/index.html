@@ -158,43 +158,6 @@
       input, textarea, select { font-size:16px; }
     }
 
-    /* ─── Light mode ─── */
-    html.light { --black:#f5f5f5; --white:#1a1a1a; --surface:#ffffff; --card:#ffffff; --border:rgba(0,0,0,.08); --faint:rgba(0,0,0,.03); --muted:rgba(0,0,0,.55); }
-    html.light body { background:#f5f5f5; color:#1a1a1a; }
-    html.light .sidebar { background:#fff; border-right-color:rgba(0,0,0,.08); }
-    html.light .topbar { background:rgba(255,255,255,.92); border-bottom-color:rgba(0,0,0,.06); color:#1a1a1a; }
-    html.light .nav-item { color:rgba(0,0,0,.55); }
-    html.light .nav-item:hover { color:rgba(0,0,0,.85); background:rgba(0,0,0,.04); }
-    html.light .nav-item.active { background:rgba(245,158,11,.1); color:#1a1a1a; }
-    html.light .sb-foot { color:rgba(0,0,0,.25); }
-    html.light .card, html.light .stat-card { background:#fff; border-color:rgba(0,0,0,.08); }
-    html.light .trow { background:#fff; border-color:rgba(0,0,0,.06); }
-    html.light .inp { background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.1); color:#1a1a1a; }
-    html.light .inp::placeholder { color:rgba(0,0,0,.3); }
-    html.light .lbl { color:rgba(0,0,0,.35); }
-    html.light .sub { color:rgba(0,0,0,.45); }
-    html.light .ph1 { color:#1a1a1a; }
-    html.light .btn-ghost { color:rgba(0,0,0,.6); border-color:rgba(0,0,0,.1); }
-    html.light .mob-top { background:rgba(255,255,255,.95); }
-    html.light .drw { background:#fff; }
-    html.light .drw-icon { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.08); }
-    html.light .sb-name { color:#1a1a1a; }
-    html.light .sb-plan { color:rgba(0,0,0,.4); }
-    html.light .sb-logo img { filter:none; }
-    html.light [style*="color:#F7F7F7"] { color:#1a1a1a !important; }
-    html.light [style*="color:rgba(247,247,247"] { color:rgba(0,0,0,.55) !important; }
-    html.light [style*="background:#111"] { background:#fff !important; }
-    html.light [style*="background:#050508"] { background:#f5f5f5 !important; }
-    html.light [style*="background:#090909"] { background:#fff !important; }
-    html.light [style*="background:#0e0e0e"] { background:#fff !important; }
-    html.light [style*="background:#141414"] { background:#f9f9f9 !important; }
-    html.light [style*="background:rgba(255,255,255,0.03)"] { background:rgba(0,0,0,.02) !important; }
-    html.light [style*="background:rgba(255,255,255,.03)"] { background:rgba(0,0,0,.02) !important; }
-    html.light [style*="background:rgba(255,255,255,.02)"] { background:rgba(0,0,0,.015) !important; }
-    html.light [style*="background:rgba(255,255,255,.06)"] { background:rgba(0,0,0,.04) !important; }
-    html.light [style*="background:rgba(255,255,255,0.04)"] { background:rgba(0,0,0,.03) !important; }
-    html.light [style*="background:rgba(255,255,255,0.05)"] { background:rgba(0,0,0,.03) !important; }
-    html.light select { color-scheme:light !important; }
   </style>
 </head>
 <body>
@@ -369,13 +332,6 @@ function showToast(msg, type='info') {
   setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(), 300); }, 3000);
 }
 
-function toggleTheme() {
-  const isLight = document.documentElement.classList.toggle('light');
-  localStorage.setItem('ea-admin-theme', isLight ? 'light' : 'dark');
-  renderSidebar();
-}
-if (localStorage.getItem('ea-admin-theme') === 'light') document.documentElement.classList.add('light');
-
 /* Audit log */
 async function logAudit(action, targetType, targetId, targetName, details) {
   try {
@@ -476,12 +432,10 @@ function renderSidebar() {
   document.getElementById('sb-name').textContent = name;
   document.getElementById('sb-plan').textContent = roleLabel.toUpperCase();
   const nav = visibleNav();
-  const isLight = document.documentElement.classList.contains('light');
   document.getElementById('sb-nav').innerHTML = nav.map(n=>`
     ${n.id === 'account' ? '<div style="height:1px;background:rgba(255,255,255,0.06);margin:8px 4px"></div>' : ''}
-    <div class="nav-item${S.page===n.id?' active':''}" ${n.id==='account'?'style="display:flex;justify-content:space-between;align-items:center"':''} data-action="nav" data-page="${n.id}">
-      <div style="display:flex;align-items:center;gap:10px">${ic(n.ic,15)} <span>${n.label}</span></div>
-      ${n.id === 'account' ? '<div onclick="event.stopPropagation();toggleTheme()" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--faint);border:1px solid var(--border);transition:all .15s" title="'+(isLight?'Modo Escuro':'Modo Claro')+'">'+ic(isLight?'sun':'moon',13)+'</div>' : ''}
+    <div class="nav-item${S.page===n.id?' active':''}" data-action="nav" data-page="${n.id}">
+      ${ic(n.ic,15)} <span>${n.label}</span>
     </div>
   `).join('');
   // Mobile drawer nav
