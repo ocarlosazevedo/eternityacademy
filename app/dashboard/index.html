@@ -936,10 +936,11 @@ function pageAwards() {
 async function loadGrowth() {
   if (S.growth.list.length > 0) return;
   S.growth.loading = true;
-  const { data } = await SB.from('weekly_growth')
+  const { data, error } = await SB.from('weekly_growth')
     .select('*')
     .eq('student_id', S.user.id)
     .order('week_number', { ascending: true });
+  console.log('[STUDENT GROWTH LOAD]', { userId: S.user.id, data, error });
   S.growth.list = data || [];
   if (data && data.length > 0 && data[0].currency) S.growth.currency = data[0].currency;
   S.growth.loading = false;
@@ -963,6 +964,7 @@ async function saveGrowthWeek(weekNum) {
     error = e;
     if (!error && data) S.growth.list.push(data);
   }
+  console.log('[STUDENT GROWTH SAVE]', { weekNum, gross, net, error, userId: S.user.id });
   if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
   showToast(`Semana ${weekNum} salva!`, 'success');
   document.getElementById('pc').innerHTML = pageGrowth();
