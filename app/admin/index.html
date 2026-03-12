@@ -1093,6 +1093,8 @@ function pageAudit() {
       </div>`;
   };
 
+  const dateKeys = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
+
   // Ações do dia selecionado
   const selItems = sel ? (grouped[sel] || []) : [];
   const selLabel = sel ? (() => {
