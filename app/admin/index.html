@@ -1602,11 +1602,12 @@ async function openStudentDetail(studentId) {
     <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
   </div>`;
 
-  const [bookRes, taskRes, fbRes, linkRes] = await Promise.all([
+  const [bookRes, taskRes, fbRes, linkRes, growthRes] = await Promise.all([
     SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
     SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
     SB.from('feedbacks').select('id,student_id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
     SB.from('important_links').select('id,name,url,order').eq('student_id', studentId).order('order').order('created_at'),
+    SB.from('weekly_growth').select('*').eq('student_id', studentId).order('week_number'),
     loadFeedbacks(),
   ]);
 
@@ -1616,6 +1617,40 @@ async function openStudentDetail(studentId) {
     ? fbRes.data
     : S.feedbacks.list.filter(f => f.student_id === studentId);
   let studentLinks = linkRes.data || [];
+  const growthData = growthRes.data || [];
+
+  const PLAN_WEEKS = { FAST:4, GROWTH:12, ETERNITY:48 };
+  const maxWeeks = PLAN_WEEKS[st.plan] || 12;
+  const totalGross = growthData.reduce((s,g) => s + Number(g.gross_revenue||0), 0);
+  const totalNet   = growthData.reduce((s,g) => s + Number(g.net_revenue||0), 0);
+  const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '—';
+  const profitColor = profitPct === '—' ? 'rgba(247,247,247,.3)' : Number(profitPct) >= 30 ? '#22c55e' : Number(profitPct) >= 15 ? '#f59e0b' : '#f87171';
+
+  const growthWeekMap = {};
+  growthData.forEach(g => { growthWeekMap[g.week_number] = g; });
+  const growthRows = [];
+  for (let w = 1; w <= maxWeeks; w++) {
+    const g = growthWeekMap[w];
+    if (g) {
+      const gr = Number(g.gross_revenue||0);
+      const nr = Number(g.net_revenue||0);
+      const pp = gr > 0 ? ((nr/gr)*100).toFixed(1) : '0.0';
+      const pc = Number(pp)>=30?'#22c55e':Number(pp)>=15?'#f59e0b':'#f87171';
+      growthRows.push(`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
+        <div style="width:28px;height:28px;border-radius:8px;background:rgba(147,51,234,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#9333ea;flex-shrink:0">${w}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:#F7F7F7">Semana ${w}</div>
+          <div style="font-size:10px;color:rgba(247,247,247,.4);margin-top:2px">Bruto: R$ ${gr.toLocaleString('pt-BR',{minimumFractionDigits:2})} · Líquido: R$ ${nr.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <span style="font-size:11px;font-weight:800;color:${pc}">${pp}%</span>
+      </div>`);
+    } else {
+      growthRows.push(`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.015);border:1px dashed rgba(255,255,255,0.06)">
+        <div style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:rgba(247,247,247,.2);flex-shrink:0">${w}</div>
+        <div style="flex:1;font-size:11px;color:rgba(247,247,247,.2)">Semana ${w} — não preenchida</div>
+      </div>`);
+    }
+  }
 
   const now = new Date();
   const pad2 = n => String(n).padStart(2,'0');
@@ -1734,6 +1769,7 @@ async function openStudentDetail(studentId) {
         <button id="tbtn-calls"     onclick="switchTab('tab-calls')"     style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">CALLS</button>
         <button id="tbtn-tarefas"   onclick="switchTab('tab-tarefas')"   style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">TAREFAS</button>
         <button id="tbtn-feedbacks" onclick="switchTab('tab-feedbacks')" style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">FEEDBACKS</button>
+        <button id="tbtn-growth"    onclick="switchTab('tab-growth')"    style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">CRESCIMENTO</button>
         <button id="tbtn-links"     onclick="switchTab('tab-links')"     style="flex:1;padding:10px 4px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,247,247,.3);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s">LINKS</button>
       </div>
       <!-- Tab contents -->
@@ -1861,6 +1897,28 @@ async function openStudentDetail(studentId) {
         <div id="tab-feedbacks" style="display:none;flex-direction:column;gap:6px;padding:20px 24px">
           <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:4px">${feedbacks.length} feedback${feedbacks.length!==1?'s':''} enviado${feedbacks.length!==1?'s':''}</div>
           ${fbRows}
+        </div>
+
+        <!-- TAB: CRESCIMENTO -->
+        <div id="tab-growth" style="display:none;flex-direction:column;gap:14px;padding:20px 24px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:11px;padding:12px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(34,197,94,.5);margin-bottom:4px">BRUTO TOTAL</div>
+              <div style="font-size:16px;font-weight:800;color:#22c55e">R$ ${totalGross.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+            </div>
+            <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:11px;padding:12px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(59,130,246,.5);margin-bottom:4px">LÍQUIDO TOTAL</div>
+              <div style="font-size:16px;font-weight:800;color:#3b82f6">R$ ${totalNet.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+            </div>
+            <div style="background:rgba(147,51,234,.06);border:1px solid rgba(147,51,234,.15);border-radius:11px;padding:12px 14px;text-align:center">
+              <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(147,51,234,.5);margin-bottom:4px">MARGEM LUCRO</div>
+              <div style="font-size:16px;font-weight:800;color:${profitColor}">${profitPct}${profitPct !== '—' ? '%' : ''}</div>
+            </div>
+          </div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-top:4px">${growthData.length} de ${maxWeeks} semanas preenchidas</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${growthRows.join('')}
+          </div>
         </div>
 
         <!-- TAB: LINKS -->
@@ -2250,11 +2308,11 @@ async function saveStudentEdit(studentId) {
 }
 
 function switchTab(id) {
-  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks','tab-links'].forEach(t => {
+  ['tab-perfil','tab-calls','tab-tarefas','tab-feedbacks','tab-growth','tab-links'].forEach(t => {
     const el = document.getElementById(t);
     if (el) el.style.display = t === id ? 'flex' : 'none';
   });
-  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks','tbtn-links'].forEach(b => {
+  ['tbtn-perfil','tbtn-calls','tbtn-tarefas','tbtn-feedbacks','tbtn-growth','tbtn-links'].forEach(b => {
     const el = document.getElementById(b);
     if (!el) return;
     const active = b === 'tbtn-' + id.replace('tab-','');

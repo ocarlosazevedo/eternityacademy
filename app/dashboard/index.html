@@ -299,9 +299,9 @@ const PLAN_CALLS = {
   ],
 };
 const PLAN_INFO = {
-  'FAST':     { label:'FAST',     sub:'Aceleração Intensiva · 30 Dias',      calls:7,  grad:'linear-gradient(135deg,#1c1c1c,#3a3a3a)' },
-  'GROWTH':   { label:'GROWTH',   sub:'Imersão Estratégica · 3 Meses',       calls:12, grad:'linear-gradient(135deg,#7c2d12,#ea580c)' },
-  'ETERNITY': { label:'ETERNITY', sub:'Acompanhamento 360° · 12 Meses',      calls:16, grad:'linear-gradient(135deg,#2F054C,#7022BB)' },
+  'FAST':     { label:'FAST',     sub:'Aceleração Intensiva · 30 Dias',      calls:7,  weeks:4,  grad:'linear-gradient(135deg,#1c1c1c,#3a3a3a)' },
+  'GROWTH':   { label:'GROWTH',   sub:'Imersão Estratégica · 3 Meses',       calls:12, weeks:12, grad:'linear-gradient(135deg,#7c2d12,#ea580c)' },
+  'ETERNITY': { label:'ETERNITY', sub:'Acompanhamento 360° · 12 Meses',      calls:16, weeks:48, grad:'linear-gradient(135deg,#2F054C,#7022BB)' },
 };
 const AWARDS = [
   {id:1,label:'Kit Eternity Bronze',      sub:'Marco $10K',       ms:'$10.000',    color:'#CD7F32',borderColor:'rgba(205,127,50,0.28)', progress:0, cur:'$0',kit:['Caixa exclusiva Eternity','Certificado numerado','Brinde surpresa Bronze'],         icon:'medal'},
@@ -320,6 +320,7 @@ const S = {
   cal:  { yr:2026, mo:2, sel:null, slot:null, form:{name:'',email:'',topic:''}, availability:{}, loadingAvail:false },
   aw:   { req:{}, modal:null },
   cfg:  { pw:'', pwConf:'', saved:'' },
+  growth: { list:[], loading:false },
 };
 
 const SUPABASE_FN  = 'https://subsagwkktjjujdfpavf.supabase.co/functions/v1';
@@ -368,10 +369,11 @@ const NAV = [
   {id:'calls',     ic:'calendar-days',    label:'Minhas Calls'},
   {id:'progress',  ic:'bar-chart-3',      label:'Progresso'},
   {id:'awards',    ic:'trophy',           label:'Premiações'},
+  {id:'growth',    ic:'trending-up',      label:'Controle de Crescimento'},
   {id:'content',   ic:'video',            label:'Conteúdos'},
   {id:'links',     ic:'link',             label:'Links Importantes'},
 ];
-const CRUMBS = {dashboard:'Dashboard',calls:'Minhas Calls',progress:'Progresso',awards:'Premiações',content:'Conteúdos Gravados',links:'Links Importantes',config:'Minha Conta'};
+const CRUMBS = {dashboard:'Dashboard',calls:'Minhas Calls',progress:'Progresso',awards:'Premiações',growth:'Controle de Crescimento',content:'Conteúdos Gravados',links:'Links Importantes',config:'Minha Conta'};
 
 function renderSidebar() {
   const name = userName();
@@ -441,6 +443,7 @@ function render(scrollReset=true) {
     case 'calls':     pc.innerHTML=pageCalls(); break;
     case 'progress':  pc.innerHTML=pageProgress();break;
     case 'awards':    pc.innerHTML=pageAwards();  break;
+    case 'growth':    loadGrowth().then(()=>{ pc.innerHTML=pageGrowth(); lucide.createIcons(); }); pc.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:300px;gap:10px;color:rgba(247,247,247,.3);font-size:13px"><div style="width:18px;height:18px;border:2px solid rgba(112,34,187,.25);border-top-color:#7022BB;border-radius:50%;animation:spin .7s linear infinite"></div> Carregando...</div>`; break;
     case 'content':   pc.innerHTML=pageContent(); break;
     case 'links':     pc.innerHTML=pageLinks();   break;
     case 'config':    pc.innerHTML=pageConfig();  break;
@@ -923,6 +926,168 @@ function pageAwards() {
           </div>
         </div>
       `).join('')}
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE: CONTROLE DE CRESCIMENTO
+═══════════════════════════════════════════════════════════════════════ */
+async function loadGrowth() {
+  if (S.growth.list.length > 0) return;
+  S.growth.loading = true;
+  const { data } = await SB.from('weekly_growth')
+    .select('*')
+    .eq('student_id', S.user.id)
+    .order('week_number', { ascending: true });
+  S.growth.list = data || [];
+  S.growth.loading = false;
+}
+
+async function saveGrowthWeek(weekNum) {
+  const grossEl = document.getElementById('gw-gross-' + weekNum);
+  const netEl   = document.getElementById('gw-net-' + weekNum);
+  if (!grossEl || !netEl) return;
+  const gross = parseFloat(grossEl.value) || 0;
+  const net   = parseFloat(netEl.value) || 0;
+
+  const existing = S.growth.list.find(g => g.week_number === weekNum);
+  let error;
+  if (existing) {
+    ({ error } = await SB.from('weekly_growth').update({ gross_revenue: gross, net_revenue: net, updated_at: new Date().toISOString() }).eq('id', existing.id));
+    if (!error) { existing.gross_revenue = gross; existing.net_revenue = net; }
+  } else {
+    const row = { student_id: S.user.id, week_number: weekNum, gross_revenue: gross, net_revenue: net };
+    const { data, error: e } = await SB.from('weekly_growth').insert(row).select().single();
+    error = e;
+    if (!error && data) S.growth.list.push(data);
+  }
+  if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+  showToast(`Semana ${weekNum} salva!`, 'success');
+  document.getElementById('pc').innerHTML = pageGrowth();
+  lucide.createIcons();
+}
+
+function pageGrowth() {
+  const plan = S.dash.plan || 'FAST';
+  const pInfo = PLAN_INFO[plan];
+  const maxWeeks = pInfo ? pInfo.weeks : 4;
+  const list = S.growth.list;
+
+  // Totais
+  const totalGross = list.reduce((a, g) => a + (parseFloat(g.gross_revenue) || 0), 0);
+  const totalNet   = list.reduce((a, g) => a + (parseFloat(g.net_revenue) || 0), 0);
+  const profitPct  = totalGross > 0 ? ((totalNet / totalGross) * 100).toFixed(1) : '0.0';
+  const filledWeeks = list.filter(g => parseFloat(g.gross_revenue) > 0 || parseFloat(g.net_revenue) > 0).length;
+
+  const fmtMoney = (v) => {
+    const n = parseFloat(v) || 0;
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  // Gerar semanas
+  const weeks = [];
+  for (let w = 1; w <= maxWeeks; w++) {
+    const entry = list.find(g => g.week_number === w);
+    weeks.push({
+      num: w,
+      gross: entry ? parseFloat(entry.gross_revenue) || 0 : 0,
+      net: entry ? parseFloat(entry.net_revenue) || 0 : 0,
+      saved: !!entry,
+    });
+  }
+
+  // Maior faturamento para barra de progresso relativa
+  const maxGross = Math.max(...weeks.map(w => w.gross), 1);
+
+  return `
+  <div style="padding:32px 36px">
+    <div class="fu" style="margin-bottom:28px">
+      <div class="lbl">FINANCEIRO</div>
+      <h1 class="ph1">Controle de Crescimento</h1>
+      <p class="sub">Plano ${pInfo?.label||plan} · ${maxWeeks} semanas · ${filledWeeks} preenchida${filledWeeks!==1?'s':''}</p>
+    </div>
+
+    <!-- Resumo -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px" class="fu1">
+      <div class="card" style="padding:18px 20px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1.5px;margin-bottom:8px">FATURAMENTO BRUTO</div>
+        <div style="font-size:24px;font-weight:900;color:#22c55e">${fmtMoney(totalGross)}</div>
+      </div>
+      <div class="card" style="padding:18px 20px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1.5px;margin-bottom:8px">FATURAMENTO LÍQUIDO</div>
+        <div style="font-size:24px;font-weight:900;color:#3b82f6">${fmtMoney(totalNet)}</div>
+      </div>
+      <div class="card" style="padding:18px 20px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1.5px;margin-bottom:8px">MARGEM DE LUCRO</div>
+        <div style="font-size:24px;font-weight:900;color:${parseFloat(profitPct)>=30?'#22c55e':parseFloat(profitPct)>=15?'#f59e0b':'#f87171'}">${profitPct}%</div>
+        <div style="margin-top:6px;background:rgba(255,255,255,.06);border-radius:5px;height:5px;overflow:hidden">
+          <div style="width:${Math.min(parseFloat(profitPct),100)}%;height:100%;background:${parseFloat(profitPct)>=30?'#22c55e':parseFloat(profitPct)>=15?'#f59e0b':'#f87171'};border-radius:5px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evolução visual -->
+    ${filledWeeks > 0 ? `
+    <div class="card fu2" style="padding:18px 20px;margin-bottom:28px">
+      <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1.5px;margin-bottom:14px">EVOLUÇÃO SEMANAL</div>
+      <div style="display:flex;align-items:flex-end;gap:4px;height:100px">
+        ${weeks.filter(w=>w.gross>0||w.net>0).map(w => {
+          const h = Math.max(8, Math.round((w.gross / maxGross) * 90));
+          const hNet = w.gross > 0 ? Math.max(4, Math.round((w.net / w.gross) * h)) : 0;
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="font-size:8px;color:rgba(247,247,247,.3)">${fmtMoney(w.gross).replace('R$ ','')}</div>
+            <div style="width:100%;max-width:40px;position:relative;height:${h}px;border-radius:4px 4px 0 0;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);overflow:hidden">
+              <div style="position:absolute;bottom:0;width:100%;height:${hNet}px;background:rgba(59,130,246,.3);border-top:1px solid rgba(59,130,246,.4)"></div>
+            </div>
+            <div style="font-size:9px;color:rgba(247,247,247,.4);font-weight:700">S${w.num}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:16px;margin-top:10px;justify-content:center">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(34,197,94,.3)"></div><span style="font-size:10px;color:rgba(247,247,247,.35)">Bruto</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(59,130,246,.4)"></div><span style="font-size:10px;color:rgba(247,247,247,.35)">Líquido</span></div>
+      </div>
+    </div>` : ''}
+
+    <!-- Semanas -->
+    <div style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1.5px;margin-bottom:12px">PREENCHER SEMANAS</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${weeks.map(w => {
+        const pct = w.gross > 0 ? ((w.net / w.gross) * 100).toFixed(1) : '0.0';
+        const filled = w.gross > 0 || w.net > 0;
+        return `
+        <div style="background:#111;border:1px solid ${filled?'rgba(34,197,94,.12)':'rgba(255,255,255,.07)'};border-radius:14px;padding:14px 18px;animation:fadeUp .3s ease ${w.num*.03}s both">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${filled?'0':'10'}px;cursor:pointer" onclick="const b=document.getElementById('gw-form-${w.num}');b.style.display=b.style.display==='none'?'flex':'none'">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;background:${filled?'rgba(34,197,94,.1)':'rgba(255,255,255,.04)'};border:2px solid ${filled?'#22c55e':'rgba(255,255,255,.08)'};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:${filled?'#22c55e':'rgba(247,247,247,.2)'}">
+                ${filled?`<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12 9 17 19 7"/></svg>`:w.num}
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:13px;color:${filled?'rgba(247,247,247,.5)':'#F7F7F7'}">Semana ${w.num}</div>
+                ${filled ? `<div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:2px">Bruto: ${fmtMoney(w.gross)} · Líquido: ${fmtMoney(w.net)} · Margem: ${pct}%</div>` : ''}
+              </div>
+            </div>
+            ${filled ? `<span style="font-size:10px;font-weight:700;color:${parseFloat(pct)>=30?'#22c55e':parseFloat(pct)>=15?'#f59e0b':'#f87171'};background:${parseFloat(pct)>=30?'rgba(34,197,94,.08)':parseFloat(pct)>=15?'rgba(245,158,11,.08)':'rgba(248,113,113,.08)'};border:1px solid ${parseFloat(pct)>=30?'rgba(34,197,94,.2)':parseFloat(pct)>=15?'rgba(245,158,11,.2)':'rgba(248,113,113,.2)'};border-radius:7px;padding:3px 8px">${pct}%</span>` : `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="rgba(247,247,247,.2)" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>`}
+          </div>
+          <div id="gw-form-${w.num}" style="display:${filled?'none':'flex'};flex-direction:column;gap:8px;${filled?'margin-top:10px':''}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO BRUTO (R$)</label>
+                <input id="gw-gross-${w.num}" type="number" step="0.01" min="0" value="${w.gross||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#22c55e;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
+              </div>
+              <div>
+                <label style="font-size:9px;font-weight:700;color:rgba(247,247,247,.3);letter-spacing:1px;display:block;margin-bottom:4px">FATURAMENTO LÍQUIDO (R$)</label>
+                <input id="gw-net-${w.num}" type="number" step="0.01" min="0" value="${w.net||''}" placeholder="0,00" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 13px;color:#3b82f6;font-size:14px;font-weight:700;font-family:inherit;outline:none;width:100%;box-sizing:border-box">
+              </div>
+            </div>
+            <button onclick="saveGrowthWeek(${w.num})" style="background:linear-gradient(135deg,#2F054C,#7022BB);border:none;border-radius:9px;padding:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+              Salvar Semana ${w.num}
+            </button>
+          </div>
+        </div>`;
+      }).join('')}
     </div>
   </div>`;
 }
