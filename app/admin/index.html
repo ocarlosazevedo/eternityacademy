@@ -727,14 +727,14 @@ function pageAnalytics() {
         <h1 class="ph1">Analytics</h1>
         <p class="sub" style="margin-top:4px">${pCfg.label}</p>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;z-index:9999">
         <!-- Period selector -->
         <div style="position:relative">
           <button id="analytics-period-btn" onclick="document.getElementById('analytics-period-dd').style.display=document.getElementById('analytics-period-dd').style.display==='none'?'flex':'none'" style="padding:8px 14px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#F7F7F7;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap">
             ${ic('calendar-days',12)} ${pCfg.label}
             <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
-          <div id="analytics-period-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;flex-direction:column;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:6px;min-width:180px;z-index:100;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+          <div id="analytics-period-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;flex-direction:column;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.7)">
             ${Object.entries(PERIODS).map(([k,v]) => `
               <button data-action="analytics-period" data-period="${k}" style="padding:8px 12px;border-radius:7px;font-size:11px;font-weight:${period===k?'700':'500'};cursor:pointer;border:none;font-family:inherit;text-align:left;transition:all .12s;background:${period===k?'rgba(112,34,187,.15)':'transparent'};color:${period===k?'#a78bfa':'rgba(247,247,247,.5)'}" onmouseenter="this.style.background='rgba(255,255,255,.05)'" onmouseleave="this.style.background='${period===k?'rgba(112,34,187,.15)':'transparent'}'">
                 ${v.label}
