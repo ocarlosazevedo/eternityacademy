@@ -231,12 +231,13 @@ const ADMIN_NAV = [
   {id:'collaborators',  ic:'briefcase',        label:'Colaboradores'},
   {id:'tasks',          ic:'check-square',     label:'Tarefas'},
   {id:'feedbacks',      ic:'message-square',   label:'Feedbacks'},
+  {id:'analytics',      ic:'bar-chart-3',      label:'Analytics'},
   {id:'account',        ic:'user-circle',      label:'Minha Conta'},
 ];
 const CRUMBS = {
   overview:'Visão Geral', availability:'Disponibilidade', bookings:'Agendamentos',
   students:'Alunos', expirations:'Expirações', collaborators:'Colaboradores', tasks:'Tarefas', feedbacks:'Feedbacks',
-  account:'Minha Conta',
+  analytics:'Analytics', account:'Minha Conta',
 };
 // Quais páginas cada perfil pode acessar
 const NAV_ACCESS = {
@@ -248,6 +249,7 @@ const NAV_ACCESS = {
   collaborators: ['super_admin'],
   tasks:         ['super_admin','admin','professor'],
   feedbacks:     ['super_admin','admin'],
+  analytics:     ['super_admin','admin'],
   account:       ['super_admin','admin','professor'],
 };
 const ROLE_LABEL = { super_admin:'Super Admin', admin:'Admin', professor:'Professor(a)' };
@@ -275,6 +277,8 @@ const S = {
   expirations: { list:[], loading:false },
   // Collaborators
   collaborators: { list:[], loading:false, search:'' },
+  // Analytics
+  analytics: { period:'week', data:null, loading:false },
   // Modals
   cfg: { pw:'', pwConf:'', saved:'' },
   modal: null,
@@ -397,6 +401,7 @@ async function loadPageData(page) {
       case 'collaborators': await loadCollaborators();   break;
       case 'tasks':         await Promise.all([loadTasks(), loadStudents()]); break;
       case 'feedbacks':     await loadFeedbacks();       break;
+      case 'analytics':     await loadAnalytics();       break;
     }
   } catch(e) { console.warn('loadPageData:', e); }
 }
@@ -411,6 +416,7 @@ function renderPage(page) {
     case 'collaborators': return pageCollaborators();
     case 'tasks':         return pageTasks();
     case 'feedbacks':     return pageFeedbacks();
+    case 'analytics':     return pageAnalytics();
     case 'account':       return pageAccount();
     default: return '';
   }
@@ -599,6 +605,218 @@ function pageExpirations() {
     <div style="display:flex;flex-direction:column;gap:6px">
       ${rows}
     </div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PAGE: ANALYTICS
+═══════════════════════════════════════════════════════════════════════════════ */
+async function loadAnalytics() {
+  if (S.analytics.data && !S.analytics.loading) return;
+  S.analytics.loading = true;
+  const now = new Date();
+  const [stRes, bkRes, tkRes, fbRes] = await Promise.all([
+    SB.from('student_profiles').select('id,full_name,plan,is_alumni,created_at,plan_expires_at'),
+    SB.from('bookings').select('id,student_id,scheduled_at,status,created_at'),
+    SB.from('tasks').select('id,student_id,done,created_at'),
+    SB.from('feedbacks').select('id,student_id,rating,created_at'),
+  ]);
+  S.analytics.data = {
+    students: stRes.data || [],
+    bookings: bkRes.data || [],
+    tasks: tkRes.data || [],
+    feedbacks: fbRes.data || [],
+    fetchedAt: now,
+  };
+  S.analytics.loading = false;
+}
+
+function pageAnalytics() {
+  const { period, data } = S.analytics;
+  if (!data) return `<div style="padding:60px;text-align:center">${spinner(22)}</div>`;
+
+  const now = new Date();
+  let startDate;
+  if (period === 'day') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else if (period === 'week') {
+    startDate = new Date(now); startDate.setDate(now.getDate() - 7);
+  } else {
+    startDate = new Date(now); startDate.setDate(now.getDate() - 30);
+  }
+  const inPeriod = (d) => d && new Date(d) >= startDate;
+
+  const { students, bookings, tasks, feedbacks } = data;
+  const activeStudents = students.filter(s => !s.is_alumni);
+  const alumniStudents = students.filter(s => !!s.is_alumni);
+
+  // Métricas do período
+  const newStudents     = students.filter(s => inPeriod(s.created_at));
+  const periodBookings  = bookings.filter(b => inPeriod(b.scheduled_at));
+  const periodTasks     = tasks.filter(t => inPeriod(t.created_at));
+  const periodFeedbacks = feedbacks.filter(f => inPeriod(f.created_at));
+  const completedTasks  = tasks.filter(t => t.done);
+  const taskRate        = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+
+  // Calls por aluno (engajamento)
+  const callsByStudent = {};
+  bookings.forEach(b => { callsByStudent[b.student_id] = (callsByStudent[b.student_id]||0) + 1; });
+  const studentsWithCalls = Object.keys(callsByStudent).length;
+  const engagementRate = activeStudents.length > 0 ? Math.round((studentsWithCalls / activeStudents.length) * 100) : 0;
+
+  // Rating médio
+  const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((a,f) => a + (f.rating||0), 0) / feedbacks.length).toFixed(1) : '—';
+
+  // Distribuição de planos
+  const planDist = { FAST:0, GROWTH:0, ETERNITY:0 };
+  activeStudents.forEach(s => { planDist[s.plan||'FAST']++; });
+
+  // Top alunos (mais calls realizadas)
+  const topStudents = activeStudents.map(s => ({
+    ...s,
+    callCount: callsByStudent[s.id] || 0,
+    tasksDone: tasks.filter(t => t.student_id === s.id && t.done).length,
+    tasksTotal: tasks.filter(t => t.student_id === s.id).length,
+  })).sort((a,b) => b.callCount - a.callCount).slice(0,5);
+
+  // Expirados / expirando
+  const expired = activeStudents.filter(s => s.plan_expires_at && new Date(s.plan_expires_at) < now).length;
+  const expSoon = activeStudents.filter(s => { if(!s.plan_expires_at) return false; const d=Math.ceil((new Date(s.plan_expires_at)-now)/86400000); return d>=0&&d<=7; }).length;
+
+  const periodLabel = period === 'day' ? 'Hoje' : period === 'week' ? 'Últimos 7 dias' : 'Últimos 30 dias';
+  const planColors = { FAST:'#6b7280', GROWTH:'#f59e0b', ETERNITY:'#a855f7' };
+
+  const statCard = (val, label, icon, color) => `
+    <div class="stat-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div style="width:34px;height:34px;border-radius:9px;background:${color}22;border:1px solid ${color}33;display:flex;align-items:center;justify-content:center">${ic(icon,15,`color:${color}`)}</div>
+      </div>
+      <div class="stat-val">${val}</div>
+      <div class="stat-lbl">${label}</div>
+    </div>`;
+
+  const barWidth = (val, max) => max > 0 ? Math.max(4, Math.round((val/max)*100)) : 4;
+
+  return `
+  <div style="padding:28px 32px;max-width:900px">
+    <div class="fu" style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px">
+      <div>
+        <div class="lbl">MÉTRICAS</div>
+        <h1 class="ph1">Analytics</h1>
+        <p class="sub" style="margin-top:4px">${periodLabel}</p>
+      </div>
+      <div style="display:flex;gap:4px;background:rgba(255,255,255,.04);border-radius:10px;padding:3px">
+        ${['day','week','month'].map(p => {
+          const lbl = p==='day'?'Dia':p==='week'?'Semana':'Mês';
+          const active = period === p;
+          return `<button data-action="analytics-period" data-period="${p}" style="padding:6px 14px;border-radius:7px;font-size:10px;font-weight:700;letter-spacing:.5px;cursor:pointer;border:none;font-family:inherit;transition:all .15s;background:${active?'rgba(255,255,255,.1)':'transparent'};color:${active?'#F7F7F7':'rgba(247,247,247,.4)'}">${lbl}</button>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- KPIs do período -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px" class="fu1">
+      ${statCard(newStudents.length, 'Novos Alunos', 'user-plus', '#3b82f6')}
+      ${statCard(periodBookings.length, 'Calls Realizadas', 'calendar-days', '#7022BB')}
+      ${statCard(periodTasks.length, 'Tarefas Criadas', 'check-square', '#22c55e')}
+      ${statCard(periodFeedbacks.length, 'Feedbacks', 'message-square', '#f59e0b')}
+    </div>
+
+    <!-- Métricas gerais -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px" class="fu2">
+      <div class="stat-card" style="text-align:center">
+        <div class="stat-val" style="font-size:28px">${taskRate}%</div>
+        <div class="stat-lbl">Taxa de Conclusão de Tarefas</div>
+        <div style="margin-top:8px;background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden">
+          <div style="width:${taskRate}%;height:100%;background:#22c55e;border-radius:6px;transition:width .3s"></div>
+        </div>
+        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${completedTasks.length} de ${tasks.length} tarefas</div>
+      </div>
+      <div class="stat-card" style="text-align:center">
+        <div class="stat-val" style="font-size:28px">${engagementRate}%</div>
+        <div class="stat-lbl">Engajamento (alunos com calls)</div>
+        <div style="margin-top:8px;background:rgba(255,255,255,.06);border-radius:6px;height:6px;overflow:hidden">
+          <div style="width:${engagementRate}%;height:100%;background:#7022BB;border-radius:6px;transition:width .3s"></div>
+        </div>
+        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${studentsWithCalls} de ${activeStudents.length} alunos</div>
+      </div>
+      <div class="stat-card" style="text-align:center">
+        <div class="stat-val" style="font-size:28px">${avgRating}</div>
+        <div class="stat-lbl">Nota Média dos Feedbacks</div>
+        <div style="display:flex;justify-content:center;gap:3px;margin-top:8px">${avgRating !== '—' ? starsHtml(Math.round(parseFloat(avgRating))) : '<span style="color:rgba(247,247,247,.15);font-size:11px">Sem feedbacks</span>'}</div>
+        <div style="font-size:10px;color:rgba(247,247,247,.3);margin-top:4px">${feedbacks.length} avaliações</div>
+      </div>
+    </div>
+
+    <!-- Distribuição de planos + Alertas -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+      <div class="stat-card">
+        <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">DISTRIBUIÇÃO DE PLANOS</div>
+        ${['FAST','GROWTH','ETERNITY'].map(p => {
+          const count = planDist[p];
+          const pct = activeStudents.length > 0 ? Math.round((count/activeStudents.length)*100) : 0;
+          const c = planColors[p];
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:11px;font-weight:700;color:${c}">${p}</span>
+              <span style="font-size:11px;color:rgba(247,247,247,.4)">${count} (${pct}%)</span>
+            </div>
+            <div style="background:rgba(255,255,255,.06);border-radius:5px;height:6px;overflow:hidden">
+              <div style="width:${barWidth(count,activeStudents.length)}%;height:100%;background:${c};border-radius:5px;transition:width .3s"></div>
+            </div>
+          </div>`;
+        }).join('')}
+        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)">
+          <span style="font-size:11px;color:rgba(247,247,247,.3)">${activeStudents.length} ativos</span>
+          <span style="font-size:11px;color:rgba(247,247,247,.3)">${alumniStudents.length} antigos</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">ALERTAS</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${expired>0?'rgba(239,68,68,.08)':'rgba(34,197,94,.06)'};border:1px solid ${expired>0?'rgba(239,68,68,.18)':'rgba(34,197,94,.12)'};border-radius:10px">
+            ${ic(expired>0?'alert-circle':'check-circle',14,`color:${expired>0?'#f87171':'#22c55e'}`)}
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:${expired>0?'#f87171':'#22c55e'}">${expired > 0 ? expired+' plano'+(expired!==1?'s':'')+' expirado'+(expired!==1?'s':'') : 'Nenhum plano expirado'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${expSoon>0?'rgba(245,158,11,.08)':'rgba(34,197,94,.06)'};border:1px solid ${expSoon>0?'rgba(245,158,11,.18)':'rgba(34,197,94,.12)'};border-radius:10px">
+            ${ic(expSoon>0?'clock':'check-circle',14,`color:${expSoon>0?'#f59e0b':'#22c55e'}`)}
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:${expSoon>0?'#f59e0b':'#22c55e'}">${expSoon > 0 ? expSoon+' expira'+(expSoon!==1?'m':'')+' em 7 dias' : 'Sem expirações próximas'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px">
+            ${ic('users',14,'color:rgba(247,247,247,.4)')}
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:700;color:rgba(247,247,247,.5)">${activeStudents.filter(s=>!callsByStudent[s.id]).length} aluno(s) sem nenhuma call</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Alunos -->
+    <div class="stat-card" style="margin-bottom:24px">
+      <div style="font-size:10px;font-weight:700;color:rgba(247,247,247,.4);letter-spacing:1px;margin-bottom:14px">TOP ALUNOS (MAIS CALLS)</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${topStudents.length === 0
+          ? `<div style="text-align:center;padding:20px;color:rgba(247,247,247,.2);font-size:12px">Nenhum dado disponível</div>`
+          : topStudents.map((s,i) => {
+            const c = planColors[s.plan||'FAST'];
+            return `<div style="display:flex;align-items:center;gap:12px;padding:8px 10px;background:rgba(255,255,255,.02);border-radius:9px">
+              <span style="font-size:12px;font-weight:900;color:rgba(247,247,247,.2);width:18px;text-align:center">${i+1}</span>
+              ${avatar(s.full_name||s.email||'?',32)}
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:12px;color:#F7F7F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.full_name||'—'}</div>
+                <div style="font-size:10px;color:rgba(247,247,247,.3)">${s.callCount} call${s.callCount!==1?'s':''} · ${s.tasksDone}/${s.tasksTotal} tarefas</div>
+              </div>
+              <span style="font-size:9px;font-weight:700;color:${c};background:${c}18;border:1px solid ${c}30;border-radius:5px;padding:2px 7px">${s.plan||'FAST'}</span>
+            </div>`;
+          }).join('')}
+      </div>
+    </div>
+
   </div>`;
 }
 
@@ -2431,6 +2649,11 @@ document.addEventListener('click', function(e) {
       S.students.planFilter = t.dataset.plan || '';
       S.students.showAlumni = false;
       document.getElementById('pc').innerHTML = renderPage('students');
+      lucide.createIcons();
+      break;
+    case 'analytics-period':
+      S.analytics.period = t.dataset.period || 'week';
+      document.getElementById('pc').innerHTML = renderPage('analytics');
       lucide.createIcons();
       break;
     case 'close-student-detail':
