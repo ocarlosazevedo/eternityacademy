@@ -2103,6 +2103,33 @@ async function openStudentDetail(studentId) {
 
         <!-- TAB: CRESCIMENTO -->
         <div id="tab-growth" style="display:none;flex-direction:column;gap:14px;padding:20px 24px">
+          ${(() => {
+            const goal = st.goal_amount ? parseFloat(st.goal_amount) : null;
+            if (!goal) return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+              ${ic('target',16,'color:rgba(247,247,247,.15)')}
+              <span style="font-size:11px;color:rgba(247,247,247,.25)">Aluno ainda não definiu uma meta de faturamento</span>
+            </div>`;
+            const rate = 5.70;
+            const totalBRL = totalGross * rate;
+            const goalPct = Math.min(100, (totalBRL / goal) * 100);
+            const remaining = Math.max(0, goal - totalBRL);
+            const fBRL = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+            return `<div style="background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.15);border-radius:11px;padding:14px 18px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  ${ic('target',16,'color:#f59e0b')}
+                  <span style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(245,158,11,.6)">META DO ALUNO</span>
+                </div>
+                <span style="font-size:12px;font-weight:800;color:#f59e0b">${fBRL(goal)}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span style="font-size:10px;color:rgba(247,247,247,.3)">Atual: ${fBRL(totalBRL)}</span>
+                <span style="font-size:10px;font-weight:700;color:${goalPct>=100?'#22c55e':'#f59e0b'}">${Math.round(goalPct)}%</span>
+              </div>
+              <div class="prog-track" style="height:5px"><div class="prog-fill" style="width:${Math.max(goalPct,.5)}%;background:${goalPct>=100?'linear-gradient(90deg,#22c55e,#4ade80)':'linear-gradient(90deg,#2F054C,#f59e0b)'}"></div></div>
+              ${remaining > 0 ? `<div style="font-size:10px;color:rgba(247,247,247,.2);margin-top:6px">Faltam ${fBRL(remaining)}</div>` : `<div style="font-size:10px;color:#22c55e;font-weight:700;margin-top:6px">Meta atingida!</div>`}
+            </div>`;
+          })()}
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
             <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:11px;padding:12px 14px;text-align:center">
               <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:rgba(34,197,94,.5);margin-bottom:4px">BRUTO TOTAL</div>
