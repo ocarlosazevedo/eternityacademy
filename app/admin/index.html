@@ -263,6 +263,10 @@ const NAV_ACCESS = {
 const ROLE_LABEL = { super_admin:'Super Admin', admin:'Admin', professor:'Professor(a)' };
 const ROLE_FIRST = { super_admin:'overview', admin:'overview', professor:'availability' };
 
+/* Debounce */
+const _dbTimers = {};
+function debounce(key, fn, ms=250) { clearTimeout(_dbTimers[key]); _dbTimers[key] = setTimeout(fn, ms); }
+
 /* Toast notifications */
 function showToast(msg, type='info') {
   let c = document.getElementById('toast-container');
@@ -2952,22 +2956,27 @@ document.addEventListener('input', function(e) {
   switch (t.dataset.input) {
     case 'search-students':
       S.students.search = v;
-      document.getElementById('pc').innerHTML = renderPage('students');
-      lucide.createIcons();
-      // Refocus input after re-render
-      { const inp = document.querySelector('[data-input="search-students"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      debounce('search-students', () => {
+        document.getElementById('pc').innerHTML = renderPage('students');
+        lucide.createIcons();
+        const inp = document.querySelector('[data-input="search-students"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); }
+      });
       break;
     case 'search-bookings':
       S.bookings.search = v;
-      document.getElementById('pc').innerHTML = renderPage('bookings');
-      lucide.createIcons();
-      { const inp = document.querySelector('[data-input="search-bookings"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      debounce('search-bookings', () => {
+        document.getElementById('pc').innerHTML = renderPage('bookings');
+        lucide.createIcons();
+        const inp = document.querySelector('[data-input="search-bookings"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); }
+      });
       break;
     case 'search-collabs':
       S.collaborators.search = v;
-      document.getElementById('pc').innerHTML = renderPage('collaborators');
-      lucide.createIcons();
-      { const inp = document.querySelector('[data-input="search-collabs"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); } }
+      debounce('search-collabs', () => {
+        document.getElementById('pc').innerHTML = renderPage('collaborators');
+        lucide.createIcons();
+        const inp = document.querySelector('[data-input="search-collabs"]'); if (inp) { inp.focus(); inp.setSelectionRange(v.length,v.length); }
+      });
       break;
     case 'admin-cfg-pw':  S.cfg.pw     = v; break;
     case 'admin-cfg-pwc': S.cfg.pwConf = v; break;
