@@ -15,8 +15,18 @@
       --black: #050508; --white: #F7F7F7; --dp: #2F054C; --purple: #7022BB;
       --surface: #090909; --card: #111111; --border: rgba(255,255,255,0.08);
       --faint: rgba(255,255,255,0.05); --muted: rgba(247,247,247,0.55);
+      --text: #F7F7F7; --text-soft: rgba(247,247,247,0.55); --text-faint: rgba(247,247,247,0.28);
       --font: 'Red Hat Display', sans-serif;
     }
+    html.light {
+      --black: #F5F5F7; --white: #1a1a1a; --surface: #FFFFFF; --card: #FFFFFF;
+      --border: rgba(0,0,0,0.1); --faint: rgba(0,0,0,0.03); --muted: rgba(0,0,0,0.55);
+      --text: #1a1a1a; --text-soft: rgba(0,0,0,0.55); --text-faint: rgba(0,0,0,0.3);
+    }
+    html.light .prog-track { background: rgba(0,0,0,.08) !important; }
+    html.light .card, html.light .trow { box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    html.light input, html.light select { background: rgba(0,0,0,.03) !important; border-color: rgba(0,0,0,.12) !important; color: #1a1a1a !important; }
+    html.light input::placeholder { color: rgba(0,0,0,.3) !important; }
     html, body { height: 100%; background: var(--black); color: var(--white); font-family: var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; }
 
     /* ── Layout ── */
@@ -273,6 +283,15 @@ function trackEvent(event, page, action, metadata) {
     }).then();
   } catch(_) {}
 }
+
+/* Theme toggle */
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  localStorage.setItem('eternity-theme', isLight ? 'light' : 'dark');
+  render(false);
+}
+// Restore saved theme
+if (localStorage.getItem('eternity-theme') === 'light') document.documentElement.classList.add('light');
 
 /* ─── DATA ──────────────────────────────────────────────────────────── */
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1506,6 +1525,20 @@ function pageConfig() {
         <input id="cfg-phone" type="tel" class="inp" placeholder="+55 00 00000-0000" value="+55 31 99999-0000" style="margin-bottom:8px"/>
         <div style="font-size:11px;color:rgba(247,247,247,.22);margin-bottom:16px">Usado para lembretes de call e contato com o mentor.</div>
         ${saveBtnHtml('telefone','Salvar alterações')}
+      </div>
+
+      <!-- Tema -->
+      <div class="card" style="padding:22px 24px;margin-bottom:16px;border-radius:18px">
+        <div style="font-weight:800;font-size:14px;margin-bottom:16px">Aparência</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px">
+            ${ic(document.documentElement.classList.contains('light')?'sun':'moon',18)}
+            <span style="font-size:13px;font-weight:600">${document.documentElement.classList.contains('light')?'Modo Claro':'Modo Escuro'}</span>
+          </div>
+          <button onclick="toggleTheme()" style="width:48px;height:26px;border-radius:13px;border:none;cursor:pointer;position:relative;background:${document.documentElement.classList.contains('light')?'linear-gradient(135deg,#7022BB,#9333ea)':'rgba(255,255,255,.15)'};transition:background .2s">
+            <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;${document.documentElement.classList.contains('light')?'right:3px':'left:3px'};transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+          </button>
+        </div>
       </div>
 
       <!-- Sign out -->

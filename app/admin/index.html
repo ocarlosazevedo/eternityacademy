@@ -1808,14 +1808,16 @@ async function openStudentDetail(studentId) {
     <div style="color:rgba(247,247,247,.4);font-size:13px">Carregando...</div>
   </div>`;
 
-  const [bookRes, taskRes, fbRes, linkRes, growthRes] = await Promise.all([
+  const [bookRes, taskRes, fbRes, linkRes, growthRes, planHistRes] = await Promise.all([
     SB.from('bookings').select('id,scheduled_at,call_title,call_number,status').eq('student_id', studentId).order('scheduled_at'),
     SB.from('tasks').select('id,title,done,call_number,mentor_note,created_at').eq('student_id', studentId).order('created_at'),
     SB.from('feedbacks').select('id,student_id,call_title,rating,body,created_at').eq('student_id', studentId).order('created_at', {ascending:false}),
     SB.from('important_links').select('id,name,url,order').eq('student_id', studentId).order('order').order('created_at'),
     SB.from('weekly_growth').select('*').eq('student_id', studentId).order('week_number'),
+    SB.from('plan_history').select('*').eq('student_id', studentId).order('created_at', {ascending:false}),
     loadFeedbacks(),
   ]);
+  const planHistory = planHistRes.data || [];
 
   const calls = bookRes.data || [];
   const tasks = taskRes.data || [];
@@ -2008,6 +2010,27 @@ async function openStudentDetail(studentId) {
           </div>
           <div id="se-err" style="font-size:11px;color:#f87171;display:none"></div>
           <button id="se-save-btn" onclick="saveStudentEdit('${studentId}')" style="background:linear-gradient(135deg,#7022BB,#9333ea);border:none;border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;width:100%">Salvar Alterações</button>
+
+          ${planHistory.length > 0 ? `
+          <div style="border-top:1px solid rgba(255,255,255,.06);margin-top:14px;padding-top:12px">
+            <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:rgba(247,247,247,.25);margin-bottom:8px">HISTÓRICO DE PLANO</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              ${planHistory.map(h => {
+                const d = new Date(h.created_at);
+                const dt = pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+                const pc = h.previous_plan==='ETERNITY'?'#a855f7':h.previous_plan==='GROWTH'?'#f59e0b':'#6b7280';
+                const nc = h.new_plan==='ETERNITY'?'#a855f7':h.new_plan==='GROWTH'?'#f59e0b':'#6b7280';
+                return `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px">
+                  ${ic('arrow-right',12,'color:rgba(247,247,247,.2)')}
+                  <span style="font-size:10px;font-weight:800;color:${pc}">${h.previous_plan}</span>
+                  <span style="font-size:10px;color:rgba(247,247,247,.15)">→</span>
+                  <span style="font-size:10px;font-weight:800;color:${nc}">${h.new_plan}</span>
+                  <span style="flex:1"></span>
+                  <span style="font-size:9px;color:rgba(247,247,247,.2)">${dt}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>` : ''}
 
           ${['super_admin','admin'].includes(S.currentRole) ? `
           <div style="border-top:1px solid rgba(255,255,255,.07);margin-top:12px;padding-top:12px;display:flex;flex-direction:column;gap:8px">
@@ -2567,6 +2590,14 @@ async function saveStudentEdit(studentId) {
   }
 
   if (planChanged) {
+    // Salvar histórico de plano
+    await SB.from('plan_history').insert({
+      student_id: studentId,
+      previous_plan: st.plan || 'FAST',
+      new_plan: newPlan,
+      changed_by: S.user.id,
+      changed_by_name: S.user.email,
+    });
     // Delete ALL bookings (done + future) — UPDATE is blocked by RLS, only DELETE works
     await SB.from('bookings').delete().eq('student_id', studentId);
     // Delete all tasks
