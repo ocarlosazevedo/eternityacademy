@@ -267,6 +267,17 @@ const ROLE_FIRST = { super_admin:'overview', admin:'overview', professor:'availa
 const _dbTimers = {};
 function debounce(key, fn, ms=250) { clearTimeout(_dbTimers[key]); _dbTimers[key] = setTimeout(fn, ms); }
 
+/* Phone validation — aceita formatos: +5511999999999, (11)99999-9999, 11999999999 etc */
+function cleanPhone(v) { return (v||'').replace(/\D/g,''); }
+function isValidPhone(v) { const d = cleanPhone(v); return d.length >= 10 && d.length <= 15; }
+function formatPhone(v) {
+  const d = cleanPhone(v);
+  if (d.length === 13) return '+' + d.slice(0,2) + ' (' + d.slice(2,4) + ') ' + d.slice(4,9) + '-' + d.slice(9);
+  if (d.length === 11) return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  if (d.length === 10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+  return v;
+}
+
 /* Toast notifications */
 function showToast(msg, type='info') {
   let c = document.getElementById('toast-container');
@@ -2457,6 +2468,16 @@ async function saveStudentEdit(studentId) {
   const planChanged  = newPlan !== (st.plan || 'FAST');
   const emailChanged = newEmail && newEmail !== st.email;
 
+  if (newPhone && !isValidPhone(newPhone)) {
+    errEl.textContent = 'Número de telefone inválido. Use pelo menos 10 dígitos.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newSupportPhone && !isValidPhone(newSupportPhone)) {
+    errEl.textContent = 'Número de suporte inválido. Use pelo menos 10 dígitos.';
+    errEl.style.display = 'block';
+    return;
+  }
   if (planChanged && warnEl && warnEl.style.display !== 'none' && !confirmEl.checked) {
     errEl.textContent = 'Confirme a mudança de plano antes de salvar.';
     errEl.style.display = 'block';
@@ -2467,8 +2488,8 @@ async function saveStudentEdit(studentId) {
   const saveBtn = document.getElementById('se-save-btn');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
 
-  const updatePayload = { full_name: newName, plan: newPlan };
-  if (newSupportPhone) updatePayload.support_phone = newSupportPhone;
+  const updatePayload = { full_name: newName, plan: newPlan, phone: newPhone ? cleanPhone(newPhone) : null };
+  if (newSupportPhone) updatePayload.support_phone = cleanPhone(newSupportPhone);
   updatePayload.plan_expires_at = newExpires || null;
   const { error } = await SB.from('student_profiles').update(updatePayload).eq('id', studentId);
   if (error) {
@@ -2776,11 +2797,16 @@ async function saveTask() {
 async function saveSupport() {
   const { studentId, phone } = S.editSupport;
   if (!studentId) return;
+  if (phone.trim() && !isValidPhone(phone)) {
+    S.editSupport.err = 'Número inválido. Use pelo menos 10 dígitos.';
+    renderModal();
+    return;
+  }
   S.editSupport.saving = true; S.editSupport.err = '';
   renderModal();
   try {
     const { error } = await SB.from('student_profiles')
-      .update({ support_phone: phone.trim() || null })
+      .update({ support_phone: phone.trim() ? cleanPhone(phone) : null })
       .eq('id', studentId);
     if (error) throw new Error(error.message);
     // Update local list
