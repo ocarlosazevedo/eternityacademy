@@ -440,7 +440,7 @@ async function loadPageData(page) {
       case 'overview':     await loadOverview();     break;
       case 'availability': await loadAvailability(); break;
       case 'bookings':      await loadBookings();        break;
-      case 'students':      await loadStudents();        break;
+      case 'students':      await loadStudents(true);     break;
       case 'expirations':   await loadExpirations();     break;
       case 'collaborators': await loadCollaborators();   break;
       case 'tasks':         await Promise.all([loadTasks(), loadStudents()]); break;
@@ -522,8 +522,8 @@ async function loadBookings() {
   }));
 }
 
-async function loadStudents() {
-  if (S.students.list.length) return;
+async function loadStudents(forceRefresh=false) {
+  if (S.students.list.length && !forceRefresh) return;
   const { data } = await SB.from('student_profiles').select('*').order('created_at', {ascending:false});
   S.students.list = data || [];
 }
@@ -1693,13 +1693,13 @@ async function adminSaveCfg(id) {
     const pwc = document.getElementById('cfg-pwc')?.value || '';
     if (!pw || pw !== pwc || pw.length < 6) return;
     const { error } = await SB.auth.updateUser({ password: pw });
-    if (error) { alert('Erro: ' + error.message); return; }
+    if (error) { showToast('Erro: ' + error.message, 'error'); return; }
     S.cfg.pw = ''; S.cfg.pwConf = '';
   } else if (id === 'email') {
     const em = document.getElementById('cfg-email')?.value || '';
     if (!em) return;
     const { error } = await SB.auth.updateUser({ email: em });
-    if (error) { alert('Erro: ' + error.message); return; }
+    if (error) { showToast('Erro: ' + error.message, 'error'); return; }
   }
   S.cfg.saved = id;
   document.getElementById('pc').innerHTML = pageAccount();
@@ -2390,8 +2390,8 @@ async function resetStudentPassword(email) {
   if (!email) return;
   if (!confirm(`Enviar link de redefinição de senha para ${email}?`)) return;
   const { error } = await SB.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/nova-senha' });
-  if (error) { alert('Erro: ' + error.message); }
-  else { alert('Link enviado para ' + email); }
+  if (error) { showToast('Erro: ' + error.message, 'error'); }
+  else { showToast('Link enviado para ' + email, 'success'); }
 }
 
 async function saveStudentEdit(studentId) {
