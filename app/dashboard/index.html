@@ -1902,12 +1902,12 @@ async function loadLinks() {
     const { data: { session } } = await SB.auth.getSession();
     if (!session) return;
     const [profileRes, linksRes] = await Promise.all([
-      SB.from('student_profiles').select('plan, goal_amount, phone').eq('id', session.user.id).maybeSingle(),
+      SB.from('student_profiles').select('plan, goal_amount, support_phone').eq('id', session.user.id).maybeSingle(),
       SB.from('important_links').select('id,name,url,order').eq('student_id', session.user.id).order('order').order('created_at'),
     ]);
     S.dash.plan  = profileRes.data?.plan || null;
     S.dash.goalAmount = profileRes.data?.goal_amount || null;
-    S.dash.phone = profileRes.data?.phone || '';
+    S.dash.phone = profileRes.data?.support_phone || '';
     S.links.list = linksRes.data || [];
   } catch(e) { /* silencioso */ }
 }
@@ -2032,7 +2032,7 @@ async function saveCfg(id) {
     if(!ph) return;
     const {data:{session}}=await SB.auth.getSession();
     if(!session) return;
-    const {error}=await SB.from('student_profiles').update({phone:ph}).eq('id',session.user.id);
+    const {error}=await SB.from('student_profiles').update({support_phone:ph}).eq('id',session.user.id);
     if(error){showToast('Erro ao salvar telefone: '+error.message,'error');return;}
     S.dash.phone=ph;
   }

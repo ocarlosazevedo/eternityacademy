@@ -2742,8 +2742,7 @@ async function saveStudentEdit(studentId) {
   const saveBtn = document.getElementById('se-save-btn');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
 
-  const updatePayload = { full_name: newName, plan: newPlan, phone: newPhone ? cleanPhone(newPhone) : null };
-  if (newSupportPhone) updatePayload.support_phone = cleanPhone(newSupportPhone);
+  const updatePayload = { full_name: newName, plan: newPlan, support_phone: newPhone ? cleanPhone(newPhone) : null };
   updatePayload.plan_expires_at = newExpires || null;
   const { error } = await SB.from('student_profiles').update(updatePayload).eq('id', studentId);
   if (error) {
