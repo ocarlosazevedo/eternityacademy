@@ -377,7 +377,6 @@ const S = {
   modal: null,
   newStudent:   { name:'', email:'', pw:'', plan:'FAST', saving:false, err:'' },
   newTask:      { studentId:'', callNum:'', title:'', note:'', saving:false, err:'' },
-  editSupport:  { studentId:'', studentName:'', phone:'', saving:false, err:'' },
   editPlan:     { studentId:'', studentName:'', currentPlan:'', newPlan:'', confirmed:false, saving:false, err:'' },
   studentEdit:  { open:false, studentId:'', name:'', phone:'', plan:'', planConfirmed:false, saving:false, err:'' },
   collabForm:   { id:'', name:'', email:'', pw:'', role:'', notes:'', saving:false, err:'' },
@@ -2698,37 +2697,29 @@ async function resetStudentPassword(email) {
 }
 
 async function saveStudentEdit(studentId) {
-  const nameEl         = document.getElementById('se-name');
-  const emailEl        = document.getElementById('se-email');
-  const phoneEl        = document.getElementById('se-phone');
-  const supportPhoneEl = document.getElementById('se-support-phone');
-  const planEl         = document.getElementById('se-plan');
-  const expiresEl      = document.getElementById('se-expires');
-  const errEl          = document.getElementById('se-err');
-  const warnEl         = document.getElementById('se-plan-warn');
-  const confirmEl      = document.getElementById('se-plan-confirm');
+  const nameEl    = document.getElementById('se-name');
+  const emailEl   = document.getElementById('se-email');
+  const phoneEl   = document.getElementById('se-phone');
+  const planEl    = document.getElementById('se-plan');
+  const expiresEl = document.getElementById('se-expires');
+  const errEl     = document.getElementById('se-err');
+  const warnEl    = document.getElementById('se-plan-warn');
+  const confirmEl = document.getElementById('se-plan-confirm');
 
   if (!nameEl || !planEl) return;
 
   const st = S.students.list.find(s => s.id === studentId);
   if (!st) return;
 
-  const newName         = (S._seNameTmp         !== undefined ? S._seNameTmp         : nameEl ? nameEl.value : '').trim();
-  const newEmail        = (S._seEmailTmp        !== undefined ? S._seEmailTmp        : emailEl ? emailEl.value : '').trim();
-  const newPhone        = (S._sePhoneTmp        !== undefined ? S._sePhoneTmp        : phoneEl ? phoneEl.value : '').trim();
-  const newSupportPhone = (S._seSupportPhoneTmp !== undefined ? S._seSupportPhoneTmp : supportPhoneEl ? supportPhoneEl.value : '').trim();
-  const newExpires      = (S._seExpiresTmp      !== undefined ? S._seExpiresTmp      : expiresEl ? expiresEl.value : '').trim();
-  const newPlan         = planEl.value;
+  const newName    = (S._seNameTmp    !== undefined ? S._seNameTmp    : nameEl ? nameEl.value : '').trim();
+  const newEmail   = (S._seEmailTmp   !== undefined ? S._seEmailTmp   : emailEl ? emailEl.value : '').trim();
+  const newPhone   = (S._sePhoneTmp   !== undefined ? S._sePhoneTmp   : phoneEl ? phoneEl.value : '').trim();
+  const newExpires = (S._seExpiresTmp !== undefined ? S._seExpiresTmp : expiresEl ? expiresEl.value : '').trim();
+  const newPlan    = planEl.value;
   const planChanged  = newPlan !== (st.plan || 'FAST');
-  const emailChanged = newEmail && newEmail !== st.email;
 
   if (newPhone && !isValidPhone(newPhone)) {
     errEl.textContent = 'Número de telefone inválido. Use pelo menos 10 dígitos.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newSupportPhone && !isValidPhone(newSupportPhone)) {
-    errEl.textContent = 'Número de suporte inválido. Use pelo menos 10 dígitos.';
     errEl.style.display = 'block';
     return;
   }
@@ -2742,8 +2733,12 @@ async function saveStudentEdit(studentId) {
   const saveBtn = document.getElementById('se-save-btn');
   if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Salvando...'; }
 
-  const updatePayload = { full_name: newName, plan: newPlan, support_phone: newPhone ? cleanPhone(newPhone) : null };
-  updatePayload.plan_expires_at = newExpires || null;
+  const updatePayload = {
+    full_name: newName,
+    plan: newPlan,
+    support_phone: newPhone ? cleanPhone(newPhone) : null,
+    plan_expires_at: newExpires || null,
+  };
   const { error } = await SB.from('student_profiles').update(updatePayload).eq('id', studentId);
   if (error) {
     errEl.textContent = error.message || 'Erro ao salvar.';
@@ -2753,7 +2748,6 @@ async function saveStudentEdit(studentId) {
   }
 
   if (planChanged) {
-    // Salvar histórico de plano
     await SB.from('plan_history').insert({
       student_id: studentId,
       previous_plan: st.plan || 'FAST',
@@ -2761,9 +2755,7 @@ async function saveStudentEdit(studentId) {
       changed_by: S.user.id,
       changed_by_name: S.user.email,
     });
-    // Delete ALL bookings (done + future) — UPDATE is blocked by RLS, only DELETE works
     await SB.from('bookings').delete().eq('student_id', studentId);
-    // Delete all tasks
     await SB.from('tasks').delete().eq('student_id', studentId);
   }
 
@@ -2772,15 +2764,13 @@ async function saveStudentEdit(studentId) {
   if (idx !== -1) {
     S.students.list[idx].full_name = newName;
     S.students.list[idx].email = newEmail || st.email;
-    S.students.list[idx].phone = newPhone;
+    S.students.list[idx].support_phone = newPhone || null;
     S.students.list[idx].plan = newPlan;
-    S.students.list[idx].support_phone = newSupportPhone || null;
     S.students.list[idx].plan_expires_at = newExpires || null;
   }
   S._seNameTmp = undefined;
   S._seEmailTmp = undefined;
   S._sePhoneTmp = undefined;
-  S._seSupportPhoneTmp = undefined;
   S._seExpiresTmp = undefined;
 
   const changes = [];
@@ -2815,7 +2805,6 @@ function renderModal() {
   const mr = document.getElementById('mr');
   if (S.modal === 'new-student')  mr.innerHTML = modalNewStudent();
   if (S.modal === 'new-task')     mr.innerHTML = modalNewTask();
-  if (S.modal === 'edit-support') mr.innerHTML = modalEditSupport();
   if (S.modal === 'new-collab' || S.modal === 'edit-collab') mr.innerHTML = modalCollab();
   if (S.modal === 'edit-plan')    mr.innerHTML = modalEditPlan();
   lucide.createIcons();
@@ -2893,30 +2882,6 @@ function modalNewTask() {
   </div>`;
 }
 
-function modalEditSupport() {
-  const { studentName, phone, saving, err } = S.editSupport;
-  return `
-  <div class="overlay" data-action="close-modal">
-    <div class="modal" style="width:380px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-        <div>
-          <div class="lbl">SUPORTE</div>
-          <div style="font-weight:900;font-size:19px;color:#F7F7F7">${studentName || 'Aluno'}</div>
-        </div>
-        <button data-action="close-modal" style="background:none;border:none;color:rgba(247,247,247,.25);cursor:pointer">${ic('x',18)}</button>
-      </div>
-      ${err ? `<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:16px;display:flex;align-items:center;gap:8px">${ic('alert-circle',13,'color:#f87171')} ${err}</div>` : ''}
-      <div style="margin-bottom:24px">
-        ${fieldLabel('NÚMERO DE WHATSAPP')}
-        <input type="tel" class="inp" data-input="sp-phone" placeholder="ex: 5511999999999" value="${phone}"/>
-        <div style="font-size:10px;color:rgba(247,247,247,.25);margin-top:6px">Use o formato internacional: código do país + DDD + número (sem espaços ou traços).</div>
-      </div>
-      <button data-action="save-support" class="btn-amber" style="width:100%;padding:13px;border-radius:12px;font-size:13px;justify-content:center;${saving?'opacity:.4;cursor:not-allowed':''}" ${saving?'disabled':''}>
-        ${saving ? spinner(14)+' Salvando...' : ic('phone',14)+' SALVAR CONTATO'}
-      </button>
-    </div>
-  </div>`;
-}
 
 function modalCollab() {
   const { id, name, email, pw, role, notes, saving, err } = S.collabForm;
@@ -3055,34 +3020,6 @@ async function saveTask() {
   }
 }
 
-async function saveSupport() {
-  const { studentId, phone } = S.editSupport;
-  if (!studentId) return;
-  if (phone.trim() && !isValidPhone(phone)) {
-    S.editSupport.err = 'Número inválido. Use pelo menos 10 dígitos.';
-    renderModal();
-    return;
-  }
-  S.editSupport.saving = true; S.editSupport.err = '';
-  renderModal();
-  try {
-    const { error } = await SB.from('student_profiles')
-      .update({ support_phone: phone.trim() ? cleanPhone(phone) : null })
-      .eq('id', studentId);
-    if (error) throw new Error(error.message);
-    // Update local list
-    const st = S.students.list.find(s => s.id === studentId);
-    if (st) st.support_phone = phone.trim() || null;
-    S.editSupport = { studentId:'', studentName:'', phone:'', saving:false, err:'' };
-    closeModal();
-    document.getElementById('pc').innerHTML = renderPage('students');
-    lucide.createIcons();
-  } catch(e) {
-    S.editSupport.saving = false;
-    S.editSupport.err = e.message;
-    renderModal();
-  }
-}
 
 async function deleteTask(id) {
   if (!confirm('Excluir esta tarefa?')) return;
@@ -3213,10 +3150,6 @@ document.addEventListener('click', function(e) {
     case 'delete-task':
       deleteTask(id);
       break;
-    case 'edit-support':
-      S.editSupport = { studentId: id, studentName: t.dataset.name||'', phone: t.dataset.phone||'', saving:false, err:'' };
-      openModal('edit-support');
-      break;
     case 'save-support':
       saveSupport();
       break;
@@ -3333,7 +3266,6 @@ document.addEventListener('input', function(e) {
     case 'tk-call':    S.newTask.callNum  = v; break;
     case 'tk-title':   S.newTask.title    = v; updateModalBtn(); break;
     case 'tk-note':    S.newTask.note     = v; break;
-    case 'sp-phone':   S.editSupport.phone = v; break;
     case 'cb-name':    S.collabForm.name  = v; updateModalBtn(); break;
     case 'cb-role':    /* handled inline onchange */ break;
     case 'cb-email':   S.collabForm.email = v; updateModalBtn(); break;
